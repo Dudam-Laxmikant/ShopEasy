@@ -5,7 +5,7 @@ const Products = () => {
     // Mock Data for Products
     const products = [
         {
-            id: 1,
+            id: 0,
             title: "Wireless Noise Cancelling Headphones",
             price: 299.99,
             originalPrice: 349.99,
