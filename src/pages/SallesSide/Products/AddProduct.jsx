@@ -13,52 +13,134 @@ import {
     DollarSign,
     Package,
     Palette,
-    Pipette
+    Pipette,
+    ClipboardList,
+    Search
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const AddProduct = () => {
     const navigate = useNavigate();
-    const [images, setImages] = useState([]);
+    const [mainImage, setMainImage] = useState(null);
+    const [galleryImages, setGalleryImages] = useState([]);
     const [selectedColors, setSelectedColors] = useState([]);
     const [selectedSizes, setSelectedSizes] = useState([]);
     const [activeImageIdx, setActiveImageIdx] = useState(0);
 
-    const handleImageUpload = (e) => {
+    // Generic Searchable Dropdown States & Data
+    const [patternSearch, setPatternSearch] = useState('');
+    const [selectedPattern, setSelectedPattern] = useState('');
+    const [isPatternDropdownOpen, setIsPatternDropdownOpen] = useState(false);
+    const patterns = ['Solid', 'Striped', 'Floral', 'Animal print', 'Argyle', 'Camouflage', 'Chequered', 'Chevron', 'Fruits', 'Geometric', 'Hearts', 'Letter print', 'Paisley', 'Plaid', 'Polka dots', 'Stars', 'Tie-Dye', 'Abstract', 'Ombre', 'Jacquard'];
+    const filteredPatterns = patterns.filter(p => p.toLowerCase().includes(patternSearch.toLowerCase()));
+
+    const [countrySearch, setCountrySearch] = useState('');
+    const [selectedCountry, setSelectedCountry] = useState('');
+    const [isCountryDropdownOpen, setIsCountryDropdownOpen] = useState(false);
+    const countries = ['India', 'United States', 'United Kingdom', 'China', 'Japan', 'Germany', 'France', 'Italy', 'Canada', 'Australia', 'Brazil', 'Russia', 'South Korea', 'Mexico', 'Spain', 'Indonesia', 'Turkey', 'Netherlands', 'Saudi Arabia', 'Switzerland', 'Bangladesh', 'Vietnam', 'Thailand', 'Sri Lanka', 'Nepal', 'Pakistan', 'Singapore', 'UAE'];
+    const filteredCountries = countries.filter(c => c.toLowerCase().includes(countrySearch.toLowerCase()));
+
+    const [materialSearch, setMaterialSearch] = useState('');
+    const [selectedMaterial, setSelectedMaterial] = useState('');
+    const [isMaterialDropdownOpen, setIsMaterialDropdownOpen] = useState(false);
+    const materials = ['Cotton', 'Rayon', 'Linen', 'Art Silk', 'Chiffon', 'Corduroy', 'Crepe', 'Denim', 'Down', 'Fleece', 'Fur', 'Georgette', 'Lyocell', 'Modal', 'Rubber', 'Satin', 'Silk', 'Synthetic', 'Velvet', 'Wool', 'Polyester', 'Nylon', 'Spandex', 'Viscose', 'Leather', 'Canvas'];
+    const filteredMaterials = materials.filter(m => m.toLowerCase().includes(materialSearch.toLowerCase()));
+
+    const [fitSearch, setFitSearch] = useState('');
+    const [selectedFit, setSelectedFit] = useState('');
+    const [isFitDropdownOpen, setIsFitDropdownOpen] = useState(false);
+    const fitTypes = ['Regular Fit', 'Slim Fit', 'Relaxed Fit', 'Oversized Fit', 'Skinny Fit', 'Classic Fit', 'Loose Fit', 'Tailored Fit', 'Comfort Fit', 'Athletic Fit', 'Curve Fit', 'Maternity Fit', 'Petite Fit', 'Tall Fit'];
+    const filteredFits = fitTypes.filter(f => f.toLowerCase().includes(fitSearch.toLowerCase()));
+
+    const [sleeveSearch, setSleeveSearch] = useState('');
+    const [selectedSleeve, setSelectedSleeve] = useState('');
+    const [isSleeveDropdownOpen, setIsSleeveDropdownOpen] = useState(false);
+    const sleeveTypes = ['Long Sleeve', 'Short Sleeve', 'Half Sleeve', 'Sleeveless', '3/4 Sleeve', 'Cap Sleeve', 'Raglan Sleeve', 'Roll-up Sleeve', 'Kimono Sleeve', 'Puff Sleeve', 'Bell Sleeve', 'Butterfly Sleeve', 'Batwing Sleeve'];
+    const filteredSleeves = sleeveTypes.filter(s => s.toLowerCase().includes(sleeveSearch.toLowerCase()));
+
+    const [lengthSearch, setLengthSearch] = useState('');
+    const [selectedLength, setSelectedLength] = useState('');
+    const [isLengthDropdownOpen, setIsLengthDropdownOpen] = useState(false);
+    const lengths = ['Standard Length', 'Short Length', 'Longline', 'Knee Length', 'Midi Length', 'Maxi Length', 'Cropped', 'Thigh Length', 'Ankle Length', 'Floor Length', 'Mini Length', 'Hi-Low Length'];
+    const filteredLengths = lengths.filter(l => l.toLowerCase().includes(lengthSearch.toLowerCase()));
+
+    const [neckSearch, setNeckSearch] = useState('');
+    const [selectedNeck, setSelectedNeck] = useState('');
+    const [isNeckDropdownOpen, setIsNeckDropdownOpen] = useState(false);
+    const neckStyles = ['Button Down Collar', 'Crew Neck', 'V-Neck', 'Polo Collar', 'High Neck', 'Scoop Neck', 'Turtle Neck', 'Henley', 'Mandarin Collar', 'Boat Neck', 'Square Neck', 'Off-Shoulder', 'Halter Neck', 'Cowl Neck', 'Sweetheart Neck', 'Mock Neck'];
+    const filteredNecks = neckStyles.filter(n => n.toLowerCase().includes(neckSearch.toLowerCase()));
+
+    const [careSearch, setCareSearch] = useState('');
+    const [selectedCare, setSelectedCare] = useState('');
+    const [isCareDropdownOpen, setIsCareDropdownOpen] = useState(false);
+    const careInstructions = ['Machine Wash', 'Hand Wash Only', 'Dry Clean Only', 'Do Not Bleach', 'Iron Low Heat', 'Tumble Dry Low', 'Cold Wash', 'Line Dry', 'Flat Dry', 'Wash with Similar Colors', 'Do Not Tumble Dry', 'Gentle Cycle'];
+    const filteredCares = careInstructions.filter(c => c.toLowerCase().includes(careSearch.toLowerCase()));
+
+    const [brandSearch, setBrandSearch] = useState('');
+    const [selectedBrand, setSelectedBrand] = useState('');
+    const [isBrandDropdownOpen, setIsBrandDropdownOpen] = useState(false);
+    const brands = ['Nike', 'Adidas', 'Puma', 'Zara', 'H&M', 'Levi\'s', 'Gucci', 'Prada', 'Tommy Hilfiger', 'Calvin Klein', 'Louis Vuitton', 'Chanel', 'Dior', 'Under Armour', 'Reebok', 'Apple', 'Samsung', 'Sony', 'LG', 'Panasonic', 'Uniqlo', 'Gap', 'Forever 21', 'Lacoste'];
+    const filteredBrands = brands.filter(b => b.toLowerCase().includes(brandSearch.toLowerCase()));
+
+    const [categorySearch, setCategorySearch] = useState('');
+    const [selectedCategory, setSelectedCategory] = useState('');
+    const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+    const categoriesList = ['Men', 'Women', 'Kids', 'Fashion Accessories', 'Footwear', 'Electronics', 'Home & Kitchen', 'Beauty & Personal Care', 'Sports & Outdoors', 'Books', 'Toys', 'Groceries', 'Automotive', 'Handbags', 'Watches', 'Jewelry'];
+    const filteredCategories = categoriesList.filter(c => c.toLowerCase().includes(categorySearch.toLowerCase()));
+
+    const [statusSearch, setStatusSearch] = useState('');
+    const [selectedStatus, setSelectedStatus] = useState('');
+    const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false);
+    const statuses = ['Regular', 'Sale', 'New Arrival', 'Best Seller', 'Out of Stock', 'Pre-Order'];
+    const filteredStatuses = statuses.filter(s => s.toLowerCase().includes(statusSearch.toLowerCase()));
+
+    const allImages = [mainImage, ...galleryImages].filter(Boolean);
+
+    const handleMainImageUpload = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const newImage = {
+            file,
+            preview: URL.createObjectURL(file),
+            id: 'main-' + Math.random().toString(36).substr(2, 9)
+        };
+
+        if (mainImage) URL.revokeObjectURL(mainImage.preview);
+        setMainImage(newImage);
+        setActiveImageIdx(0);
+    };
+
+    const handleGalleryUpload = (e) => {
         const files = Array.from(e.target.files);
         const newImages = files.map(file => ({
             file,
             preview: URL.createObjectURL(file),
-            id: Math.random().toString(36).substr(2, 9)
+            id: 'gallery-' + Math.random().toString(36).substr(2, 9)
         }));
-        setImages(prev => {
-            const updated = [...prev, ...newImages];
-            // If it was empty, the first of new images becomes active
-            if (prev.length === 0 && updated.length > 0) setActiveImageIdx(0);
-            return updated;
-        });
+        setGalleryImages(prev => [...prev, ...newImages]);
     };
 
     const removeImage = (id) => {
-        setImages(prev => {
+        if (mainImage?.id === id) {
+            URL.revokeObjectURL(mainImage.preview);
+            setMainImage(null);
+            setActiveImageIdx(0);
+            return;
+        }
+
+        setGalleryImages(prev => {
             const indexToRemove = prev.findIndex(img => img.id === id);
             const updated = prev.filter(img => img.id !== id);
 
-            // Cleanup blob URL
             const imageToRemove = prev[indexToRemove];
             if (imageToRemove) URL.revokeObjectURL(imageToRemove.preview);
 
-            // Adjust active index
-            if (indexToRemove === activeImageIdx) {
-                setActiveImageIdx(Math.max(0, indexToRemove - 1));
-            } else if (indexToRemove < activeImageIdx) {
-                setActiveImageIdx(activeImageIdx - 1);
-            }
             return updated;
         });
     };
 
-    const categories = ['Fashion', 'Electronics', 'Home', 'Beauty', 'Sports'];
+
 
     const availableSizes = [
         'XS / 36', 'S / 38', 'M / 40', 'L / 42', 'XL / 44', 'XXL / 46',
@@ -155,488 +237,863 @@ const AddProduct = () => {
     };
 
     return (
-        <div className="space-y-8 pb-20">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 space-y-8 pb-32">
             {/* Header */}
-            <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pt-8">
+                <div className="flex items-center gap-6">
                     <button
                         onClick={() => navigate('/seller/products')}
-                        className="p-2.5 bg-white border border-gray-100 rounded-xl hover:bg-gray-50 text-gray-600 transition-all border-none cursor-pointer"
+                        className="p-3 bg-white border border-gray-100 rounded-2xl hover:bg-gray-50 text-gray-600 transition-all shadow-sm cursor-pointer"
                     >
                         <ArrowLeft className="w-5 h-5" />
                     </button>
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Add New Product</h1>
-                        <p className="text-gray-500 text-sm">Create a new listing for your store.</p>
+                        <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Add New Product</h1>
+                        <p className="text-gray-500 text-sm font-medium">Create a premium listing for your store.</p>
                     </div>
                 </div>
-                <div className="hidden sm:flex items-center gap-3">
-                    <button className="text-gray-600 font-bold text-sm px-6 py-3 border-none bg-transparent cursor-pointer hover:text-gray-900 transition-colors">
+                <div className="flex items-center gap-4 w-full sm:w-auto">
+                    <button
+                        onClick={() => navigate('/seller/products')}
+                        className="flex-1 sm:flex-none text-gray-600 font-bold text-sm px-8 py-4 border-none bg-transparent cursor-pointer hover:text-gray-900 transition-colors"
+                    >
                         Discard
                     </button>
-                    <button className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-blue-200 transition-all border-none cursor-pointer">
+                    <button className="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-10 rounded-2xl shadow-xl shadow-blue-200 transition-all border-none cursor-pointer transform hover:-translate-y-0.5 active:translate-y-0">
                         Publish Product
                     </button>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Left Column: Form Details */}
-                <div className="lg:col-span-2 space-y-8">
+            <div className="space-y-8">
+                {/* Row 1: Basic Information & Organization */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                     {/* Basic Info */}
-                    <div className="bg-white p-6 md:p-8 rounded-3xl border border-gray-100 shadow-sm space-y-6">
-                        <div className="flex items-center gap-2 mb-2">
-                            <Tag className="w-5 h-5 text-blue-600" />
-                            <h2 className="text-lg font-bold text-gray-900">Basic Information</h2>
+                    <div className="lg:col-span-8 bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm space-y-8">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
+                                <Tag className="w-5 h-5 text-blue-600" />
+                            </div>
+                            <h2 className="text-xl font-bold text-gray-900">Basic Information</h2>
                         </div>
-                        <div className="space-y-4">
+                        <div className="grid gap-6">
                             <div className="space-y-2">
-                                <label className="text-sm font-bold text-gray-700">Product Title</label>
+                                <label className="text-sm font-bold text-gray-700 ml-1">Product Title</label>
                                 <input
                                     type="text"
-                                    placeholder="Enter more than 20 characters for better visibility"
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
+                                    placeholder="e.g. Premium Cotton Oversized T-Shirt"
+                                    className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
                                 />
                             </div>
+                            {/* Brand - Searchable Dropdown */}
+                            <div className="space-y-2 relative">
+                                <label className="text-sm font-bold text-gray-700 ml-1">Brand Name</label>
+                                <div className="relative">
+                                    <input
+                                        type="text"
+                                        placeholder="Search or select brand..."
+                                        value={brandSearch}
+                                        onChange={(e) => {
+                                            setBrandSearch(e.target.value);
+                                            setIsBrandDropdownOpen(true);
+                                        }}
+                                        onFocus={() => setIsBrandDropdownOpen(true)}
+                                        className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                                    />
+                                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                </div>
+                                {isBrandDropdownOpen && (
+                                    <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
+                                        {filteredBrands.length > 0 ? (
+                                            <div className="p-2 space-y-1">
+                                                {filteredBrands.map((b) => (
+                                                    <button
+                                                        key={b}
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setSelectedBrand(b);
+                                                            setBrandSearch(b);
+                                                            setIsBrandDropdownOpen(false);
+                                                        }}
+                                                        className="w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors text-sm font-medium flex items-center justify-between group cursor-pointer"
+                                                    >
+                                                        <span>{b}</span>
+                                                        {selectedBrand === b && <Check className="w-4 h-4" />}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <div className="p-4 text-center text-gray-400 text-sm">No brands found</div>
+                                        )}
+                                    </div>
+                                )}
+                                {isBrandDropdownOpen && <div className="fixed inset-0 z-40" onClick={() => setIsBrandDropdownOpen(false)}></div>}
+                            </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-bold text-gray-700">Description</label>
+                                <label className="text-sm font-bold text-gray-700 ml-1">Product Description</label>
                                 <textarea
-                                    rows="6"
-                                    placeholder="Tell your customers about the product features, material, and quality..."
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none resize-none font-sans"
+                                    rows="5"
+                                    placeholder="Describe the material, fit, and special features..."
+                                    className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none resize-none"
                                 ></textarea>
                             </div>
                         </div>
                     </div>
 
-                    {/* Pricing & Stock */}
-                    <div className="bg-white p-6 md:p-8 rounded-3xl border border-gray-100 shadow-sm space-y-6">
-                        <div className="flex items-center gap-2 mb-2">
-                            <DollarSign className="w-5 h-5 text-green-600" />
-                            <h2 className="text-lg font-bold text-gray-900">Pricing & Inventory</h2>
+                    {/* Organization */}
+                    <div className="lg:col-span-4 bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm space-y-8">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center">
+                                <List className="w-5 h-5 text-orange-600" />
+                            </div>
+                            <h2 className="text-xl font-bold text-gray-900">Categorization</h2>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-2">
-                                <label className="text-sm font-bold text-gray-700">Regular Price (₹)</label>
-                                <input
-                                    type="number"
-                                    placeholder="0.00"
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
-                                />
+                        <div className="space-y-6">
+                            {/* Category - Searchable Dropdown */}
+                            <div className="space-y-2 relative">
+                                <label className="text-sm font-bold text-gray-700 ml-1">Primary Category</label>
+                                <div className="relative">
+                                    <input
+                                        type="text"
+                                        placeholder="Search category..."
+                                        value={categorySearch}
+                                        onChange={(e) => {
+                                            setCategorySearch(e.target.value);
+                                            setIsCategoryDropdownOpen(true);
+                                        }}
+                                        onFocus={() => setIsCategoryDropdownOpen(true)}
+                                        className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                                    />
+                                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                </div>
+                                {isCategoryDropdownOpen && (
+                                    <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
+                                        {filteredCategories.length > 0 ? (
+                                            <div className="p-2 space-y-1">
+                                                {filteredCategories.map((c) => (
+                                                    <button
+                                                        key={c}
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setSelectedCategory(c);
+                                                            setCategorySearch(c);
+                                                            setIsCategoryDropdownOpen(false);
+                                                        }}
+                                                        className="w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors text-sm font-medium flex items-center justify-between group cursor-pointer"
+                                                    >
+                                                        <span>{c}</span>
+                                                        {selectedCategory === c && <Check className="w-4 h-4" />}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <div className="p-4 text-center text-gray-400 text-sm">No categories found</div>
+                                        )}
+                                    </div>
+                                )}
+                                {isCategoryDropdownOpen && <div className="fixed inset-0 z-40" onClick={() => setIsCategoryDropdownOpen(false)}></div>}
+                            </div>
+                            {/* Status - Searchable Dropdown */}
+                            <div className="space-y-2 relative">
+                                <label className="text-sm font-bold text-gray-700 ml-1">Product Status</label>
+                                <div className="relative">
+                                    <input
+                                        type="text"
+                                        placeholder="Search status..."
+                                        value={statusSearch}
+                                        onChange={(e) => {
+                                            setStatusSearch(e.target.value);
+                                            setIsStatusDropdownOpen(true);
+                                        }}
+                                        onFocus={() => setIsStatusDropdownOpen(true)}
+                                        className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                                    />
+                                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                </div>
+                                {isStatusDropdownOpen && (
+                                    <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
+                                        {filteredStatuses.length > 0 ? (
+                                            <div className="p-2 space-y-1">
+                                                {filteredStatuses.map((s) => (
+                                                    <button
+                                                        key={s}
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setSelectedStatus(s);
+                                                            setStatusSearch(s);
+                                                            setIsStatusDropdownOpen(false);
+                                                        }}
+                                                        className="w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors text-sm font-medium flex items-center justify-between group cursor-pointer"
+                                                    >
+                                                        <span>{s}</span>
+                                                        {selectedStatus === s && <Check className="w-4 h-4" />}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <div className="p-4 text-center text-gray-400 text-sm">No status found</div>
+                                        )}
+                                    </div>
+                                )}
+                                {isStatusDropdownOpen && <div className="fixed inset-0 z-40" onClick={() => setIsStatusDropdownOpen(false)}></div>}
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-bold text-gray-700">Sale Price (₹)</label>
-                                <input
-                                    type="number"
-                                    placeholder="0.00"
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-bold text-gray-700">SKU (Stock Keeping Unit)</label>
+                                <label className="text-sm font-bold text-gray-700 ml-1">Search Tags</label>
                                 <input
                                     type="text"
-                                    placeholder="e.g. FASH-001"
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
+                                    placeholder="Summer, Trendy, New..."
+                                    className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
                                 />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-bold text-gray-700">Initial Stock Quantity</label>
-                                <input
-                                    type="number"
-                                    placeholder="0"
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-bold text-gray-700">Cost Price (₹)</label>
-                                <input
-                                    type="number"
-                                    placeholder="0.00"
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
-                                />
-                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest px-1">Internal Use: For Profit Mapping</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Product Variants (Colors) */}
-                    <div className="bg-white p-6 md:p-8 rounded-3xl border border-gray-100 shadow-sm space-y-6">
-                        <div className="flex items-center gap-2 mb-2">
-                            <Palette className="w-5 h-5 text-indigo-600" />
-                            <h2 className="text-lg font-bold text-gray-900">Product Variants (Colors)</h2>
-                        </div>
-                        <div className="space-y-4">
-                            <p className="text-sm font-bold text-gray-700">Select available colors for this product</p>
-                            <div className="flex flex-wrap gap-4">
-                                {availableColors.map((color) => (
-                                    <button
-                                        key={color.name}
-                                        type="button"
-                                        onClick={() => toggleColor(color.name)}
-                                        className={`
-                                            group relative w-12 h-12 rounded-full border-2 transition-all p-0.5 cursor-pointer
-                                            ${selectedColors.includes(color.name)
-                                                ? 'border-blue-600 scale-110 shadow-lg'
-                                                : 'border-transparent hover:border-gray-200'}
-                                        `}
-                                        title={color.name}
-                                    >
-                                        <div
-                                            className="w-full h-full rounded-full border border-gray-100 flex items-center justify-center"
-                                            style={{ backgroundColor: color.hex }}
-                                        >
-                                            {selectedColors.includes(color.name) && (
-                                                <Check className={`w-6 h-6 ${color.name === 'White' ? 'text-black' : 'text-white'}`} />
-                                            )}
-                                        </div>
-                                        <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] font-black uppercase text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                                            {color.name}
-                                        </span>
-                                    </button>
-                                ))}
-
-                                {/* Custom Color Trigger */}
-                                <button
-                                    type="button"
-                                    onClick={() => setShowPicker(!showPicker)}
-                                    className={`
-                                        group relative w-12 h-12 rounded-full border-2 border-dashed border-gray-200 transition-all flex items-center justify-center hover:border-blue-500 hover:bg-blue-50 cursor-pointer
-                                        ${showPicker ? 'border-blue-500 bg-blue-50' : ''}
-                                    `}
-                                >
-                                    <Plus className={`w-5 h-5 transition-transform ${showPicker ? 'rotate-45 text-blue-600' : 'text-gray-400'}`} />
-                                    <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] font-black uppercase text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                                        Custom
-                                    </span>
-                                </button>
-                            </div>
-
-                            {/* Customizer Box (First Image Style) */}
-                            {showPicker && (
-                                <div className="animate-in fade-in slide-in-from-top-4 duration-300 relative mt-4 p-5 bg-neutral-900 rounded-[32px] shadow-2xl z-10 max-w-[320px]">
-                                    <div className="flex items-center justify-between mb-4">
-                                        <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-500">Customizer</h3>
-                                        <button onClick={() => setShowPicker(false)} className="text-neutral-600 hover:text-white border-none bg-transparent cursor-pointer transition-colors">
-                                            <X className="w-4 h-4" />
-                                        </button>
-                                    </div>
-
-                                    <div className="space-y-6">
-                                        {/* Tool Bar: Pipette, Swatch, Slider */}
-                                        <div className="flex items-center gap-4 px-2">
-                                            <button
-                                                onClick={openEyeDropper}
-                                                className="w-10 h-10 flex items-center justify-center bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors border-none cursor-pointer group"
-                                                title="Pick color from screen"
-                                            >
-                                                <Pipette className="w-5 h-5 text-neutral-400 group-hover:text-white" />
-                                            </button>
-
-                                            <div
-                                                className="w-10 h-10 rounded-full border-2 border-neutral-700 shadow-inner"
-                                                style={{ backgroundColor: customHex }}
-                                            ></div>
-
-                                            <div className="flex-1 relative group">
-                                                <div className="absolute inset-0 h-2 bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-teal-500 via-blue-500 via-purple-500 to-red-500 rounded-full my-auto pointer-events-none"></div>
-                                                <input
-                                                    type="range"
-                                                    min="0"
-                                                    max="360"
-                                                    value={hue}
-                                                    onChange={(e) => {
-                                                        const h = parseInt(e.target.value);
-                                                        setHue(h);
-                                                        updateFromHsl(h, saturation, lightness);
-                                                    }}
-                                                    className="w-full h-full opacity-0 cursor-pointer relative z-10"
-                                                />
-                                                <div
-                                                    className="absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border-2 border-white shadow-lg pointer-events-none transition-all"
-                                                    style={{
-                                                        left: `${(hue / 360) * 100}%`,
-                                                        backgroundColor: `hsl(${hue}, 100%, 50%)`,
-                                                        transform: `translate(-50%, -50%) scale(${hue ? 1.1 : 1})`
-                                                    }}
-                                                ></div>
-                                            </div>
-                                        </div>
-
-                                        {/* Main Color Field (Sat/Bri) */}
-                                        <div
-                                            className="relative aspect-video rounded-3xl overflow-hidden shadow-2xl border border-neutral-800 cursor-default group select-none active:scale-[0.99] transition-transform"
-                                            onMouseDown={(e) => {
-                                                setIsDragging(true);
-                                                handleColorMove(e, e.currentTarget.getBoundingClientRect());
-                                            }}
-                                            onMouseMove={(e) => {
-                                                if (isDragging) {
-                                                    handleColorMove(e, e.currentTarget.getBoundingClientRect());
-                                                }
-                                            }}
-                                            onMouseUp={() => setIsDragging(false)}
-                                            onMouseLeave={() => setIsDragging(false)}
-                                        >
-                                            {/* Base Hue Layer */}
-                                            <div
-                                                className="absolute inset-0 z-0"
-                                                style={{ backgroundColor: `hsl(${hue}, 100%, 50%)` }}
-                                            ></div>
-                                            {/* Saturation/Brightness Overlays */}
-                                            <div className="absolute inset-0 bg-gradient-to-r from-white to-transparent opacity-100 z-[1]"></div>
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-100 z-[2]"></div>
-
-                                            {/* Selector Ring */}
-                                            <div
-                                                className="absolute z-[3] w-6 h-6 border-2 border-white rounded-full shadow-lg ring-4 ring-white/10 transition-all duration-75 pointer-events-none"
-                                                style={{
-                                                    left: `${saturation}%`,
-                                                    top: `${(100 - (lightness * 2 - 100)) / 2}%`,
-                                                    transform: 'translate(-50%, -50%) scale(1.1)'
-                                                }}
-                                            ></div>
-                                        </div>
-
-                                        {/* RGB Inputs */}
-                                        <div className="grid grid-cols-3 gap-3">
-                                            {['R', 'G', 'B'].map((label, idx) => (
-                                                <div key={label} className="space-y-2">
-                                                    <div className="h-14 bg-neutral-800 border border-neutral-700 rounded-xl flex items-center justify-center">
-                                                        <span className="text-lg font-bold text-white tracking-widest">
-                                                            {idx === 0 ? rgb.r : idx === 1 ? rgb.g : rgb.b}
-                                                        </span>
-                                                    </div>
-                                                    <p className="text-[10px] text-center font-black text-neutral-500 tracking-widest">{label}</p>
-                                                </div>
-                                            ))}
-                                        </div>
-
-                                        {/* Hex Input */}
-                                        <div className="flex items-center gap-3 p-4 bg-neutral-800 rounded-2xl border border-neutral-700">
-                                            <Tag className="w-4 h-4 text-neutral-500" />
-                                            <input
-                                                type="text"
-                                                value={customHex}
-                                                onChange={(e) => setCustomHex(e.target.value)}
-                                                className="w-full bg-transparent border-none outline-none font-bold text-white uppercase tracking-widest"
-                                                placeholder="#HEXCODE"
-                                            />
-                                        </div>
-
-                                        <button
-                                            onClick={handleAddCustomColor}
-                                            className="w-full py-4 bg-white hover:bg-neutral-100 text-black rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl transition-all border-none cursor-pointer"
-                                        >
-                                            Apply Color
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Circular Selected Swatches Display (Second Image Style) */}
-                            {selectedColors.length > 0 && (
-                                <div className="pt-8 border-t border-gray-50">
-                                    <div className="flex items-center gap-2 mb-4">
-                                        <div className="w-1 h-3 bg-blue-600 rounded-full"></div>
-                                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Selected Variants</span>
-                                    </div>
-                                    <div className="flex flex-wrap gap-4">
-                                        {selectedColors.map(c => (
-                                            <button
-                                                key={c}
-                                                type="button"
-                                                onClick={() => toggleColor(c)}
-                                                className="group relative w-12 h-12 rounded-full border-2 border-white shadow-md hover:scale-110 transition-all cursor-pointer overflow-hidden p-0.5"
-                                            >
-                                                <div
-                                                    className="w-full h-full rounded-full border border-gray-100 flex items-center justify-center transition-transform"
-                                                    style={{ backgroundColor: availableColors.find(ac => ac.name === c)?.hex || c }}
-                                                >
-                                                    <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                                                        <X className={`w-5 h-5 ${c === 'White' || c === '#FFFFFF' ? 'text-black' : 'text-white'}`} />
-                                                    </div>
-                                                </div>
-                                                <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-[9px] font-black uppercase text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                                                    {availableColors.find(ac => ac.name === c)?.name || c}
-                                                </span>
-                                            </button>
-                                        ))}
-
-                                        {/* Quick Add Button showing that dashed X look from image */}
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowPicker(!showPicker)}
-                                            className="w-12 h-12 rounded-full border-2 border-dashed border-gray-200 flex items-center justify-center text-gray-300 hover:border-blue-400 hover:text-blue-500 transition-all cursor-pointer bg-transparent"
-                                        >
-                                            <Plus className={`w-5 h-5 transition-transform ${showPicker ? 'rotate-45' : ''}`} />
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Product Variants (Sizes) */}
-                    <div className="bg-white p-6 md:p-8 rounded-3xl border border-gray-100 shadow-sm space-y-6">
-                        <div className="flex items-center gap-2 mb-2">
-                            <Package className="w-5 h-5 text-blue-600" />
-                            <h2 className="text-lg font-bold text-gray-900">Product Variants (Sizes)</h2>
-                        </div>
-                        <div className="space-y-4">
-                            <p className="text-sm font-bold text-gray-700">Select available sizes for this product</p>
-                            <div className="flex flex-wrap gap-3">
-                                {availableSizes.map((size) => (
-                                    <button
-                                        key={size}
-                                        type="button"
-                                        onClick={() => toggleSize(size)}
-                                        className={`
-                                            px-6 py-3 rounded-xl border transition-all whitespace-nowrap text-sm font-bold cursor-pointer
-                                            ${selectedSizes.includes(size)
-                                                ? 'border-blue-600 text-blue-600 bg-blue-50/50 shadow-sm ring-1 ring-blue-600/10'
-                                                : 'border-gray-200 text-gray-500 hover:border-gray-400 bg-white'}
-                                        `}
-                                    >
-                                        {size}
-                                    </button>
-                                ))}
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Right Column: Organization & Images */}
-                <div className="space-y-8">
-                    {/* Image Upload */}
-                    <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm space-y-6">
-                        <div className="flex items-center gap-2 mb-2">
-                            <ImageIcon className="w-5 h-5 text-purple-600" />
-                            <h2 className="text-lg font-bold text-gray-900">Product Images</h2>
+                {/* Row 1.5: Product Specifications (New from user request) */}
+                <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm space-y-8">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
+                            <ClipboardList className="w-5 h-5 text-blue-600" />
                         </div>
-                        <div className="space-y-6">
-                            <input
-                                type="file"
-                                id="image-upload"
-                                multiple
-                                accept="image/*"
-                                className="hidden"
-                                onChange={handleImageUpload}
-                            />
+                        <h2 className="text-xl font-bold text-gray-900">Product Specifications</h2>
+                    </div>
 
-                            {/* Main Preview Block (Standard E-com style) */}
-                            {images.length > 0 ? (
-                                <div className="relative aspect-square rounded-[32px] overflow-hidden bg-gray-100 group shadow-lg border border-gray-100">
-                                    <img
-                                        src={images[activeImageIdx]?.preview}
-                                        alt="Main product"
-                                        className="w-full h-full object-cover animate-in fade-in zoom-in-95 duration-500"
-                                    />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+                        {/* Material Composition - Searchable Dropdown */}
+                        <div className="space-y-2 relative">
+                            <label className="text-sm font-bold text-gray-700 ml-1">Material Composition</label>
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    placeholder="Search material..."
+                                    value={materialSearch}
+                                    onChange={(e) => {
+                                        setMaterialSearch(e.target.value);
+                                        setIsMaterialDropdownOpen(true);
+                                    }}
+                                    onFocus={() => setIsMaterialDropdownOpen(true)}
+                                    className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                                />
+                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                            </div>
 
-                                    {/* Navigation Arrows */}
-                                    <div className="absolute inset-0 flex items-center justify-between px-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <button
-                                            onClick={() => setActiveImageIdx(prev => Math.max(0, prev - 1))}
-                                            disabled={activeImageIdx === 0}
-                                            className="w-10 h-10 rounded-full bg-white/90 hover:bg-white text-gray-900 border-none shadow-xl cursor-pointer flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-                                        >
-                                            <ChevronLeft className="w-6 h-6" />
+                            {isMaterialDropdownOpen && (
+                                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
+                                    {filteredMaterials.length > 0 ? (
+                                        <div className="p-2 space-y-1">
+                                            {filteredMaterials.map((m) => (
+                                                <button
+                                                    key={m}
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setSelectedMaterial(m);
+                                                        setMaterialSearch(m);
+                                                        setIsMaterialDropdownOpen(false);
+                                                    }}
+                                                    className="w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors text-sm font-medium flex items-center justify-between group cursor-pointer"
+                                                >
+                                                    <span>{m}</span>
+                                                    {selectedMaterial === m && <Check className="w-4 h-4" />}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="p-4 text-center text-gray-400 text-sm">
+                                            No materials found
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                            {isMaterialDropdownOpen && (
+                                <div className="fixed inset-0 z-40" onClick={() => setIsMaterialDropdownOpen(false)}></div>
+                            )}
+                        </div>
+                        {/* Pattern - Searchable Dropdown */}
+                        <div className="space-y-2 relative">
+                            <label className="text-sm font-bold text-gray-700 ml-1">Pattern</label>
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    placeholder="Search or select pattern..."
+                                    value={patternSearch}
+                                    onChange={(e) => {
+                                        setPatternSearch(e.target.value);
+                                        setIsPatternDropdownOpen(true);
+                                    }}
+                                    onFocus={() => setIsPatternDropdownOpen(true)}
+                                    className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                                />
+                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                            </div>
+
+                            {isPatternDropdownOpen && (
+                                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
+                                    {filteredPatterns.length > 0 ? (
+                                        <div className="p-2 space-y-1">
+                                            {filteredPatterns.map((pattern) => (
+                                                <button
+                                                    key={pattern}
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setSelectedPattern(pattern);
+                                                        setPatternSearch(pattern);
+                                                        setIsPatternDropdownOpen(false);
+                                                    }}
+                                                    className="w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors text-sm font-medium flex items-center justify-between group cursor-pointer"
+                                                >
+                                                    <span>{pattern}</span>
+                                                    {selectedPattern === pattern && <Check className="w-4 h-4" />}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="p-4 text-center text-gray-400 text-sm">
+                                            No patterns found
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                            {/* Backdrop to close dropdown */}
+                            {isPatternDropdownOpen && (
+                                <div
+                                    className="fixed inset-0 z-40"
+                                    onClick={() => setIsPatternDropdownOpen(false)}
+                                ></div>
+                            )}
+                        </div>
+                        {/* Fit Type - Searchable Dropdown */}
+                        <div className="space-y-2 relative">
+                            <label className="text-sm font-bold text-gray-700 ml-1">Fit Type</label>
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    placeholder="Search fit type..."
+                                    value={fitSearch}
+                                    onChange={(e) => {
+                                        setFitSearch(e.target.value);
+                                        setIsFitDropdownOpen(true);
+                                    }}
+                                    onFocus={() => setIsFitDropdownOpen(true)}
+                                    className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                                />
+                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                            </div>
+
+                            {isFitDropdownOpen && (
+                                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
+                                    {filteredFits.length > 0 ? (
+                                        <div className="p-2 space-y-1">
+                                            {filteredFits.map((f) => (
+                                                <button
+                                                    key={f}
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setSelectedFit(f);
+                                                        setFitSearch(f);
+                                                        setIsFitDropdownOpen(false);
+                                                    }}
+                                                    className="w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors text-sm font-medium flex items-center justify-between group cursor-pointer"
+                                                >
+                                                    <span>{f}</span>
+                                                    {selectedFit === f && <Check className="w-4 h-4" />}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="p-4 text-center text-gray-400 text-sm text-gray-400">
+                                            No fit types found
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                            {isFitDropdownOpen && (
+                                <div className="fixed inset-0 z-40" onClick={() => setIsFitDropdownOpen(false)}></div>
+                            )}
+                        </div>
+                        {/* Sleeve Type - Searchable Dropdown */}
+                        <div className="space-y-2 relative">
+                            <label className="text-sm font-bold text-gray-700 ml-1">Sleeve Type</label>
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    placeholder="Search sleeve type..."
+                                    value={sleeveSearch}
+                                    onChange={(e) => {
+                                        setSleeveSearch(e.target.value);
+                                        setIsSleeveDropdownOpen(true);
+                                    }}
+                                    onFocus={() => setIsSleeveDropdownOpen(true)}
+                                    className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                                />
+                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                            </div>
+
+                            {isSleeveDropdownOpen && (
+                                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
+                                    {filteredSleeves.length > 0 ? (
+                                        <div className="p-2 space-y-1">
+                                            {filteredSleeves.map((s) => (
+                                                <button
+                                                    key={s}
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setSelectedSleeve(s);
+                                                        setSleeveSearch(s);
+                                                        setIsSleeveDropdownOpen(false);
+                                                    }}
+                                                    className="w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors text-sm font-medium flex items-center justify-between group cursor-pointer"
+                                                >
+                                                    <span>{s}</span>
+                                                    {selectedSleeve === s && <Check className="w-4 h-4" />}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="p-4 text-center text-gray-400 text-sm">
+                                            No sleeve types found
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                            {isSleeveDropdownOpen && (
+                                <div className="fixed inset-0 z-40" onClick={() => setIsSleeveDropdownOpen(false)}></div>
+                            )}
+                        </div>
+                        {/* Length - Searchable Dropdown */}
+                        <div className="space-y-2 relative">
+                            <label className="text-sm font-bold text-gray-700 ml-1">Length</label>
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    placeholder="Search length..."
+                                    value={lengthSearch}
+                                    onChange={(e) => {
+                                        setLengthSearch(e.target.value);
+                                        setIsLengthDropdownOpen(true);
+                                    }}
+                                    onFocus={() => setIsLengthDropdownOpen(true)}
+                                    className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                                />
+                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                            </div>
+
+                            {isLengthDropdownOpen && (
+                                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
+                                    {filteredLengths.length > 0 ? (
+                                        <div className="p-2 space-y-1">
+                                            {filteredLengths.map((l) => (
+                                                <button
+                                                    key={l}
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setSelectedLength(l);
+                                                        setLengthSearch(l);
+                                                        setIsLengthDropdownOpen(false);
+                                                    }}
+                                                    className="w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors text-sm font-medium flex items-center justify-between group cursor-pointer"
+                                                >
+                                                    <span>{l}</span>
+                                                    {selectedLength === l && <Check className="w-4 h-4" />}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="p-4 text-center text-gray-400 text-sm">
+                                            No lengths found
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                            {isLengthDropdownOpen && (
+                                <div className="fixed inset-0 z-40" onClick={() => setIsLengthDropdownOpen(false)}></div>
+                            )}
+                        </div>
+                        {/* Neck Style - Searchable Dropdown */}
+                        <div className="space-y-2 relative">
+                            <label className="text-sm font-bold text-gray-700 ml-1">Neck Style</label>
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    placeholder="Search neck style..."
+                                    value={neckSearch}
+                                    onChange={(e) => {
+                                        setNeckSearch(e.target.value);
+                                        setIsNeckDropdownOpen(true);
+                                    }}
+                                    onFocus={() => setIsNeckDropdownOpen(true)}
+                                    className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                                />
+                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                            </div>
+
+                            {isNeckDropdownOpen && (
+                                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
+                                    {filteredNecks.length > 0 ? (
+                                        <div className="p-2 space-y-1">
+                                            {filteredNecks.map((n) => (
+                                                <button
+                                                    key={n}
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setSelectedNeck(n);
+                                                        setNeckSearch(n);
+                                                        setIsNeckDropdownOpen(false);
+                                                    }}
+                                                    className="w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors text-sm font-medium flex items-center justify-between group cursor-pointer"
+                                                >
+                                                    <span>{n}</span>
+                                                    {selectedNeck === n && <Check className="w-4 h-4" />}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="p-4 text-center text-gray-400 text-sm">
+                                            No neck styles found
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                            {isNeckDropdownOpen && (
+                                <div className="fixed inset-0 z-40" onClick={() => setIsNeckDropdownOpen(false)}></div>
+                            )}
+                        </div>
+                        {/* Country of Origin - Searchable Dropdown */}
+                        <div className="space-y-2 relative">
+                            <label className="text-sm font-bold text-gray-700 ml-1">Country of Origin</label>
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    placeholder="Search or select country..."
+                                    value={countrySearch}
+                                    onChange={(e) => {
+                                        setCountrySearch(e.target.value);
+                                        setIsCountryDropdownOpen(true);
+                                    }}
+                                    onFocus={() => setIsCountryDropdownOpen(true)}
+                                    className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                                />
+                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                            </div>
+
+                            {isCountryDropdownOpen && (
+                                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
+                                    {filteredCountries.length > 0 ? (
+                                        <div className="p-2 space-y-1">
+                                            {filteredCountries.map((country) => (
+                                                <button
+                                                    key={country}
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setSelectedCountry(country);
+                                                        setCountrySearch(country);
+                                                        setIsCountryDropdownOpen(false);
+                                                    }}
+                                                    className="w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors text-sm font-medium flex items-center justify-between group cursor-pointer"
+                                                >
+                                                    <span>{country}</span>
+                                                    {selectedCountry === country && <Check className="w-4 h-4" />}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="p-4 text-center text-gray-400 text-sm">
+                                            No countries found
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                            {/* Backdrop to close dropdown */}
+                            {isCountryDropdownOpen && (
+                                <div
+                                    className="fixed inset-0 z-40"
+                                    onClick={() => setIsCountryDropdownOpen(false)}
+                                ></div>
+                            )}
+                        </div>
+                        {/* Care instructions - Searchable Dropdown */}
+                        <div className="space-y-2 relative">
+                            <label className="text-sm font-bold text-gray-700 ml-1">Care instructions</label>
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    placeholder="Search care instructions..."
+                                    value={careSearch}
+                                    onChange={(e) => {
+                                        setCareSearch(e.target.value);
+                                        setIsCareDropdownOpen(true);
+                                    }}
+                                    onFocus={() => setIsCareDropdownOpen(true)}
+                                    className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                                />
+                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                            </div>
+
+                            {isCareDropdownOpen && (
+                                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
+                                    {filteredCares.length > 0 ? (
+                                        <div className="p-2 space-y-1">
+                                            {filteredCares.map((c) => (
+                                                <button
+                                                    key={c}
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setSelectedCare(c);
+                                                        setCareSearch(c);
+                                                        setIsCareDropdownOpen(false);
+                                                    }}
+                                                    className="w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors text-sm font-medium flex items-center justify-between group cursor-pointer"
+                                                >
+                                                    <span>{c}</span>
+                                                    {selectedCare === c && <Check className="w-4 h-4" />}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="p-4 text-center text-gray-400 text-sm">
+                                            No care instructions found
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                            {isCareDropdownOpen && (
+                                <div className="fixed inset-0 z-40" onClick={() => setIsCareDropdownOpen(false)}></div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Row 2: Visuals (Side-by-Side Images & Colors) */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {/* Images Section */}
+                    <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm space-y-8">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center">
+                                    <ImageIcon className="w-5 h-5 text-purple-600" />
+                                </div>
+                                <h2 className="text-xl font-bold text-gray-900">Product Images</h2>
+                            </div>
+                            <label htmlFor="main-image-upload" className="text-xs font-black uppercase tracking-widest text-blue-600 hover:text-blue-700 cursor-pointer bg-blue-50 px-3 py-1.5 rounded-full transition-colors">
+                                {mainImage ? 'Change Main' : 'Upload Main'}
+                            </label>
+                        </div>
+
+                        <div className="space-y-8">
+                            <input type="file" id="main-image-upload" accept="image/*" className="hidden" onChange={handleMainImageUpload} />
+
+                            {/* main image big preview */}
+                            <div className="relative aspect-video sm:aspect-square lg:aspect-video xl:aspect-square bg-gray-50 rounded-[32px] overflow-hidden border border-gray-100 group shadow-inner">
+                                {allImages.length > 0 ? (
+                                    <>
+                                        <img
+                                            src={allImages[activeImageIdx]?.preview}
+                                            alt="Preview"
+                                            className="w-full h-full object-cover animate-in fade-in zoom-in-95 duration-500"
+                                        />
+                                        <div className="absolute inset-x-4 top-1/2 -translate-y-1/2 flex justify-between opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <button onClick={() => setActiveImageIdx(p => Math.max(0, p - 1))} disabled={activeImageIdx === 0} className="w-11 h-11 bg-white/90 rounded-full flex items-center justify-center shadow-lg border-none cursor-pointer disabled:opacity-30">
+                                                <ChevronLeft className="w-5 h-5" />
+                                            </button>
+                                            <button onClick={() => setActiveImageIdx(p => Math.min(allImages.length - 1, p + 1))} disabled={activeImageIdx === allImages.length - 1} className="w-11 h-11 bg-white/90 rounded-full flex items-center justify-center shadow-lg border-none cursor-pointer disabled:opacity-30">
+                                                <ChevronRight className="w-5 h-5" />
+                                            </button>
+                                        </div>
+                                        <button onClick={() => removeImage(allImages[activeImageIdx].id)} className="absolute top-4 right-4 p-3 bg-red-500/90 text-white rounded-full shadow-lg border-none cursor-pointer hover:bg-red-600 transition-colors">
+                                            <X className="w-4 h-4" />
                                         </button>
-                                        <button
-                                            onClick={() => setActiveImageIdx(prev => Math.min(images.length - 1, prev + 1))}
-                                            disabled={activeImageIdx === images.length - 1}
-                                            className="w-10 h-10 rounded-full bg-white/90 hover:bg-white text-gray-900 border-none shadow-xl cursor-pointer flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-                                        >
-                                            <ChevronRight className="w-6 h-6" />
-                                        </button>
-                                    </div>
+                                    </>
+                                ) : (
+                                    <label htmlFor="main-image-upload" className="absolute inset-0 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-100/50 transition-colors">
+                                        <div className="w-16 h-16 bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center mb-4">
+                                            <Upload className="w-7 h-7 text-blue-500" />
+                                        </div>
+                                        <span className="text-sm font-bold text-gray-900">Upload Product Images</span>
+                                        <span className="text-[10px] text-gray-400 mt-2 font-black uppercase tracking-widest">Supports JPED, PNG, WEBP</span>
+                                    </label>
+                                )}
+                            </div>
 
-                                    {/* Remove Button for Main View */}
+                            {/* thumbnail gallery line */}
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between px-1">
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Media Gallery ({galleryImages.length})</span>
+                                </div>
+                                <div className="flex overflow-x-auto gap-3 pb-2 snap-x scroll-smooth scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
+                                    <input type="file" id="gallery-upload" multiple accept="image/*" className="hidden" onChange={handleGalleryUpload} />
+
+                                    {mainImage && (
+                                        <button onClick={() => setActiveImageIdx(0)} className={`relative flex-shrink-0 w-20 h-24 rounded-2xl overflow-hidden border-2 transition-all snap-start ${activeImageIdx === 0 ? 'border-blue-600 scale-105' : 'border-gray-100'}`}>
+                                            <img src={mainImage.preview} className="w-full h-full object-cover" />
+                                            <div className="absolute top-0 left-0 bg-blue-600 text-[8px] text-white px-1.5 py-0.5 rounded-br-lg font-black uppercase">Main</div>
+                                        </button>
+                                    )}
+
+                                    {galleryImages.map((img, idx) => {
+                                        const globalIdx = mainImage ? idx + 1 : idx;
+                                        return (
+                                            <button key={img.id} onClick={() => setActiveImageIdx(globalIdx)} className={`relative flex-shrink-0 w-20 h-24 rounded-2xl overflow-hidden border-2 transition-all snap-start ${activeImageIdx === globalIdx ? 'border-blue-600 scale-105' : 'border-transparent hover:border-gray-200'}`}>
+                                                <img src={img.preview} className="w-full h-full object-cover" />
+                                            </button>
+                                        );
+                                    })}
+
+                                    <label htmlFor="gallery-upload" className="flex-shrink-0 w-20 h-24 rounded-2xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center text-gray-400 hover:border-blue-300 hover:bg-blue-50 transition-all cursor-pointer snap-start bg-white">
+                                        <Plus className="w-6 h-6" />
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Colors Section */}
+                    <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm space-y-8">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center">
+                                <Palette className="w-5 h-5 text-indigo-600" />
+                            </div>
+                            <h2 className="text-xl font-bold text-gray-900">Color Variants</h2>
+                        </div>
+
+                        <div className="space-y-8">
+                            <div className="space-y-4">
+                                <p className="text-sm font-bold text-gray-700 ml-1">Quick Select Colors</p>
+                                <div className="flex flex-wrap gap-4">
+                                    {availableColors.map((color) => (
+                                        <button
+                                            key={color.name}
+                                            onClick={() => toggleColor(color.name)}
+                                            className={`group relative w-12 h-12 rounded-full border-2 transition-all p-1 cursor-pointer ${selectedColors.includes(color.name) ? 'border-blue-600 scale-110 shadow-lg' : 'border-transparent hover:border-gray-200'}`}
+                                        >
+                                            <div className="w-full h-full rounded-full flex items-center justify-center shadow-inner" style={{ backgroundColor: color.hex }}>
+                                                {selectedColors.includes(color.name) && (
+                                                    <Check className={`w-5 h-5 ${color.name === 'White' ? 'text-black' : 'text-white'}`} />
+                                                )}
+                                            </div>
+                                        </button>
+                                    ))}
                                     <button
-                                        onClick={() => removeImage(images[activeImageIdx].id)}
-                                        className="absolute top-4 right-4 p-2.5 bg-red-500 hover:bg-red-600 text-white rounded-full border-none shadow-xl cursor-pointer transition-all hover:scale-110 active:scale-90"
+                                        onClick={() => setShowPicker(!showPicker)}
+                                        className={`w-12 h-12 rounded-full border-2 border-dashed border-gray-200 flex items-center justify-center transition-all hover:border-blue-500 hover:bg-blue-50 cursor-pointer ${showPicker ? 'border-blue-500 bg-blue-50' : ''}`}
                                     >
-                                        <X className="w-5 h-5" />
+                                        <Plus className={`w-5 h-5 ${showPicker ? 'rotate-45' : ''} text-gray-400`} />
                                     </button>
                                 </div>
-                            ) : (
-                                <label
-                                    htmlFor="image-upload"
-                                    className="block border-2 border-dashed border-gray-200 rounded-[32px] p-12 text-center bg-gray-50/50 hover:border-blue-400 hover:bg-blue-50/30 transition-all cursor-pointer group"
-                                >
-                                    <div className="w-16 h-16 bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                                        <Upload className="w-8 h-8 text-blue-500" />
+                            </div>
+
+                            {showPicker && (
+                                <div className="animate-in fade-in slide-in-from-top-4 duration-300 p-6 bg-neutral-900 rounded-[32px] shadow-2xl space-y-6">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-[10px] font-black uppercase text-neutral-500 tracking-widest">Custom Color Engine</span>
+                                        <button onClick={() => setShowPicker(false)} className="text-neutral-500 hover:text-white border-none bg-transparent cursor-pointer">
+                                            <X className="w-4 h-4" />
+                                        </button>
                                     </div>
-                                    <p className="text-sm font-bold text-gray-900">Add Product Images</p>
-                                    <p className="text-[10px] text-gray-400 mt-2 font-black uppercase tracking-widest">Main angle, side, back views</p>
-                                </label>
+                                    <div className="space-y-6">
+                                        <div className="flex items-center gap-4">
+                                            <button onClick={openEyeDropper} className="w-12 h-12 bg-neutral-800 rounded-2xl flex items-center justify-center border-none cursor-pointer group hover:bg-neutral-700">
+                                                <Pipette className="w-5 h-5 text-neutral-400 group-hover:text-white" />
+                                            </button>
+                                            <div className="w-12 h-12 rounded-full border-2 border-neutral-700" style={{ backgroundColor: customHex }}></div>
+                                            <div className="flex-1 relative h-2 bg-gradient-to-r from-red-500 via-blue-500 to-red-500 rounded-full my-auto">
+                                                <input type="range" min="0" max="360" value={hue} onChange={(e) => {
+                                                    const h = parseInt(e.target.value);
+                                                    setHue(h);
+                                                    updateFromHsl(h, saturation, lightness);
+                                                }} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                                            </div>
+                                        </div>
+                                        <button onClick={handleAddCustomColor} className="w-full py-4 bg-white hover:bg-neutral-100 text-black rounded-2xl font-black text-xs uppercase tracking-widest border-none cursor-pointer shadow-xl transition-all">
+                                            Add To Variants
+                                        </button>
+                                    </div>
+                                </div>
                             )}
 
-                            {/* Thumbnail Strip (Interactive) */}
-                            {images.length > 0 && (
-                                <div className="space-y-4">
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Gallery ({images.length}/6)</span>
-                                        <label htmlFor="image-upload" className="text-[10px] font-black uppercase tracking-widest text-blue-600 hover:text-blue-700 cursor-pointer">Add More</label>
-                                    </div>
+                            {selectedColors.length > 0 && (
+                                <div className="pt-8 border-t border-gray-50">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4 ml-1">Selected Variants</p>
                                     <div className="flex flex-wrap gap-3">
-                                        {images.map((img, idx) => (
-                                            <button
-                                                key={img.id}
-                                                type="button"
-                                                onClick={() => setActiveImageIdx(idx)}
-                                                className={`
-                                                    relative w-16 h-16 rounded-xl overflow-hidden border-2 transition-all p-0.5 cursor-pointer
-                                                    ${activeImageIdx === idx
-                                                        ? 'border-orange-500 scale-105 shadow-md'
-                                                        : 'border-transparent hover:border-gray-200'}
-                                                `}
-                                            >
-                                                <img src={img.preview} alt="thumb" className="w-full h-full object-cover rounded-lg" />
-                                            </button>
+                                        {selectedColors.map(c => (
+                                            <div key={c} className="group relative">
+                                                <div
+                                                    className="w-10 h-10 rounded-full border-2 border-white shadow-md cursor-help"
+                                                    style={{ backgroundColor: availableColors.find(ac => ac.name === c)?.hex || c }}
+                                                ></div>
+                                                <button onClick={() => toggleColor(c)} className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity border-none cursor-pointer shadow-sm">
+                                                    <X className="w-3 h-3" />
+                                                </button>
+                                            </div>
                                         ))}
-                                        {images.length < 6 && (
-                                            <label
-                                                htmlFor="image-upload"
-                                                className="w-16 h-16 rounded-xl border-2 border-dashed border-gray-200 flex items-center justify-center text-gray-400 hover:border-blue-300 hover:bg-blue-50 transition-all cursor-pointer"
-                                            >
-                                                <Plus className="w-5 h-5" />
-                                            </label>
-                                        )}
                                     </div>
                                 </div>
                             )}
                         </div>
                     </div>
+                </div>
 
-                    {/* Category Selection */}
-                    <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm space-y-6">
-                        <div className="flex items-center gap-2 mb-2">
-                            <List className="w-5 h-5 text-orange-600" />
-                            <h2 className="text-lg font-bold text-gray-900">Categorization</h2>
+                {/* Row 3: Pricing & Sizes */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {/* Pricing & Inventory */}
+                    <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm space-y-8">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center">
+                                <DollarSign className="w-5 h-5 text-green-600" />
+                            </div>
+                            <h2 className="text-xl font-bold text-gray-900">Pricing & Inventory</h2>
                         </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-bold text-gray-700">Category</label>
-                            <select className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none appearance-none">
-                                {categories.map(c => <option key={c}>{c}</option>)}
-                            </select>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold text-gray-700 ml-1">Regular Price (₹)</label>
+                                <input type="number" placeholder="0.00" className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none" />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold text-gray-700 ml-1">Sale Price (₹)</label>
+                                <input type="number" placeholder="0.00" className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none" />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold text-gray-700 ml-1">SKU</label>
+                                <input type="text" placeholder="e.g. TSH-001" className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none" />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold text-gray-700 ml-1">Initial Stock</label>
+                                <input type="number" placeholder="0" className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none" />
+                            </div>
+                            <div className="sm:col-span-2 space-y-2">
+                                <label className="text-sm font-bold text-gray-700 ml-1">Cost Price (₹)</label>
+                                <input type="number" placeholder="0.00" className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none" />
+                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest px-2 mt-1">Internal Use: For profit margin calculation</p>
+                            </div>
                         </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-bold text-gray-700">Tags (press Enter)</label>
-                            <input
-                                type="text"
-                                placeholder="New, Sale, Cotton..."
-                                className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
-                            />
+                    </div>
+
+                    {/* Sizes */}
+                    <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm space-y-8">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
+                                <Package className="w-5 h-5 text-blue-600" />
+                            </div>
+                            <h2 className="text-xl font-bold text-gray-900">Size Variants</h2>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                            {availableSizes.map((size) => (
+                                <button
+                                    key={size}
+                                    onClick={() => toggleSize(size)}
+                                    className={`px-5 py-3 rounded-2xl border text-sm font-bold transition-all cursor-pointer ${selectedSizes.includes(size) ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-100' : 'bg-gray-50 text-gray-500 border-gray-50 hover:border-gray-200'}`}
+                                >
+                                    {size}
+                                </button>
+                            ))}
                         </div>
                     </div>
                 </div>
             </div>
 
             {/* Mobile Actions */}
-            <div className="fixed bottom-0 left-0 right-0 bg-white p-4 border-t border-gray-100 sm:hidden z-50">
-                <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-200 transition-all border-none cursor-pointer">
-                    Publish Product
+            <div className="fixed bottom-0 left-0 right-0 bg-white p-6 border-t border-gray-100 sm:hidden z-50 shadow-2xl rounded-t-[40px]">
+                <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-4 rounded-2xl shadow-xl shadow-blue-200 transition-all border-none cursor-pointer uppercase tracking-widest flex items-center justify-center gap-2">
+                    <span>Publish Product</span>
+                    <ArrowLeft className="w-4 h-4 rotate-180" />
                 </button>
             </div>
         </div>
