@@ -48,17 +48,19 @@ const ProductManagement = () => {
             </div>
 
             {/* Filter Tabs */}
-            <div className="flex items-center justify-between border-b border-gray-200 mt-4 overflow-x-auto">
+            <div className="flex items-center justify-between border-b border-gray-200 mt-4 overflow-x-auto scrollbar-hide">
                 <div className="flex gap-8">
-                    {['All', 'Active', 'Out of Stock', 'Out of Stock (Inactive)', 'Archived'].map((tab) => (
+                    {['All', 'Active', 'Out of Stock', 'Inactive', 'Archived'].map((tab) => (
                         <button
                             key={tab}
                             onClick={() => setSelectedTab(tab)}
-                            className={`pb-4 text-sm font-bold transition-all relative border-none bg-transparent cursor-pointer whitespace-nowrap
+                            className={`pb-4 text-sm font-bold transition-all relative border-none bg-transparent cursor-pointer whitespace-nowrap outline-none
                                 ${selectedTab === tab ? 'text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}
                         >
                             {tab}
-                            {selectedTab === tab && <div className="absolute bottom-0 left-0 w-full h-1 bg-blue-600 rounded-t-full"></div>}
+                            {selectedTab === tab && (
+                                <div className="absolute bottom-0 left-0 w-full h-1 bg-blue-600 rounded-t-full animate-in slide-in-from-bottom-1 duration-300"></div>
+                            )}
                         </button>
                     ))}
                 </div>
@@ -92,57 +94,74 @@ const ProductManagement = () => {
 
             {/* Product Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {products.map((p) => (
-                    <div key={p.id} className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden group hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                        <div className="relative aspect-square overflow-hidden bg-gray-50">
-                            <img src={p.image} alt={p.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                            <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button className="p-2 bg-white/90 backdrop-blur-sm rounded-xl text-gray-700 shadow-lg border-none cursor-pointer hover:bg-blue-600 hover:text-white transition-all">
-                                    <MoreHorizontal className="w-4 h-4" />
-                                </button>
+                {products.filter(p => selectedTab === 'All' || p.status === selectedTab).length > 0 ? (
+                    products
+                        .filter(p => selectedTab === 'All' || p.status === selectedTab)
+                        .map((p) => (
+                            <div key={p.id} className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden group hover:shadow-xl hover:-translate-y-1 transition-all duration-300 animate-in fade-in zoom-in-95">
+                                <div className="relative aspect-square overflow-hidden bg-gray-50">
+                                    <img src={p.image} alt={p.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                                    <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button className="p-2 bg-white/90 backdrop-blur-sm rounded-xl text-gray-700 shadow-lg border-none cursor-pointer hover:bg-blue-600 hover:text-white transition-all">
+                                            <MoreHorizontal className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                    <div className="absolute bottom-3 left-3">
+                                        <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider
+                                            ${p.status === 'Active' ? 'bg-green-500 text-white' :
+                                                p.status === 'Out of Stock' ? 'bg-red-500 text-white' : 'bg-gray-500 text-white'}`}>
+                                            {p.status}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="p-5 space-y-4">
+                                    <div>
+                                        <p className="text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-1">{p.category}</p>
+                                        <h3 className="font-bold text-gray-900 line-clamp-1 group-hover:text-blue-600 transition-colors">{p.name}</h3>
+                                    </div>
+                                    <div className="flex justify-between items-center bg-gray-50 p-3 rounded-2xl">
+                                        <div className="text-center">
+                                            <p className="text-[10px] text-gray-400 font-bold uppercase leading-none mb-1">Stock</p>
+                                            <p className="text-sm font-bold text-gray-900">{p.stock}</p>
+                                        </div>
+                                        <div className="w-px h-8 bg-gray-200"></div>
+                                        <div className="text-center">
+                                            <p className="text-[10px] text-gray-400 font-bold uppercase leading-none mb-1">Price</p>
+                                            <p className="text-sm font-bold text-gray-900">{p.price}</p>
+                                        </div>
+                                        <div className="w-px h-8 bg-gray-200"></div>
+                                        <div className="text-center">
+                                            <p className="text-[10px] text-gray-400 font-bold uppercase leading-none mb-1">Sales</p>
+                                            <p className="text-sm font-bold text-gray-900">{p.sales}</p>
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-2 pt-2">
+                                        <button
+                                            onClick={() => navigate(`/seller/edit-product/${p.id}`)}
+                                            className="flex items-center justify-center gap-2 py-2.5 rounded-xl border border-gray-100 bg-white text-gray-600 text-xs font-bold hover:bg-blue-50 hover:text-blue-600 hover:border-blue-100 transition-all border-none cursor-pointer"
+                                        >
+                                            <Edit className="w-3.5 h-3.5" />
+                                            Edit
+                                        </button>
+                                        <button className="flex items-center justify-center gap-2 py-2.5 rounded-xl border border-gray-100 bg-white text-gray-600 text-xs font-bold hover:bg-red-50 hover:text-red-600 hover:border-red-100 transition-all border-none cursor-pointer">
+                                            <Trash2 className="w-3.5 h-3.5" />
+                                            Delete
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
-                            <div className="absolute bottom-3 left-3">
-                                <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider
-                                    ${p.status === 'Active' ? 'bg-green-500 text-white' :
-                                        p.status === 'Out of Stock' ? 'bg-red-500 text-white' : 'bg-gray-500 text-white'}`}>
-                                    {p.status}
-                                </span>
-                            </div>
+                        ))
+                ) : (
+                    <div className="col-span-full py-20 bg-white rounded-[40px] border border-gray-100 shadow-sm flex flex-col items-center justify-center space-y-4">
+                        <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center">
+                            <Truck className="w-10 h-10 text-gray-200" />
                         </div>
-                        <div className="p-5 space-y-4">
-                            <div>
-                                <p className="text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-1">{p.category}</p>
-                                <h3 className="font-bold text-gray-900 line-clamp-1 group-hover:text-blue-600 transition-colors">{p.name}</h3>
-                            </div>
-                            <div className="flex justify-between items-center bg-gray-50 p-3 rounded-2xl">
-                                <div className="text-center">
-                                    <p className="text-[10px] text-gray-400 font-bold uppercase leading-none mb-1">Stock</p>
-                                    <p className="text-sm font-bold text-gray-900">{p.stock}</p>
-                                </div>
-                                <div className="w-px h-8 bg-gray-200"></div>
-                                <div className="text-center">
-                                    <p className="text-[10px] text-gray-400 font-bold uppercase leading-none mb-1">Price</p>
-                                    <p className="text-sm font-bold text-gray-900">{p.price}</p>
-                                </div>
-                                <div className="w-px h-8 bg-gray-200"></div>
-                                <div className="text-center">
-                                    <p className="text-[10px] text-gray-400 font-bold uppercase leading-none mb-1">Sales</p>
-                                    <p className="text-sm font-bold text-gray-900">{p.sales}</p>
-                                </div>
-                            </div>
-                            <div className="grid grid-cols-2 gap-2 pt-2">
-                                <button className="flex items-center justify-center gap-2 py-2.5 rounded-xl border border-gray-100 bg-white text-gray-600 text-xs font-bold hover:bg-blue-50 hover:text-blue-600 hover:border-blue-100 transition-all border-none cursor-pointer">
-                                    <Edit className="w-3.5 h-3.5" />
-                                    Edit
-                                </button>
-                                <button className="flex items-center justify-center gap-2 py-2.5 rounded-xl border border-gray-100 bg-white text-gray-600 text-xs font-bold hover:bg-red-50 hover:text-red-600 hover:border-red-100 transition-all border-none cursor-pointer">
-                                    <Trash2 className="w-3.5 h-3.5" />
-                                    Delete
-                                </button>
-                            </div>
+                        <div className="text-center">
+                            <p className="text-lg font-bold text-gray-900">No {selectedTab !== 'All' ? selectedTab : ''} products found</p>
+                            <p className="text-gray-500 text-sm">There are no products in this category at the moment.</p>
                         </div>
                     </div>
-                ))}
+                )}
             </div>
         </div>
     );
