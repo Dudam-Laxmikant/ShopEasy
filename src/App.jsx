@@ -16,6 +16,8 @@ import Settlement from './pages/SallesSide/Payments/Settlement';
 import ReturnsHandling from './pages/SallesSide/Returns/ReturnsHandling';
 
 import EditProduct from './pages/SallesSide/Products/EditProduct';
+import InvoiceManagement from './pages/SallesSide/Invoices/InvoiceManagement';
+import ShipmentTracking from './pages/SallesSide/Shipments/ShipmentTracking';
 
 // Admin Side Imports
 import AdminLayout from './pages/Admin/AdminLayout';
@@ -62,8 +64,10 @@ function App() {
                         <Route path="add-product" element={<AddProduct />} />
                         <Route path="edit-product/:id" element={<EditProduct />} />
                         <Route path="orders" element={<OrderProcessing />} />
+                        <Route path="shipments" element={<ShipmentTracking />} />
                         <Route path="payments" element={<Settlement />} />
                         <Route path="settlements" element={<Settlement />} />
+                        <Route path="invoices" element={<InvoiceManagement />} />
                         <Route path="returns" element={<ReturnsHandling />} />
                     </Route>
 
