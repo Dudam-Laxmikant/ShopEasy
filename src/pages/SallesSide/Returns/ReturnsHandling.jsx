@@ -30,6 +30,8 @@ const ReturnsHandling = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedReturn, setSelectedReturn] = useState(null);
     const [activeActionMenu, setActiveActionMenu] = useState(null);
+    const [showRejectModal, setShowRejectModal] = useState(false);
+    const [rejectReason, setRejectReason] = useState('');
     const modalRef = useRef(null);
 
     const [returns, setReturns] = useState([
@@ -137,11 +139,19 @@ const ReturnsHandling = () => {
         });
     }, [returns, selectedTab, searchQuery]);
 
-    const handleUpdateStatus = (returnId, newStatus) => {
-        setReturns(prev => prev.map(ret => ret.id === returnId ? { ...ret, status: newStatus } : ret));
+    const handleUpdateStatus = (returnId, newStatus, reason = null) => {
+        setReturns(prev => prev.map(ret =>
+            ret.id === returnId
+                ? { ...ret, status: newStatus, rejectReason: reason || ret.rejectReason }
+                : ret
+        ));
         setActiveActionMenu(null);
         if (selectedReturn && selectedReturn.id === returnId) {
-            setSelectedReturn(prev => ({ ...prev, status: newStatus }));
+            setSelectedReturn(prev => ({
+                ...prev,
+                status: newStatus,
+                rejectReason: reason || prev.rejectReason
+            }));
         }
     };
 
@@ -372,13 +382,13 @@ const ReturnsHandling = () => {
 
             {/* Return Details Modal */}
             {selectedReturn && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-md animate-in fade-in duration-300">
+                <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xl animate-in fade-in duration-300">
                     <div
                         ref={modalRef}
                         className="bg-white w-full max-w-3xl rounded-[40px] shadow-2xl overflow-hidden animate-in slide-in-from-bottom-12 duration-500"
                     >
                         {/* Modal Header */}
-                        <div className="p-8 border-b border-gray-100 flex justify-between items-center bg-gray-50/30">
+                        <div className="p-5 sm:p-6 border-b border-gray-100 flex justify-between items-center bg-white/80 backdrop-blur-md sticky top-0 z-10">
                             <div className="flex items-center gap-6">
                                 <div className="w-16 h-16 bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center text-blue-600">
                                     <RotateCcw className="w-8 h-8" />
@@ -402,7 +412,7 @@ const ReturnsHandling = () => {
                         </div>
 
                         {/* Modal Body */}
-                        <div className="p-8 overflow-y-auto max-h-[75vh] space-y-10 scrollbar-hide">
+                        <div className="p-5 sm:p-6 overflow-y-auto max-h-[60vh] space-y-6 scrollbar-hide">
                             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
                                 {/* Left Side: Product & Photos */}
                                 <div className="lg:col-span-5 space-y-6">
@@ -484,39 +494,118 @@ const ReturnsHandling = () => {
                                             </div>
                                         </div>
                                     </div>
+
+                                    {/* Rejection Reason (If any) */}
+                                    {selectedReturn.status === 'Rejected' && selectedReturn.rejectReason && (
+                                        <div className="p-6 bg-red-50 border border-red-100 rounded-3xl space-y-3 animate-in fade-in zoom-in duration-300">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-8 h-8 bg-red-100 rounded-xl flex items-center justify-center text-red-600">
+                                                    <Ban className="w-4 h-4" />
+                                                </div>
+                                                <p className="text-red-700 font-black uppercase text-xs tracking-widest">Rejection Reason</p>
+                                            </div>
+                                            <p className="text-sm text-red-800 font-bold leading-relaxed">
+                                                {selectedReturn.rejectReason}
+                                            </p>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
 
                         {/* Modal Footer */}
-                        <div className="p-8 border-t border-gray-100 bg-gray-50/50 flex gap-4">
+                        <div className="p-6 border-t border-gray-100 bg-gray-50/50 flex flex-col sm:flex-row gap-4">
                             {['Pending', 'In Inspection'].includes(selectedReturn.status) ? (
                                 <>
                                     <button
                                         onClick={() => handleUpdateStatus(selectedReturn.id, 'Approved')}
-                                        className="flex-1 py-4 bg-gray-900 text-white rounded-2xl text-sm font-black hover:bg-black transition-all shadow-xl hover:shadow-black/20 flex items-center justify-center gap-2 border-none cursor-pointer"
+                                        className="flex-[1.5] py-4 bg-gray-900 text-white rounded-[20px] text-sm font-black hover:bg-black transition-all shadow-xl hover:shadow-black/10 flex items-center justify-center gap-3 border-none cursor-pointer whitespace-nowrap group"
                                     >
-                                        <CheckCircle2 className="w-5 h-5 text-green-400" /> Approve Return
+                                        <div className="w-6 h-6 bg-white/10 rounded-lg flex items-center justify-center group-hover:bg-green-500/20 transition-colors">
+                                            <CheckCircle2 className="w-4 h-4 text-green-400" />
+                                        </div>
+                                        Approve Return
                                     </button>
                                     <button
-                                        onClick={() => handleUpdateStatus(selectedReturn.id, 'Rejected')}
-                                        className="flex-1 py-4 bg-white border border-gray-200 text-red-600 rounded-2xl text-sm font-black hover:bg-red-50 hover:border-red-200 transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer"
+                                        onClick={() => setShowRejectModal(true)}
+                                        className="flex-1 py-4 bg-white border border-gray-200 text-red-600 rounded-[20px] text-sm font-black hover:bg-red-50 hover:border-red-100 transition-all shadow-sm flex items-center justify-center gap-3 cursor-pointer whitespace-nowrap group"
                                     >
-                                        <Ban className="w-5 h-5" /> Reject Request
+                                        <div className="w-6 h-6 bg-red-50 rounded-lg flex items-center justify-center group-hover:bg-red-100 transition-colors">
+                                            <Ban className="w-4 h-4 text-red-500" />
+                                        </div>
+                                        Reject Request
                                     </button>
                                 </>
                             ) : selectedReturn.status === 'Approved' ? (
                                 <button
                                     onClick={() => handleUpdateStatus(selectedReturn.id, 'Refunded')}
-                                    className="flex-1 py-4 bg-green-600 text-white rounded-2xl text-sm font-black hover:bg-green-700 transition-all shadow-xl hover:shadow-green-600/20 flex items-center justify-center gap-2 border-none cursor-pointer"
+                                    className="w-full py-4 bg-green-600 text-white rounded-[20px] text-sm font-black hover:bg-green-700 transition-all shadow-xl hover:shadow-green-600/20 flex items-center justify-center gap-2 border-none cursor-pointer group"
                                 >
-                                    <DollarSign className="w-5 h-5" /> Issue Refund Now
+                                    <DollarSign className="w-5 h-5 group-hover:scale-110 transition-transform" /> Issue Refund Now
                                 </button>
                             ) : (
-                                <div className="flex-1 text-center py-4 bg-gray-100 rounded-2xl text-gray-500 font-black text-sm uppercase tracking-widest">
-                                    Case {selectedReturn.status}
+                                <div className="w-full text-center py-4 bg-white border border-gray-100 rounded-[20px] text-gray-500 font-extrabold text-[10px] uppercase tracking-[0.2em]">
+                                    Case Finalized: Return {selectedReturn.status}
                                 </div>
                             )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Rejection Modal */}
+            {showRejectModal && (
+                <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/70 backdrop-blur-xl animate-in fade-in duration-300">
+                    <div className="bg-white w-full max-w-md rounded-[40px] shadow-2xl overflow-hidden p-8 space-y-6">
+                        <div className="text-center space-y-2">
+                            <div className="w-16 h-16 bg-red-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                <AlertTriangle className="w-8 h-8 text-red-500" />
+                            </div>
+                            <h3 className="text-xl font-black text-gray-900">Why are you rejecting?</h3>
+                            <p className="text-sm text-gray-500">This reason will be shared with the customer.</p>
+                        </div>
+
+                        <div className="space-y-2">
+                            {[
+                                'Product returned is not what was sent',
+                                'Received item is used or damaged by customer',
+                                'Missing original packaging or labels',
+                                'No defect found during inspection',
+                                'Return period has expired'
+                            ].map((reason) => (
+                                <button
+                                    key={reason}
+                                    onClick={() => setRejectReason(reason)}
+                                    className={`w-full p-4 rounded-2xl text-sm font-bold text-left transition-all border-2 flex items-center justify-between
+                                        ${rejectReason === reason
+                                            ? 'bg-red-50 border-red-500 text-red-700'
+                                            : 'bg-white border-gray-100 text-gray-600 hover:border-gray-200'}`}
+                                >
+                                    {reason}
+                                    {rejectReason === reason && <CheckCircle2 className="w-4 h-4 text-red-500" />}
+                                </button>
+                            ))}
+                        </div>
+
+                        <div className="flex gap-4 pt-4">
+                            <button
+                                onClick={() => { setShowRejectModal(false); setRejectReason(''); }}
+                                className="flex-1 py-4 bg-gray-50 text-gray-600 rounded-2xl text-sm font-bold hover:bg-gray-100 transition-all border-none cursor-pointer"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={() => {
+                                    handleUpdateStatus(selectedReturn.id, 'Rejected', rejectReason);
+                                    setShowRejectModal(false);
+                                    setRejectReason('');
+                                }}
+                                disabled={!rejectReason}
+                                className={`flex-[2] py-4 rounded-2xl text-sm font-black transition-all shadow-lg border-none cursor-pointer
+                                    ${rejectReason ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
+                            >
+                                Confirm Rejection
+                            </button>
                         </div>
                     </div>
                 </div>

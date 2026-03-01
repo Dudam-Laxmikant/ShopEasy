@@ -31,8 +31,10 @@ const OrderProcessing = () => {
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [activeActionMenu, setActiveActionMenu] = useState(null);
     const [showRejectModal, setShowRejectModal] = useState(false);
+    const [showInvoiceModal, setShowInvoiceModal] = useState(false);
     const [rejectReason, setRejectReason] = useState('');
     const modalRef = useRef(null);
+    const invoiceRef = useRef(null);
 
     const [orders, setOrders] = useState([
         { id: '#ORD-9021', customer: 'Sarah Jenkins', items: 2, total: '₹3,398', date: 'Feb 22, 2026', time: '02:45 PM', status: 'New', address: 'Bandra West, Mumbai, MH', email: 'sarah.j@example.com', phone: '+91 98765 43210', payment: 'UPI', products: [{ name: 'Silk Floral Saree', price: '₹2,499', qty: 1 }, { name: 'Gold Bangle Set', price: '₹899', qty: 1 }] },
@@ -95,6 +97,12 @@ const OrderProcessing = () => {
         setSelectedOrder(null);
         setActiveActionMenu(null);
         setRejectReason('');
+    };
+
+    const handlePrintInvoice = (order) => {
+        setSelectedOrder(order);
+        setShowInvoiceModal(true);
+        setActiveActionMenu(null);
     };
 
     const getStatusStyles = (status) => {
@@ -230,7 +238,10 @@ const OrderProcessing = () => {
                                                 {order.status === 'New' ? 'Process Order' : order.status === 'In Process' ? 'Mark as Shipped' : 'Mark as Delivered'}
                                             </button>
                                         )}
-                                        <button className="p-3 bg-gray-50 hover:bg-gray-100 rounded-xl text-gray-600 border border-gray-100 transition-all cursor-pointer">
+                                        <button
+                                            onClick={() => handlePrintInvoice(order)}
+                                            className="p-3 bg-gray-50 hover:bg-gray-100 rounded-xl text-gray-600 border border-gray-100 transition-all cursor-pointer"
+                                        >
                                             <Printer className="w-5 h-5" />
                                         </button>
                                         <div className="relative">
@@ -254,7 +265,10 @@ const OrderProcessing = () => {
                                                         <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-all border-none bg-transparent cursor-pointer">
                                                             <Edit3 className="w-4 h-4 text-green-500" /> Edit Order
                                                         </button>
-                                                        <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-all border-none bg-transparent cursor-pointer">
+                                                        <button
+                                                            onClick={() => handlePrintInvoice(order)}
+                                                            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-all border-none bg-transparent cursor-pointer"
+                                                        >
                                                             <Printer className="w-4 h-4 text-purple-500" /> Print Invoice
                                                         </button>
                                                         <div className="h-px bg-gray-100 my-1"></div>
@@ -466,63 +480,162 @@ const OrderProcessing = () => {
                                 </button>
                             )}
 
-                            <button className="flex-1 py-4 bg-white border border-gray-200 text-gray-700 rounded-2xl text-sm font-bold hover:bg-gray-50 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm">
+                            <button
+                                onClick={() => handlePrintInvoice(selectedOrder)}
+                                className="flex-1 py-4 bg-white border border-gray-200 text-gray-700 rounded-2xl text-sm font-bold hover:bg-gray-50 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+                            >
                                 <Printer className="w-5 h-5 text-purple-500" /> Invoice
                             </button>
                         </div>
                     </div>
                 </div>
             )}
-            {/* Rejection Reason Modal */}
-            {showRejectModal && (
-                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-300">
-                    <div className="bg-white w-full max-w-md rounded-[40px] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
-                        <div className="p-10 space-y-8">
-                            <div className="text-center space-y-3">
-                                <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                                    <AlertCircle className="w-10 h-10 text-red-500" />
+            {/* Invoice Modal */}
+            {showInvoiceModal && selectedOrder && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-300 print:p-0 print:bg-white print:backdrop-blur-none">
+                    <div className="bg-white w-full max-w-4xl rounded-[40px] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] print:max-h-none print:shadow-none print:rounded-none">
+                        {/* Header - Hidden in Print */}
+                        <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50 print:hidden">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2.5 bg-purple-100 rounded-xl text-purple-600">
+                                    <Printer className="w-5 h-5" />
                                 </div>
-                                <h3 className="text-2xl font-black text-gray-900 tracking-tight">Reject Order?</h3>
-                                <p className="text-gray-500 text-sm font-medium">Please select a reason for rejecting this order. This will be shared with the customer.</p>
+                                <h3 className="text-xl font-bold text-gray-900">Tax Invoice</h3>
                             </div>
-
-                            <div className="space-y-3">
-                                {[
-                                    'Product Out of Stock',
-                                    'Unable to deliver to this location',
-                                    'Pricing error on product',
-                                    'Damaged / Quality Issue',
-                                    'Other (Contact Customer Support)'
-                                ].map((reason) => (
-                                    <button
-                                        key={reason}
-                                        onClick={() => setRejectReason(reason)}
-                                        className={`w-full p-4 rounded-2xl text-sm font-bold text-left transition-all border-2 flex items-center justify-between
-                                            ${rejectReason === reason
-                                                ? 'bg-red-50 border-red-500 text-red-700'
-                                                : 'bg-white border-gray-100 text-gray-600 hover:border-gray-200 hover:bg-gray-50'}`}
-                                    >
-                                        {reason}
-                                        {rejectReason === reason && <CheckCircle2 className="w-4 h-4 text-red-500" />}
-                                    </button>
-                                ))}
-                            </div>
-
-                            <div className="flex gap-4 pt-4">
+                            <div className="flex gap-3">
                                 <button
-                                    onClick={() => { setShowRejectModal(false); setRejectReason(''); }}
-                                    className="flex-1 py-4 bg-gray-50 text-gray-600 rounded-2xl text-sm font-bold hover:bg-gray-100 transition-all cursor-pointer border-none"
+                                    onClick={() => window.print()}
+                                    className="px-6 py-2.5 bg-gray-900 text-white rounded-xl text-sm font-bold hover:bg-black transition-all cursor-pointer border-none"
                                 >
-                                    Back
+                                    Print / Save PDF
                                 </button>
                                 <button
-                                    onClick={handleCancelOrder}
-                                    disabled={!rejectReason}
-                                    className={`flex-[2] py-4 rounded-2xl text-sm font-bold transition-all shadow-lg border-none cursor-pointer
-                                        ${rejectReason ? 'bg-red-600 text-white hover:bg-red-700 shadow-red-200' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
+                                    onClick={() => setShowInvoiceModal(false)}
+                                    className="p-2.5 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 text-gray-400 hover:text-gray-900 transition-all cursor-pointer"
                                 >
-                                    Confirm Reject
+                                    <X className="w-5 h-5" />
                                 </button>
+                            </div>
+                        </div>
+
+                        {/* Invoice Content */}
+                        <div className="overflow-y-auto p-12 space-y-12 scrollbar-hide print:overflow-visible print:p-0">
+                            {/* Logo & Info */}
+                            <div className="flex justify-between items-start">
+                                <div className="space-y-4">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-black text-xl italic">SE</div>
+                                        <h2 className="text-2xl font-black text-gray-900 uppercase tracking-tighter">ShopEasy</h2>
+                                    </div>
+                                    <div className="text-sm text-gray-500 space-y-1">
+                                        <p className="font-bold text-gray-900">ShopEasy E-Commerce Pvt Ltd</p>
+                                        <p>123 Business Hub, Cyber City</p>
+                                        <p>Gurgaon, India - 122002</p>
+                                        <p>GSTIN: 07AAACS1234F1Z5</p>
+                                    </div>
+                                </div>
+                                <div className="text-right space-y-6">
+                                    <h1 className="text-4xl font-black text-gray-200 uppercase">Invoice</h1>
+                                    <div className="space-y-1">
+                                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest leading-none">Invoice No:</p>
+                                        <p className="text-lg font-black text-gray-900 uppercase">INV-{selectedOrder.id.replace('#', '')}</p>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest leading-none">Date:</p>
+                                        <p className="text-sm font-bold text-gray-900">{selectedOrder.date}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-12">
+                                <div className="space-y-4">
+                                    <p className="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em]">Bill To:</p>
+                                    <div className="space-y-1">
+                                        <p className="text-lg font-black text-gray-900">{selectedOrder.customer}</p>
+                                        <p className="text-sm text-gray-600 leading-relaxed max-w-[250px]">{selectedOrder.address}, India</p>
+                                        <p className="text-sm text-gray-500 pt-2 flex items-center gap-2"><Mail className="w-4 h-4" /> {selectedOrder.email}</p>
+                                        <p className="text-sm text-gray-500 flex items-center gap-2"><Phone className="w-4 h-4" /> {selectedOrder.phone}</p>
+                                    </div>
+                                </div>
+                                <div className="bg-gray-50 p-6 rounded-3xl space-y-4 print:bg-white print:border print:border-gray-100">
+                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Order Details:</p>
+                                    <div className="space-y-3">
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-gray-500">Order ID</span>
+                                            <span className="font-bold text-gray-900">{selectedOrder.id}</span>
+                                        </div>
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-gray-500">Payment Method</span>
+                                            <span className="font-bold text-gray-900">{selectedOrder.payment}</span>
+                                        </div>
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-gray-500">Shipping</span>
+                                            <span className="font-bold text-green-600">Free Expansion</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Products Table */}
+                            <div className="border border-gray-100 rounded-3xl overflow-hidden print:border-gray-200">
+                                <table className="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr className="bg-gray-900 text-white print:bg-gray-100 print:text-black">
+                                            <th className="px-8 py-4 text-[10px] font-bold uppercase tracking-widest">Description</th>
+                                            <th className="px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-center">Qty</th>
+                                            <th className="px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-right">Unit Price</th>
+                                            <th className="px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-right">Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-100">
+                                        {selectedOrder.products.map((item, idx) => {
+                                            const priceVal = parseInt(item.price.replace('₹', '').replace(',', ''));
+                                            const amount = priceVal * item.qty;
+                                            return (
+                                                <tr key={idx} className="text-sm">
+                                                    <td className="px-8 py-6">
+                                                        <p className="font-bold text-gray-900">{item.name}</p>
+                                                        <p className="text-xs text-gray-400 mt-1">Item Code: SKU-{1000 + idx}</p>
+                                                    </td>
+                                                    <td className="px-8 py-6 text-center font-medium text-gray-600">{item.qty}</td>
+                                                    <td className="px-8 py-6 text-right font-medium text-gray-600">{item.price}</td>
+                                                    <td className="px-8 py-6 text-right font-bold text-gray-900">₹{amount.toLocaleString()}</td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            {/* Calculations */}
+                            <div className="flex justify-end pt-6">
+                                <div className="w-full max-w-xs space-y-4">
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-gray-500 font-medium">Subtotal</span>
+                                        <span className="font-bold text-gray-900">{selectedOrder.total}</span>
+                                    </div>
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-gray-500 font-medium">Tax (Included GST 18%)</span>
+                                        <span className="font-bold text-gray-900">₹0.00</span>
+                                    </div>
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-gray-500 font-medium">Shipping Charge</span>
+                                        <span className="font-bold text-green-600">FREE</span>
+                                    </div>
+                                    <div className="h-px bg-gray-100 my-2"></div>
+                                    <div className="flex justify-between items-center bg-blue-600 p-4 rounded-2xl text-white print:bg-black print:text-white">
+                                        <span className="text-sm font-bold uppercase tracking-widest opacity-80">Total Amount</span>
+                                        <span className="text-xl font-black">{selectedOrder.total}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Footer Note */}
+                            <div className="pt-12 border-t border-gray-100 text-center space-y-2">
+                                <p className="text-sm font-bold text-gray-900 italic">"Thank you for shopping with ShopEasy!"</p>
+                                <p className="text-[10px] text-gray-400 font-medium max-w-sm mx-auto">
+                                    This is a computer generated invoice and does not require a physical signature. Returns are accepted within 15 days of delivery.
+                                </p>
                             </div>
                         </div>
                     </div>
