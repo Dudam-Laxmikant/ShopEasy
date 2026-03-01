@@ -5,19 +5,21 @@ import { Heart, Ruler, Check, ChevronLeft, ChevronRight, Star } from 'lucide-rea
 
 const ProductDetails = () => {
     const { id } = useParams();
-    const [selectedColor, setSelectedColor] = useState('Slate Blue');
-    const [selectedSize, setSelectedSize] = useState('S / 38');
+
+    // Load Dynamic Product Data
+    const [product, setProduct] = useState(() => {
+        const savedProducts = JSON.parse(localStorage.getItem('sellerProducts') || '[]');
+        return savedProducts.find(p => p.id === id) || null;
+    });
+
+    const [selectedColor, setSelectedColor] = useState(product?.colors?.[0] || 'Slate Blue');
+    const [selectedSize, setSelectedSize] = useState(product?.sizes?.[0] || 'S / 38');
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-    const productImages = [
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTisAy6zP6nnKs9Ty07mOdvOJJMSwGxS4kNfQ&s",
+    const productImages = (product?.images && product.images.length > 0) ? product.images : [
         "https://theformalclub.in/cdn/shop/files/TealFormalShirt_2.jpg?v=1751886662&width=600",
         "https://theformalclub.in/cdn/shop/files/TealFormalShirt_1.jpg?v=1751886662&width=600",
-        "https://theformalclub.in/cdn/shop/files/TealFormalShirt_3.jpg?v=1751886662&width=600",
-        "https://theformalclub.in/cdn/shop/files/TealFormalShirt_3.jpg?v=1751886662&width=600",
-        "https://theformalclub.in/cdn/shop/files/TealFormalShirt_3.jpg?v=1751886662&width=600",
-        "https://theformalclub.in/cdn/shop/files/TealFormalShirt_3.jpg?v=1751886662&width=600",
-        "https://theformalclub.in/cdn/shop/files/TealFormalShirt_5.jpg?v=1751886662&width=600"
+        "https://theformalclub.in/cdn/shop/files/TealFormalShirt_3.jpg?v=1751886662&width=600"
     ];
 
     const nextImage = () => {
@@ -185,21 +187,21 @@ const ProductDetails = () => {
                     {/* Header */}
                     <div className="space-y-2">
                         <div className="flex justify-between items-start">
-                            <h1 className="text-xl md:text-2xl font-bold text-[#8B4513]">Cambridge Giza Cotton Shirt In Slate Blue</h1>
+                            <h1 className="text-xl md:text-2xl font-bold text-[#8B4513]">{product ? product.name : 'Cambridge Giza Cotton Shirt In Slate Blue'}</h1>
                             <button className="text-gray-900 hover:text-red-500 transition-colors">
                                 <Heart className="w-6 h-6" />
                             </button>
                         </div>
                         <p className="text-sm text-gray-600 leading-relaxed">
-                            Experience the luxury of Giza cotton with this meticulously crafted slate blue shirt. Perfect for formal events and office wear, combining comfort with timeless style.
+                            {product ? product.description : 'Experience the luxury of Giza cotton with this meticulously crafted slate blue shirt. Perfect for formal events and office wear, combining comfort with timeless style.'}
                         </p>
                     </div>
 
                     {/* Price and Reviews */}
                     <div className="space-y-2 border-b border-gray-200 pb-4">
                         <div className="flex items-center gap-3 flex-wrap">
-                            <span className="text-2xl font-bold text-[#1a4a45]">₹ 1,699</span>
-                            <span className="text-lg text-gray-400 line-through">₹ 3,499</span>
+                            <span className="text-2xl font-bold text-[#1a4a45]">₹ {product ? product.price : '1,699'}</span>
+                            <span className="text-lg text-gray-400 line-through">₹ {product ? (product.regularPrice || parseInt(product.price) * 2) : '3,499'}</span>
                         </div>
                     </div>
 
@@ -207,19 +209,23 @@ const ProductDetails = () => {
                     <div className="space-y-3">
                         <span className="font-bold text-gray-900">Color:</span>
                         <div className="flex flex-wrap gap-x-4 gap-y-6">
-                            {colors.map((color) => (
-                                <div key={color.name} className="flex flex-col items-center gap-1 cursor-pointer group" onClick={() => setSelectedColor(color.name)}>
-                                    <div className={`w-10 h-10 rounded-full border border-gray-200 shadow-sm relative flex items-center justify-center transition-transform hover:scale-110
-                                        ${selectedColor === color.name ? 'ring-2 ring-offset-2 ring-[#8B4513]' : ''}`}
-                                        style={{ backgroundColor: color.hex }}
-                                    >
-                                        {selectedColor === color.name && <Check className={`w-5 h-5 ${['Snow', 'Vanilla', 'White', 'Lemon Frost', 'Fresh Aqua', 'Ice Blue'].includes(color.name) ? 'text-black' : 'text-white'}`} />}
+                            {(product?.colors?.length > 0 ? product.colors : colors).map((color) => {
+                                const colorName = typeof color === 'string' ? color : color.name;
+                                const colorHex = typeof color === 'string' ? color : color.hex;
+                                return (
+                                    <div key={colorName} className="flex flex-col items-center gap-1 cursor-pointer group" onClick={() => setSelectedColor(colorName)}>
+                                        <div className={`w-10 h-10 rounded-full border border-gray-200 shadow-sm relative flex items-center justify-center transition-transform hover:scale-110
+                                            ${selectedColor === colorName ? 'ring-2 ring-offset-2 ring-[#8B4513]' : ''}`}
+                                            style={{ backgroundColor: colorHex }}
+                                        >
+                                            {selectedColor === colorName && <Check className={`w-5 h-5 ${['Snow', 'Vanilla', 'White', 'Lemon Frost', 'Fresh Aqua', 'Ice Blue'].includes(colorName) ? 'text-black' : 'text-white'}`} />}
+                                        </div>
+                                        <span className={`text-[10px] text-center w-14 leading-tight ${selectedColor === colorName ? 'font-bold text-[#8B4513]' : 'text-gray-500'}`}>
+                                            {colorName}
+                                        </span>
                                     </div>
-                                    <span className={`text-[10px] text-center w-14 leading-tight ${selectedColor === color.name ? 'font-bold text-[#8B4513]' : 'text-gray-500'}`}>
-                                        {color.name}
-                                    </span>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
 
@@ -232,7 +238,7 @@ const ProductDetails = () => {
                             </button> */}
                         </div>
                         <div className="flex flex-wrap gap-3">
-                            {sizes.map((size) => (
+                            {(product?.sizes?.length > 0 ? product.sizes : sizes).map((size) => (
                                 <button
                                     key={size}
                                     onClick={() => setSelectedSize(size)}
@@ -257,35 +263,35 @@ const ProductDetails = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-12 text-sm md:text-base">
                     <div className="flex justify-between md:justify-start gap-12 border-b border-gray-100 pb-2">
                         <span className="font-bold text-gray-900 w-40">Material composition</span>
-                        <span className="text-gray-600">100% Giza Cotton</span>
+                        <span className="text-gray-600">{product?.material || (product ? 'Mixed' : '100% Giza Cotton')}</span>
                     </div>
                     <div className="flex justify-between md:justify-start gap-12 border-b border-gray-100 pb-2">
                         <span className="font-bold text-gray-900 w-40">Pattern</span>
-                        <span className="text-gray-600">Solid / Plain</span>
+                        <span className="text-gray-600">{product?.pattern || (product ? 'Plain' : 'Solid / Plain')}</span>
                     </div>
                     <div className="flex justify-between md:justify-start gap-12 border-b border-gray-100 pb-2">
                         <span className="font-bold text-gray-900 w-40">Fit type</span>
-                        <span className="text-gray-600">Regular Fit</span>
+                        <span className="text-gray-600">{product?.fit || (product ? 'Standard' : 'Regular Fit')}</span>
                     </div>
                     <div className="flex justify-between md:justify-start gap-12 border-b border-gray-100 pb-2">
                         <span className="font-bold text-gray-900 w-40">Sleeve Type</span>
-                        <span className="text-gray-600">Long Sleeve</span>
+                        <span className="text-gray-600">{product?.sleeve || (product ? 'Full' : 'Long Sleeve')}</span>
                     </div>
                     <div className="flex justify-between md:justify-start gap-12 border-b border-gray-100 pb-2">
                         <span className="font-bold text-gray-900 w-40">Length</span>
-                        <span className="text-gray-600">Standard Length</span>
+                        <span className="text-gray-600">{product?.length || (product ? 'Regular' : 'Standard Length')}</span>
                     </div>
                     <div className="flex justify-between md:justify-start gap-12 border-b border-gray-100 pb-2">
                         <span className="font-bold text-gray-900 w-40">Neck Style</span>
-                        <span className="text-gray-600">Button Down Collar</span>
+                        <span className="text-gray-600">{product?.neck || (product ? 'Classic' : 'Button Down Collar')}</span>
                     </div>
                     <div className="flex justify-between md:justify-start gap-12 border-b border-gray-100 pb-2">
                         <span className="font-bold text-gray-900 w-40">Country of Origin</span>
-                        <span className="text-gray-600">India</span>
+                        <span className="text-gray-600">{product?.country || (product ? 'N/A' : 'India')}</span>
                     </div>
                     <div className="flex justify-between md:justify-start gap-12 border-b border-gray-100 pb-2">
                         <span className="font-bold text-gray-900 w-40">Care instructions</span>
-                        <span className="text-gray-600">Machine Wash</span>
+                        <span className="text-gray-600">{product?.care || (product ? 'Normal Wash' : 'Machine Wash')}</span>
                     </div>
                 </div>
             </div>

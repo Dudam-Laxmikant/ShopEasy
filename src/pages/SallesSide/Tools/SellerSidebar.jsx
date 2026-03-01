@@ -21,8 +21,8 @@ const SellerSidebar = ({ isOpen, onClose }) => {
         {
             title: 'Store Overview',
             links: [
-                { name: 'Dashboard', path: '/seller/dashboard', icon: LayoutDashboard },
-                { name: 'Analytics', path: '/seller/analytics', icon: BarChart3 },
+                // { name: 'Dashboard', path: '/seller/dashboard', icon: LayoutDashboard },
+                // { name: 'Analytics', path: '/seller/analytics', icon: BarChart3 },
             ]
         },
         {
@@ -30,7 +30,7 @@ const SellerSidebar = ({ isOpen, onClose }) => {
             links: [
                 { name: 'Products', path: '/seller/products', icon: Package },
                 { name: 'Add New Product', path: '/seller/add-product', icon: Box },
-                { name: 'Stock Levels', path: '/seller/stock', icon: BarChart3 },
+                // { name: 'Stock Levels', path: '/seller/stock', icon: BarChart3 },
             ]
         },
         {
@@ -44,8 +44,8 @@ const SellerSidebar = ({ isOpen, onClose }) => {
         {
             title: 'Financials',
             links: [
-                { name: 'Payments', path: '/seller/payments', icon: Wallet },
-                { name: 'Settlement Reports', path: '/seller/settlements', icon: FileText },
+                // { name: 'Payments', path: '/seller/payments', icon: Wallet },
+                // { name: 'Settlement Reports', path: '/seller/settlements', icon: FileText },
             ]
         },
         {

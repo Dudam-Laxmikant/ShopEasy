@@ -18,6 +18,8 @@ import ReturnsHandling from './pages/SallesSide/Returns/ReturnsHandling';
 import EditProduct from './pages/SallesSide/Products/EditProduct';
 import InvoiceManagement from './pages/SallesSide/Invoices/InvoiceManagement';
 import ShipmentTracking from './pages/SallesSide/Shipments/ShipmentTracking';
+import SellerLanding from './pages/SallesSide/Auth/SellerLanding';
+import SellerAuth from './pages/SallesSide/Auth/SellerAuth';
 
 // Admin Side Imports
 import AdminLayout from './pages/Admin/AdminLayout';
@@ -55,20 +57,24 @@ function App() {
                         }
                     />
 
-                    {/* Seller Side Routes */}
-                    <Route path="/seller" element={<SellerLayout />}>
-                        <Route index element={<Dashboard />} />
-                        <Route path="dashboard" element={<Dashboard />} />
-                        <Route path="registration" element={<Registration />} />
-                        <Route path="products" element={<ProductManagement />} />
-                        <Route path="add-product" element={<AddProduct />} />
-                        <Route path="edit-product/:id" element={<EditProduct />} />
-                        <Route path="orders" element={<OrderProcessing />} />
-                        <Route path="shipments" element={<ShipmentTracking />} />
-                        <Route path="payments" element={<Settlement />} />
-                        <Route path="settlements" element={<Settlement />} />
-                        <Route path="invoices" element={<InvoiceManagement />} />
-                        <Route path="returns" element={<ReturnsHandling />} />
+                    {/* Seller Standalone Routes */}
+                    <Route path="/seller" element={<SellerLanding />} />
+                    <Route path="/seller/landing" element={<SellerLanding />} />
+                    <Route path="/seller/auth" element={<SellerAuth />} />
+
+                    {/* Seller App Routes (with Layout) */}
+                    <Route element={<SellerLayout />}>
+                        <Route path="/seller/dashboard" element={<Dashboard />} />
+                        <Route path="/seller/registration" element={<Registration />} />
+                        <Route path="/seller/products" element={<ProductManagement />} />
+                        <Route path="/seller/add-product" element={<AddProduct />} />
+                        <Route path="/seller/edit-product/:id" element={<EditProduct />} />
+                        <Route path="/seller/orders" element={<OrderProcessing />} />
+                        <Route path="/seller/shipments" element={<ShipmentTracking />} />
+                        <Route path="/seller/payments" element={<Settlement />} />
+                        <Route path="/seller/settlements" element={<Settlement />} />
+                        <Route path="/seller/invoices" element={<InvoiceManagement />} />
+                        <Route path="/seller/returns" element={<ReturnsHandling />} />
                     </Route>
 
 

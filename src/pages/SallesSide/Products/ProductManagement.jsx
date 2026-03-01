@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import {
     Plus,
     Search,
@@ -9,7 +10,14 @@ import {
     Edit,
     Trash2,
     ExternalLink,
-    ChevronDown
+    ChevronDown,
+    Eye,
+    X,
+    Star,
+    Heart,
+    Check,
+    ChevronLeft,
+    ChevronRight
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -17,16 +25,32 @@ const ProductManagement = () => {
     const navigate = useNavigate();
     const [selectedTab, setSelectedTab] = useState('All');
 
-    const [productList, setProductList] = useState([
-        { id: 1, name: 'Premium Cotton Formal Shirt', category: 'Fashion', price: 1699, stock: 45, sales: 128, status: 'Active', image: 'https://theformalclub.in/cdn/shop/files/TealFormalShirt_4.jpg?v=1751886662&width=600', createdAt: '2024-01-01' },
-        { id: 2, name: 'Smart Watch Series 7', category: 'Electronics', price: 4299, stock: 12, sales: 56, status: 'Active', image: 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=500&auto=format&fit=crop&q=60', createdAt: '2024-01-05' },
-        { id: 3, name: 'Wireless Headphones XT', category: 'Electronics', price: 1999, stock: 0, sales: 89, status: 'Out of Stock', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&auto=format&fit=crop&q=60', createdAt: '2024-01-10' },
-        { id: 4, name: 'Leather Sneakers', category: 'Fashion', price: 2899, stock: 24, sales: 34, status: 'Inactive', image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=500&auto=format&fit=crop&q=60', createdAt: '2024-01-15' },
-    ]);
+    const [productList, setProductList] = useState(() => {
+        const staticProducts = [
+            { id: 1, name: 'Premium Cotton Formal Shirt', category: 'Fashion', price: 1699, stock: 45, sales: 128, status: 'Active', image: 'https://theformalclub.in/cdn/shop/files/TealFormalShirt_4.jpg?v=1751886662&width=600', createdAt: '2024-01-01' },
+            { id: 2, name: 'Smart Watch Series 7', category: 'Electronics', price: 4299, stock: 12, sales: 56, status: 'Active', image: 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=500&auto=format&fit=crop&q=60', createdAt: '2024-01-05' },
+            { id: 3, name: 'Wireless Headphones XT', category: 'Electronics', price: 1999, stock: 0, sales: 89, status: 'Out of Stock', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&auto=format&fit=crop&q=60', createdAt: '2024-01-10' },
+            { id: 4, name: 'Leather Sneakers', category: 'Fashion', price: 2899, stock: 24, sales: 34, status: 'Inactive', image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=500&auto=format&fit=crop&q=60', createdAt: '2024-01-15' },
+        ];
+        const savedProducts = JSON.parse(localStorage.getItem('sellerProducts') || '[]');
+        return [...savedProducts, ...staticProducts];
+    });
 
     const [activeMenuId, setActiveMenuId] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [sortBy, setSortBy] = useState('Newest');
+
+    // View Modal State
+    const [selectedProduct, setSelectedProduct] = useState(null);
+    const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+    const [activeThumbIdx, setActiveThumbIdx] = useState(0);
+
+    const openViewModal = (product) => {
+        setSelectedProduct(product);
+        setIsViewModalOpen(true);
+        setActiveThumbIdx(0);
+        setActiveMenuId(null);
+    };
 
     const handleDelete = (id) => {
         if (window.confirm('Are you sure you want to delete this product?')) {
@@ -56,8 +80,8 @@ const ProductManagement = () => {
     const filteredProducts = productList
         .filter(p => {
             const matchesTab = selectedTab === 'All' || p.status === selectedTab;
-            const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                p.category.toLowerCase().includes(searchQuery.toLowerCase());
+            const matchesSearch = p.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                p.category?.toLowerCase().includes(searchQuery.toLowerCase());
             return matchesTab && matchesSearch;
         })
         .sort((a, b) => {
@@ -180,6 +204,12 @@ const ProductManagement = () => {
                                             >
                                                 <Edit className="w-4 h-4" /> Edit Product
                                             </button>
+                                            <button
+                                                onClick={() => openViewModal(p)}
+                                                className="w-full px-4 py-2.5 text-left text-sm font-bold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors flex items-center gap-3 border-none bg-transparent cursor-pointer"
+                                            >
+                                                <Eye className="w-4 h-4" /> View Details
+                                            </button>
                                             <button className="w-full px-4 py-2.5 text-left text-sm font-bold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors flex items-center gap-3 border-none bg-transparent cursor-pointer">
                                                 <ExternalLink className="w-4 h-4" /> View Store
                                             </button>
@@ -254,8 +284,163 @@ const ProductManagement = () => {
                     </div>
                 )}
             </div>
-        </div>
 
+            {/* Product View Modal */}
+            {isViewModalOpen && selectedProduct && createPortal(
+                <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4">
+                    {/* Background Backdrop with strong blur */}
+                    <div
+                        className="fixed inset-0 bg-black/60"
+                        style={{
+                            backdropFilter: 'blur(20px)',
+                            WebkitBackdropFilter: 'blur(20px)'
+                        }}
+                        onClick={() => setIsViewModalOpen(false)}
+                    ></div>
+
+                    {/* Modal Content */}
+                    <div className="bg-white rounded-[40px] w-full max-w-5xl max-h-[90vh] overflow-y-auto relative z-[110] shadow-2xl animate-in zoom-in-95 slide-in-from-bottom-10 duration-500">
+                        {/* Modal Header */}
+                        <div className="sticky top-0 bg-white/80 backdrop-blur-md z-30 px-8 py-6 flex items-center justify-between border-b border-gray-100">
+                            <div>
+                                <h2 className="text-xl font-black text-gray-900 leading-none">Product Preview</h2>
+                                <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mt-2">Store View Mode</p>
+                            </div>
+                            <button
+                                onClick={() => setIsViewModalOpen(false)}
+                                className="p-3 hover:bg-gray-100 rounded-2xl transition-all border-none bg-transparent cursor-pointer text-gray-400 hover:text-gray-900"
+                            >
+                                <X className="w-6 h-6" />
+                            </button>
+                        </div>
+
+                        <div className="p-8 space-y-12">
+                            {/* Top Section: Basic Info & Image */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                                {/* Left: Image */}
+                                <div className="space-y-4">
+                                    <div className="aspect-[4/5] bg-gray-50 rounded-[40px] overflow-hidden border border-gray-100 relative group">
+                                        <img
+                                            src={(selectedProduct.images && selectedProduct.images[activeThumbIdx]) || selectedProduct.image}
+                                            alt={selectedProduct.name}
+                                            className="w-full h-full object-cover transition-all duration-500"
+                                        />
+                                        <div className="absolute top-4 left-4">
+                                            <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest text-white ${selectedProduct.status === 'Active' ? 'bg-green-500' : 'bg-red-500'}`}>
+                                                {selectedProduct.status}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    {/* Mini Gallery */}
+                                    <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                                        {(selectedProduct.images || [selectedProduct.image]).map((img, idx) => (
+                                            <div
+                                                key={idx}
+                                                onClick={() => setActiveThumbIdx(idx)}
+                                                className={`w-20 h-24 flex-shrink-0 rounded-2xl border-2 overflow-hidden cursor-pointer transition-all
+                                                    ${activeThumbIdx === idx ? 'border-blue-600 scale-105 shadow-md' : 'border-transparent hover:border-gray-200'}`}
+                                            >
+                                                <img src={img} className="w-full h-full object-cover" alt={`Thumb ${idx}`} />
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Right: Info */}
+                                <div className="space-y-8">
+                                    <div>
+                                        <p className="text-sm font-black text-blue-600 uppercase tracking-[0.2em] mb-3">{selectedProduct.category}</p>
+                                        <h1 className="text-3xl font-black text-gray-900 tracking-tight leading-tight">{selectedProduct.name}</h1>
+                                        <div className="flex items-center gap-4 mt-4">
+                                            <div className="flex text-yellow-400">
+                                                {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-current" />)}
+                                            </div>
+                                            <span className="text-sm font-bold text-gray-400">(24 Reviews)</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <p className="text-xs font-black text-gray-400 uppercase tracking-widest">Pricing</p>
+                                        <div className="flex items-baseline gap-3">
+                                            <span className="text-4xl font-black text-gray-900 tracking-tighter">₹{selectedProduct.price}</span>
+                                            {selectedProduct.regularPrice && (
+                                                <span className="text-xl text-gray-300 line-through font-bold">₹{selectedProduct.regularPrice}</span>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {selectedProduct.colors?.length > 0 && (
+                                        <div className="space-y-4">
+                                            <p className="text-xs font-black text-gray-400 uppercase tracking-widest">Available Colors</p>
+                                            <div className="flex flex-wrap gap-3">
+                                                {selectedProduct.colors.map(c => (
+                                                    <div key={c} className="w-10 h-10 rounded-full border-2 border-white shadow-md" style={{ backgroundColor: c }}></div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {selectedProduct.sizes?.length > 0 && (
+                                        <div className="space-y-4">
+                                            <p className="text-xs font-black text-gray-400 uppercase tracking-widest">Available Sizes</p>
+                                            <div className="flex flex-wrap gap-2">
+                                                {selectedProduct.sizes.map(s => (
+                                                    <span key={s} className="px-4 py-2 bg-gray-50 rounded-xl text-xs font-bold text-gray-700 border border-gray-100">{s}</span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <div className="pt-8 border-t border-gray-50 grid grid-cols-2 gap-4">
+                                        <div className="p-4 bg-blue-50/50 rounded-3xl text-center">
+                                            <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest leading-none mb-1">In Stock</p>
+                                            <p className="text-xl font-black text-blue-600">{selectedProduct.stock}</p>
+                                        </div>
+                                        <div className="p-4 bg-orange-50/50 rounded-3xl text-center">
+                                            <p className="text-[10px] font-black text-orange-400 uppercase tracking-widest leading-none mb-1">Total Sales</p>
+                                            <p className="text-xl font-black text-orange-600">{selectedProduct.sales}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Details Table */}
+                            <div className="space-y-6">
+                                <h3 className="text-xl font-black text-gray-900 tracking-tight">Full Specifications</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
+                                    {[
+                                        { label: 'Brand', value: selectedProduct.brand },
+                                        { label: 'Material', value: selectedProduct.material },
+                                        { label: 'Pattern', value: selectedProduct.pattern },
+                                        { label: 'Fit Type', value: selectedProduct.fit },
+                                        { label: 'Sleeve', value: selectedProduct.sleeve },
+                                        { label: 'Length', value: selectedProduct.length },
+                                        { label: 'Neck Style', value: selectedProduct.neck },
+                                        { label: 'Origin', value: selectedProduct.country },
+                                        { label: 'Care', value: selectedProduct.care },
+                                        { label: 'SKU', value: selectedProduct.sku }
+                                    ].map((item, idx) => (
+                                        <div key={item.label} className="flex justify-between items-center py-4 border-b border-gray-50 last:border-0">
+                                            <span className="text-sm font-bold text-gray-400 uppercase tracking-widest">{item.label}</span>
+                                            <span className="text-sm font-black text-gray-900">{item.value || 'Not Specified'}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Description */}
+                            <div className="space-y-4 pb-12">
+                                <h3 className="text-xl font-black text-gray-900 tracking-tight">About this product</h3>
+                                <p className="text-gray-500 font-medium leading-relaxed text-sm">
+                                    {selectedProduct.description || 'No detailed description provided for this product.'}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>,
+                document.body
+            )}
+        </div>
     );
 };
 

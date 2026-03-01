@@ -26,6 +26,17 @@ const AddProduct = () => {
     const [selectedColors, setSelectedColors] = useState([]);
     const [selectedSizes, setSelectedSizes] = useState([]);
     const [activeImageIdx, setActiveImageIdx] = useState(0);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+
+    // Basic Product Info States
+    const [productTitle, setProductTitle] = useState('');
+    const [productDescription, setProductDescription] = useState('');
+    const [searchTags, setSearchTags] = useState('');
+    const [regularPrice, setRegularPrice] = useState('');
+    const [salePrice, setSalePrice] = useState('');
+    const [sku, setSku] = useState('');
+    const [initialStock, setInitialStock] = useState('');
+    const [costPrice, setCostPrice] = useState('');
 
     // Generic Searchable Dropdown States & Data
     const [patternSearch, setPatternSearch] = useState('');
@@ -236,8 +247,72 @@ const AddProduct = () => {
         setShowPicker(false);
     };
 
+    const handlePublish = () => {
+        // Collect all data, falling back to search values if nothing selected from dropdown
+        const productData = {
+            id: 'PROD-' + Date.now(),
+            name: productTitle || 'New Premium Product',
+            brand: selectedBrand || brandSearch || 'Generic',
+            description: productDescription,
+            category: selectedCategory || categorySearch || 'Fashion',
+            status: selectedStatus || statusSearch || 'Active',
+            tags: searchTags,
+            material: selectedMaterial || materialSearch || 'Cotton',
+            pattern: selectedPattern || patternSearch || 'Solid',
+            fit: selectedFit || fitSearch || 'Regular Fit',
+            sleeve: selectedSleeve || sleeveSearch || 'Long Sleeve',
+            length: selectedLength || lengthSearch || 'Standard Length',
+            neck: selectedNeck || neckSearch || 'Crew Neck',
+            country: selectedCountry || countrySearch || 'India',
+            care: selectedCare || careSearch || 'Machine Wash',
+            price: salePrice || regularPrice || 1699,
+            regularPrice: regularPrice || '3499',
+            sku: sku || 'N/A',
+            stock: initialStock || 0,
+            sales: 0,
+            image: mainImage?.preview || 'https://theformalclub.in/cdn/shop/files/TealFormalShirt_4.jpg?v=1751886662&width=600',
+            images: allImages.map(img => img.preview).length > 0 ? allImages.map(img => img.preview) : ['https://theformalclub.in/cdn/shop/files/TealFormalShirt_4.jpg?v=1751886662&width=600'],
+            colors: selectedColors,
+            sizes: selectedSizes,
+            createdAt: new Date().toISOString()
+        };
+
+        // Save to localStorage for demo persistence
+        const existingProducts = JSON.parse(localStorage.getItem('sellerProducts') || '[]');
+        localStorage.setItem('sellerProducts', JSON.stringify([productData, ...existingProducts]));
+
+        setShowSuccessModal(true);
+    };
+
     return (
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 space-y-8 pb-32">
+            {/* Success Modal */}
+            {showSuccessModal && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300" onClick={() => setShowSuccessModal(false)}></div>
+                    <div className="bg-white rounded-[40px] p-8 max-w-md w-full relative z-[110] shadow-2xl animate-in zoom-in-95 slide-in-from-bottom-5 duration-300 text-center">
+                        <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-green-100">
+                            <Check className="w-10 h-10 text-white" />
+                        </div>
+                        <h2 className="text-2xl font-black text-gray-900 mb-2">Well Done!</h2>
+                        <p className="text-gray-500 font-medium mb-8">Your product "<span className="text-blue-600 font-bold">{productTitle || 'New Product'}</span>" has been successfully added to your store.</p>
+                        <div className="grid grid-cols-1 gap-3">
+                            <button
+                                onClick={() => navigate('/seller/products')}
+                                className="w-full py-4 bg-gray-900 text-white rounded-2xl font-bold text-sm border-none cursor-pointer hover:bg-gray-800 transition-all"
+                            >
+                                Go to Management
+                            </button>
+                            <button
+                                onClick={() => setShowSuccessModal(false)}
+                                className="w-full py-4 bg-white text-gray-400 rounded-2xl font-bold text-sm border border-gray-100 cursor-pointer hover:bg-gray-50 transition-all"
+                            >
+                                Add Another Product
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
             {/* Header */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pt-8">
                 <div className="flex items-center gap-6">
@@ -259,7 +334,10 @@ const AddProduct = () => {
                     >
                         Discard
                     </button>
-                    <button className="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-10 rounded-2xl shadow-xl shadow-blue-200 transition-all border-none cursor-pointer transform hover:-translate-y-0.5 active:translate-y-0">
+                    <button
+                        onClick={handlePublish}
+                        className="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-10 rounded-2xl shadow-xl shadow-blue-200 transition-all border-none cursor-pointer transform hover:-translate-y-0.5 active:translate-y-0"
+                    >
                         Publish Product
                     </button>
                 </div>
@@ -281,6 +359,8 @@ const AddProduct = () => {
                                 <label className="text-sm font-bold text-gray-700 ml-1">Product Title</label>
                                 <input
                                     type="text"
+                                    value={productTitle}
+                                    onChange={(e) => setProductTitle(e.target.value)}
                                     placeholder="e.g. Premium Cotton Oversized T-Shirt"
                                     className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
                                 />
@@ -333,6 +413,8 @@ const AddProduct = () => {
                                 <label className="text-sm font-bold text-gray-700 ml-1">Product Description</label>
                                 <textarea
                                     rows="5"
+                                    value={productDescription}
+                                    onChange={(e) => setProductDescription(e.target.value)}
                                     placeholder="Describe the material, fit, and special features..."
                                     className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none resize-none"
                                 ></textarea>
@@ -441,6 +523,8 @@ const AddProduct = () => {
                                 <label className="text-sm font-bold text-gray-700 ml-1">Search Tags</label>
                                 <input
                                     type="text"
+                                    value={searchTags}
+                                    onChange={(e) => setSearchTags(e.target.value)}
                                     placeholder="Summer, Trendy, New..."
                                     className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
                                 />
@@ -1044,23 +1128,23 @@ const AddProduct = () => {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                             <div className="space-y-2">
                                 <label className="text-sm font-bold text-gray-700 ml-1">Regular Price (₹)</label>
-                                <input type="number" placeholder="0.00" className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none" />
+                                <input type="number" value={regularPrice} onChange={(e) => setRegularPrice(e.target.value)} placeholder="0.00" className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none" />
                             </div>
                             <div className="space-y-2">
                                 <label className="text-sm font-bold text-gray-700 ml-1">Sale Price (₹)</label>
-                                <input type="number" placeholder="0.00" className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none" />
+                                <input type="number" value={salePrice} onChange={(e) => setSalePrice(e.target.value)} placeholder="0.00" className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none" />
                             </div>
                             <div className="space-y-2">
                                 <label className="text-sm font-bold text-gray-700 ml-1">SKU</label>
-                                <input type="text" placeholder="e.g. TSH-001" className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none" />
+                                <input type="text" value={sku} onChange={(e) => setSku(e.target.value)} placeholder="e.g. TSH-001" className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none" />
                             </div>
                             <div className="space-y-2">
                                 <label className="text-sm font-bold text-gray-700 ml-1">Initial Stock</label>
-                                <input type="number" placeholder="0" className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none" />
+                                <input type="number" value={initialStock} onChange={(e) => setInitialStock(e.target.value)} placeholder="0" className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none" />
                             </div>
                             <div className="sm:col-span-2 space-y-2">
                                 <label className="text-sm font-bold text-gray-700 ml-1">Cost Price (₹)</label>
-                                <input type="number" placeholder="0.00" className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none" />
+                                <input type="number" value={costPrice} onChange={(e) => setCostPrice(e.target.value)} placeholder="0.00" className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none" />
                                 <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest px-2 mt-1">Internal Use: For profit margin calculation</p>
                             </div>
                         </div>
