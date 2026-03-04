@@ -14,10 +14,16 @@ import {
     X,
     ChevronRight,
     ArrowLeft,
+    Building2,
+    Check
 } from 'lucide-react';
 
+import { useNavigate, Link } from 'react-router-dom';
+
 const Header = () => {
+    const navigate = useNavigate();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [sellerType, setSellerType] = useState('business'); // 'individual', 'business'
     const [menuView, setMenuView] = useState('main'); // 'main', 'men', 'women'
     const [searchCategory, setSearchCategory] = useState('All');
     const [cartCount, setCartCount] = useState(3);
@@ -163,12 +169,12 @@ const Header = () => {
                                 </button>
 
                                 {/* Logo */}
-                                <div className="flex items-center gap-2 flex-shrink-0 cursor-pointer">
+                                <Link to="/" className="flex items-center gap-2 flex-shrink-0 cursor-pointer no-underline text-gray-900">
                                     <div className="p-2 bg-white rounded-full">
                                         <Package className="h-6 w-6 text-yellow-500" />
                                     </div>
                                     <span className="text-xl md:text-2xl font-bold tracking-tight">ShopEasy</span>
-                                </div>
+                                </Link>
                             </div>
 
                             {/* Mobile Cart & Account (Visible only on mobile) */}
@@ -276,11 +282,11 @@ const Header = () => {
                                         className="absolute top-full right-0 w-64 bg-white shadow-xl rounded-md overflow-hidden text-gray-800 border border-gray-100 z-50 animate-in fade-in zoom-in-95 duration-100"
                                     >
                                         <div className="p-4 bg-gray-50 border-b border-gray-100 text-center">
-                                            <button className="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-2 px-4 rounded shadow-sm transition-colors mb-2 border-none cursor-pointer">
+                                            <Link to="/login" onClick={() => setIsAccountDropdownOpen(false)} className="block w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-2 px-4 rounded shadow-sm transition-colors mb-2 border-none cursor-pointer no-underline">
                                                 Sign in
-                                            </button>
+                                            </Link>
                                             <p className="text-xs text-gray-500">
-                                                New customer? <a href="#" className="text-blue-600 hover:underline">Start here.</a>
+                                                New customer? <Link to="/register" onClick={() => setIsAccountDropdownOpen(false)} className="text-blue-600 hover:underline">Start here.</Link>
                                             </p>
                                         </div>
                                         <div className="py-2">
@@ -327,21 +333,72 @@ const Header = () => {
             </div>
 
             {/* Secondary Nav (Hidden on Mobile) */}
-            <div className="bg-gray-800 text-white hidden md:block">
+            <div className="bg-gray-800 text-white hidden md:block border-t border-gray-700">
                 <div className="container mx-auto px-4">
-                    <div className="flex items-center gap-6 overflow-x-auto text-sm font-medium py-2 scrollbar-hide">
-                        <button
-                            className="flex items-center gap-1 hover:text-yellow-400 transition-colors whitespace-nowrap bg-transparent border-none text-white cursor-pointer"
-                            onClick={() => setIsMenuOpen(!isMenuOpen)}
-                        >
-                            <Menu className="h-5 w-5" />
-                            <span>All</span>
-                        </button>
-                        {['Today\'s Deals', 'Customer Service', 'Registry', 'Gift Cards', 'Sell'].map((item) => (
-                            <a key={item} href="#" className="hover:text-yellow-400 transition-colors whitespace-nowrap text-white no-underline">
-                                {item}
-                            </a>
-                        ))}
+                    <div className="flex items-center justify-between py-1.5 overflow-hidden">
+                        <div className="flex items-center gap-6 overflow-x-auto text-sm font-medium scrollbar-hide">
+                            <button
+                                className="flex items-center gap-1 hover:text-yellow-400 transition-colors whitespace-nowrap bg-transparent border-none text-white cursor-pointer"
+                                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                            >
+                                <Menu className="h-5 w-5" />
+                                <span>All</span>
+                            </button>
+                            {['Today\'s Deals', 'Customer Service', 'Registry', 'Gift Cards', 'Sell'].map((item) => (
+                                <a key={item} href="#" className="hover:text-yellow-400 transition-colors whitespace-nowrap text-white no-underline">
+                                    {item}
+                                </a>
+                            ))}
+                        </div>
+
+                        {/* Seller Mode Selector (Right Side) */}
+                        <div className="flex items-center">
+                            <div className="relative group/seller">
+                                <button className="flex items-center gap-2 px-3 py-1.5 bg-gray-900 border border-gray-700 rounded-md transition-all cursor-pointer text-white">
+                                    <div className="flex items-center gap-2">
+                                        {sellerType === 'business' ? (
+                                            <>
+                                                <Building2 className="w-4 h-4 text-indigo-400" />
+                                                <span className="text-[12px] font-black uppercase tracking-tighter text-white">Business</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <User className="w-4 h-4 text-blue-400" />
+                                                <span className="text-[12px] font-black uppercase tracking-tighter text-white">Individual</span>
+                                            </>
+                                        )}
+                                        <ChevronDown className="w-4 h-4 text-gray-500 group-hover/seller:rotate-180 transition-transform" />
+                                    </div>
+                                </button>
+
+                                <div className="absolute top-full right-0 mt-1 w-48 bg-white shadow-2xl rounded-xl border border-gray-100 overflow-hidden opacity-0 invisible group-hover/seller:opacity-100 group-hover/seller:visible transition-all z-[101]">
+                                    <div className="p-2 space-y-1">
+                                        <button
+                                            onClick={() => setSellerType('individual')}
+                                            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-colors cursor-pointer border-none
+                                                ${sellerType === 'individual' ? 'bg-blue-50 text-blue-700' : 'bg-transparent text-gray-600 hover:bg-gray-50'}`}
+                                        >
+                                            <div className={`p-1.5 rounded-md ${sellerType === 'individual' ? 'bg-blue-600 text-white' : 'bg-blue-50 text-blue-600'}`}>
+                                                <User className="w-4 h-4" />
+                                            </div>
+                                            <span className="text-[13px] font-bold">Individual</span>
+                                            {sellerType === 'individual' && <Check className="w-4 h-4 ml-auto" />}
+                                        </button>
+                                        <button
+                                            onClick={() => setSellerType('business')}
+                                            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-colors cursor-pointer border-none
+                                                ${sellerType === 'business' ? 'bg-indigo-50 text-indigo-700' : 'bg-transparent text-gray-600 hover:bg-gray-50'}`}
+                                        >
+                                            <div className={`p-1.5 rounded-md ${sellerType === 'business' ? 'bg-indigo-600 text-white' : 'bg-indigo-50 text-indigo-600'}`}>
+                                                <Building2 className="w-4 h-4" />
+                                            </div>
+                                            <span className="text-[13px] font-bold">Business</span>
+                                            {sellerType === 'business' && <Check className="w-4 h-4 ml-auto" />}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -352,12 +409,16 @@ const Header = () => {
                     <div className="w-4/5 max-w-[340px] h-full bg-white shadow-2xl animate-in slide-in-from-left duration-300 overflow-hidden flex flex-col">
                         {/* Menu Header */}
                         <div className="bg-gray-900 text-white p-5 flex justify-between items-center sticky top-0 z-20 shadow-md">
-                            <div className="flex items-center gap-3">
+                            <Link
+                                to="/login"
+                                onClick={closeMenu}
+                                className="flex items-center gap-3 no-underline text-white hover:text-yellow-400 transition-colors"
+                            >
                                 <div className="p-1.5 bg-gray-800 rounded-full border border-gray-700">
                                     <User className="h-5 w-5 text-gray-300" />
                                 </div>
                                 <span className="font-bold text-[18px]">Hello, Sign In</span>
-                            </div>
+                            </Link>
                             <button className="bg-transparent border-none text-white cursor-pointer hover:bg-gray-800 p-1.5 rounded-full transition-colors" onClick={closeMenu}>
                                 <X className="h-6 w-6" />
                             </button>

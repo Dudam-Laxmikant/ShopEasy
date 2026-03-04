@@ -1,5 +1,5 @@
 import React from 'react';
-import { Star, ShoppingCart, Heart } from 'lucide-react';
+import { Star, ShoppingCart, Heart, Building2, User } from 'lucide-react';
 
 const Products = () => {
     // Mock Data for Products
@@ -12,7 +12,8 @@ const Products = () => {
             rating: 4.5,
             reviews: 128,
             image: "https://theformalclub.in/cdn/shop/files/TealFormalShirt_4.jpg?v=1751886662&width=600",
-            badge: "Best Seller"
+            badge: "Best Seller",
+            sellerType: "business"
         },
         {
             id: 2,
@@ -22,7 +23,8 @@ const Products = () => {
             rating: 4.8,
             reviews: 856,
             image: "https://images.meesho.com/images/products/666880415/genyp_512.webp?width=512",
-            badge: "New"
+            badge: "New",
+            sellerType: "business"
         },
         {
             id: 3,
@@ -32,7 +34,8 @@ const Products = () => {
             rating: 4.9,
             reviews: 64,
             image: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-            badge: "Sale"
+            badge: "Sale",
+            sellerType: "individual"
         },
         {
             id: 4,
@@ -42,6 +45,7 @@ const Products = () => {
             rating: 4.6,
             reviews: 215,
             image: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+            sellerType: "business"
         },
         {
             id: 5,
@@ -50,22 +54,7 @@ const Products = () => {
             rating: 4.3,
             reviews: 42,
             image: "https://images-cdn.ubuy.qa/69775dc8b10e005ef006210c-shart-master-t-shirt-funny-saying.jpg",
-        },
-        {
-            id: 5,
-            title: "Classic Leather Sneakers",
-            price: 89.95,
-            rating: 4.3,
-            reviews: 42,
-            image: "https://images-cdn.ubuy.qa/69775dc8b10e005ef006210c-shart-master-t-shirt-funny-saying.jpg",
-        },
-        {
-            id: 5,
-            title: "Classic Leather Sneakers",
-            price: 89.95,
-            rating: 4.3,
-            reviews: 42,
-            image: "https://images-cdn.ubuy.qa/69775dc8b10e005ef006210c-shart-master-t-shirt-funny-saying.jpg",
+            sellerType: "individual"
         },
         {
             id: 6,
@@ -75,7 +64,8 @@ const Products = () => {
             rating: 4.7,
             reviews: 330,
             image: "https://m.media-amazon.com/images/I/61umEGE0mKL._SX522_.jpg",
-            badge: "Choice"
+            badge: "Choice",
+            sellerType: "business"
         },
     ];
 
@@ -152,7 +142,14 @@ const Products = () => {
 
                             {/* Content */}
                             <div className="p-2 md:p-3 flex flex-col flex-1 relative">
-                                <p className="text-[9px] md:text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-1">Electronics</p>
+                                <div className="flex items-center justify-between mb-1">
+                                    <p className="text-[9px] md:text-[10px] text-gray-400 font-bold uppercase tracking-wider">Electronics</p>
+                                    <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-tighter shadow-sm
+                                            ${product.sellerType === 'business' ? 'bg-indigo-50 text-indigo-600 border border-indigo-100' : 'bg-blue-50 text-blue-600 border border-blue-100'}`}>
+                                        {product.sellerType === 'business' ? <Building2 className="w-2 h-2" /> : <User className="w-2 h-2" />}
+                                        {product.sellerType}
+                                    </span>
+                                </div>
 
                                 <h3 className="font-bold text-gray-900 text-xs md:text-base leading-tight md:leading-snug line-clamp-2 mb-1.5 h-8 md:h-11 group-hover:text-yellow-600 transition-colors cursor-pointer text-ellipsis overflow-hidden" title={product.title}>
                                     {product.title}
@@ -185,7 +182,6 @@ const Products = () => {
                                     className="absolute bottom-0 left-0 bg-yellow-400 hover:bg-yellow-500 text-gray-900 hover:text-white px-4 md:px-2 h-9 md:h-12 flex items-center justify-center gap-2 rounded-tr-[20px] shadow-sm transition-all duration-300 z-1"
                                 >
                                     <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider">Add To Cart</span>
-                                    {/* <ShoppingCart className="w-3.5 h-3.5 md:w-4 md:h-4" /> */}
                                 </button>
                             </div>
                         </div>

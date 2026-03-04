@@ -2,6 +2,9 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import ProductDetails from './pages/ClientSide/ProductDetails';
 import Products from './pages/ClientSide/Products';
+import Home from './pages/ClientSide/Home';
+import Login from './pages/ClientSide/Auth/Login';
+import Register from './pages/ClientSide/Auth/Register';
 import Header from './pages/ClientSide/Tools/Header';
 import Sidebar from './pages/ClientSide/Tools/Sidebar';
 
@@ -38,6 +41,9 @@ function App() {
             <div className="flex flex-col h-screen bg-gray-50 text-gray-900 overflow-hidden font-sans">
                 <Routes>
                     {/* Client Side Routes */}
+                    <Route path="/" element={<Home />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
                     <Route
                         path="/*"
                         element={
@@ -47,7 +53,6 @@ function App() {
                                     <Sidebar />
                                     <main className="flex-1 w-full min-w-0 p-4 lg:p-6 overflow-y-auto">
                                         <Routes>
-                                            <Route path="/" element={<Products />} />
                                             <Route path="/products" element={<Products />} />
                                             <Route path="/product/:id" element={<ProductDetails />} />
                                         </Routes>

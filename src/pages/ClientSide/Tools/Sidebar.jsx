@@ -2,13 +2,17 @@ import React, { useState } from 'react';
 import {
     LogOut,
     ChevronDown,
-    ChevronUp
+    ChevronUp,
+    User,
+    Building2,
+    Check
 } from 'lucide-react';
 
 const Sidebar = () => {
     const [showAllClosure, setShowAllClosure] = useState(false);
     const [showAllBrands, setShowAllBrands] = useState(false);
     const [selectedSizes, setSelectedSizes] = useState([]);
+    const [sellerType, setSellerType] = useState('business'); // 'all', 'individual', 'business'
 
     const filters = {
         clothingPattern: [
@@ -75,6 +79,63 @@ const Sidebar = () => {
     return (
         <aside className="w-72 flex-shrink-0 bg-white border-r border-gray-200 hidden md:block text-left h-full overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
             <div className="p-6">
+
+                {/* Seller Type Selection */}
+                <section className="mb-10 space-y-4">
+                    <h3 className="text-[12px] font-black text-gray-400 uppercase tracking-widest px-1">Seller Source</h3>
+
+                    <div className="space-y-3">
+                        {/* Normal / Individual Seller */}
+                        <div
+                            onClick={() => setSellerType(sellerType === 'individual' ? 'all' : 'individual')}
+                            className={`group relative p-4 rounded-3xl border-2 transition-all cursor-pointer hover:shadow-lg
+                                ${sellerType === 'individual'
+                                    ? 'border-blue-600 bg-blue-50/30 ring-4 ring-blue-500/5'
+                                    : 'border-gray-100 bg-white hover:border-blue-200'}`}
+                        >
+                            <div className="flex gap-4">
+                                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors
+                                    ${sellerType === 'individual' ? 'bg-blue-600' : 'bg-blue-50 group-hover:bg-blue-100'}`}>
+                                    <User className={`w-6 h-6 ${sellerType === 'individual' ? 'text-white' : 'text-blue-600'}`} />
+                                </div>
+                                <div className="flex-1 space-y-1">
+                                    <h4 className="text-[15px] font-black text-gray-900 leading-tight">Normal / Individual</h4>
+                                    <p className="text-[11px] font-bold text-gray-400 leading-relaxed">Best for middle-class entrepreneurs and creators.</p>
+                                </div>
+                                {sellerType === 'individual' && (
+                                    <div className="absolute top-3 right-3 w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center">
+                                        <Check className="w-3 h-3 text-white" />
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Businessman / Pvt Ltd Company */}
+                        <div
+                            onClick={() => setSellerType(sellerType === 'business' ? 'all' : 'business')}
+                            className={`group relative p-4 rounded-3xl border-2 transition-all cursor-pointer hover:shadow-lg
+                                ${sellerType === 'business'
+                                    ? 'border-indigo-600 bg-indigo-50/30 ring-4 ring-indigo-500/5'
+                                    : 'border-gray-100 bg-white hover:border-indigo-200'}`}
+                        >
+                            <div className="flex gap-4">
+                                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors
+                                    ${sellerType === 'business' ? 'bg-indigo-600' : 'bg-indigo-50 group-hover:bg-indigo-100'}`}>
+                                    <Building2 className={`w-6 h-6 ${sellerType === 'business' ? 'text-white' : 'text-indigo-600'}`} />
+                                </div>
+                                <div className="flex-1 space-y-1">
+                                    <h4 className="text-[15px] font-black text-gray-900 leading-tight">Businessman / Pvt Ltd</h4>
+                                    <p className="text-[11px] font-bold text-gray-400 leading-relaxed">For registered entities and large distributors.</p>
+                                </div>
+                                {sellerType === 'business' && (
+                                    <div className="absolute top-3 right-3 w-5 h-5 bg-indigo-600 rounded-full flex items-center justify-center">
+                                        <Check className="w-3 h-3 text-white" />
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </section>
 
                 <FilterSection title="Clothing pattern" items={filters.clothingPattern} />
 
