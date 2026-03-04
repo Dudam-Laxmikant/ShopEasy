@@ -11,9 +11,18 @@ import {
     Zap
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useWishlist } from './context/WishlistContext';
+import { useCart } from './context/CartContext';
+import { Heart } from 'lucide-react';
+
+
 
 const Home = () => {
     const navigate = useNavigate();
+    const { toggleWishlist, isInWishlist } = useWishlist();
+    const { addToCart, flyToCart } = useCart();
+
+
 
     const categories = [
         { name: 'Fashion', image: 'https://images.unsplash.com/photo-1445205170230-053b830c6039?w=500&auto=format&fit=crop&q=60', count: '1.2k+ Products' },
@@ -136,11 +145,34 @@ const Home = () => {
                             <div key={product.id} className="bg-white/5 backdrop-blur-md rounded-[40px] border border-white/10 p-6 space-y-6 group hover:bg-white/10 transition-all duration-300 cursor-pointer">
                                 <div className="aspect-square rounded-[30px] overflow-hidden bg-gray-800 relative">
                                     <img src={product.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt={product.name} />
-                                    <div className="absolute top-4 right-4 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all">
-                                        <button className="p-3 bg-white rounded-2xl text-gray-900 border-none cursor-pointer hover:bg-blue-600 hover:text-white transition-colors shadow-xl">
+                                    <div className="absolute top-4 right-4 flex flex-col gap-2 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all">
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                toggleWishlist(product);
+                                            }}
+                                            className={`p-3 rounded-2xl border-none cursor-pointer transition-all shadow-xl
+                                                ${isInWishlist(product.id) ? 'bg-red-600 text-white' : 'bg-white text-gray-900 hover:bg-red-50 hover:text-red-600'}`}
+                                        >
+                                            <Heart className={`w-5 h-5 ${isInWishlist(product.id) ? 'fill-current' : ''}`} />
+                                        </button>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                const normalizedProduct = {
+                                                    ...product,
+                                                    title: product.name
+                                                };
+                                                addToCart(normalizedProduct);
+                                                flyToCart(e, product.image);
+                                            }}
+                                            className="p-3 bg-white rounded-2xl text-gray-900 border-none cursor-pointer hover:bg-blue-600 hover:text-white transition-colors shadow-xl"
+                                        >
                                             <ShoppingBag className="w-5 h-5" />
                                         </button>
+
                                     </div>
+
                                 </div>
                                 <div className="space-y-4">
                                     <div className="flex justify-between items-start">

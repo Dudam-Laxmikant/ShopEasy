@@ -1,7 +1,21 @@
-import React from 'react';
 import { Star, ShoppingCart, Heart, Building2, User } from 'lucide-react';
+import { useWishlist } from './context/WishlistContext';
+import { useCart } from './context/CartContext';
+import { useSearchParams } from 'react-router-dom';
+
+import { useEffect, useState } from 'react';
+
 
 const Products = () => {
+    const { toggleWishlist, isInWishlist } = useWishlist();
+    const { addToCart, flyToCart } = useCart();
+    const [searchParams] = useSearchParams();
+
+    const categoryFilter = searchParams.get('category');
+    const tagFilter = searchParams.get('tag');
+    const [sortBy, setSortBy] = useState('Featured');
+    const [filteredProducts, setFilteredProducts] = useState([]);
+
     // Mock Data for Products
     const products = [
         {
@@ -13,7 +27,8 @@ const Products = () => {
             reviews: 128,
             image: "https://theformalclub.in/cdn/shop/files/TealFormalShirt_4.jpg?v=1751886662&width=600",
             badge: "Best Seller",
-            sellerType: "business"
+            sellerType: "business",
+            category: "Headphones"
         },
         {
             id: 2,
@@ -24,7 +39,8 @@ const Products = () => {
             reviews: 856,
             image: "https://images.meesho.com/images/products/666880415/genyp_512.webp?width=512",
             badge: "New",
-            sellerType: "business"
+            sellerType: "business",
+            category: "Smart Watches"
         },
         {
             id: 3,
@@ -35,7 +51,8 @@ const Products = () => {
             reviews: 64,
             image: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
             badge: "Sale",
-            sellerType: "individual"
+            sellerType: "individual",
+            category: "Cameras"
         },
         {
             id: 4,
@@ -45,17 +62,55 @@ const Products = () => {
             rating: 4.6,
             reviews: 215,
             image: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-            sellerType: "business"
+            sellerType: "business",
+            category: "Laptops"
         },
         {
             id: 5,
-            title: "Classic Leather Sneakers",
-            price: 89.95,
+            title: "Classic Cotton White Shirt",
+            price: 45.00,
             rating: 4.3,
-            reviews: 42,
-            image: "https://images-cdn.ubuy.qa/69775dc8b10e005ef006210c-shart-master-t-shirt-funny-saying.jpg",
-            sellerType: "individual"
+            reviews: 120,
+            image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500&auto=format&fit=crop&q=60",
+            sellerType: "individual",
+            category: "Shirts"
         },
+        {
+            id: 7,
+            title: "Slim Fit Denim Jeans",
+            price: 65.00,
+            originalPrice: 89.00,
+            rating: 4.5,
+            reviews: 340,
+            image: "https://images.unsplash.com/photo-1542272604-787c3835535d?w=500&auto=format&fit=crop&q=60",
+            sellerType: "business",
+            badge: "Best Seller",
+            category: "Jeans"
+        },
+        {
+            id: 8,
+            title: "Floral Summer Dress",
+            price: 55.00,
+            rating: 4.7,
+            reviews: 89,
+            image: "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=500&auto=format&fit=crop&q=60",
+            sellerType: "business",
+            badge: "Sale",
+            category: "Western Wear"
+        },
+        {
+            id: 9,
+            title: "Premium Leather Handbag",
+            price: 120.00,
+            originalPrice: 180.00,
+            rating: 4.9,
+            reviews: 56,
+            image: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=500&auto=format&fit=crop&q=60",
+            sellerType: "business",
+            badge: "New",
+            category: "Western Wear"
+        },
+
         {
             id: 6,
             title: "Mechanical Gaming Keyboard",
@@ -65,9 +120,46 @@ const Products = () => {
             reviews: 330,
             image: "https://m.media-amazon.com/images/I/61umEGE0mKL._SX522_.jpg",
             badge: "Choice",
-            sellerType: "business"
+            sellerType: "business",
+            category: "Electronics"
         },
     ];
+
+    useEffect(() => {
+        let result = [...products];
+
+        // 1. Filter by Category
+        if (categoryFilter && categoryFilter !== 'All') {
+            result = result.filter(p => p.category === categoryFilter);
+        }
+
+        // 2. Filter by Tag (Badge)
+        if (tagFilter && tagFilter !== 'All') {
+            result = result.filter(p => p.badge === tagFilter);
+        }
+
+        // 3. Sort results
+        switch (sortBy) {
+            case 'Price: Low to High':
+                result.sort((a, b) => a.price - b.price);
+                break;
+            case 'Price: High to Low':
+                result.sort((a, b) => b.price - a.price);
+                break;
+            case 'Avg. Customer Review':
+                result.sort((a, b) => b.rating - a.rating);
+                break;
+            case 'Newest Arrivals':
+                result.sort((a, b) => b.id - a.id);
+                break;
+            case 'Featured':
+            default:
+                break;
+        }
+
+        setFilteredProducts(result);
+    }, [categoryFilter, tagFilter, sortBy]);
+
 
     const renderStars = (rating) => {
         return (
@@ -94,7 +186,11 @@ const Products = () => {
                 </div>
                 <div className="flex items-center gap-2">
                     <span className="text-sm text-gray-600">Sort by:</span>
-                    <select className="text-sm border-gray-300 rounded-md shadow-sm focus:border-yellow-500 focus:ring-yellow-500 bg-gray-50 p-2 cursor-pointer outline-none">
+                    <select
+                        value={sortBy}
+                        onChange={(e) => setSortBy(e.target.value)}
+                        className="text-sm border-gray-300 rounded-md shadow-sm focus:border-yellow-500 focus:ring-yellow-500 bg-gray-50 p-2 cursor-pointer outline-none"
+                    >
                         <option>Featured</option>
                         <option>Price: Low to High</option>
                         <option>Price: High to Low</option>
@@ -106,7 +202,8 @@ const Products = () => {
 
             {/* Products Grid */}
             <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-0 gap-y-4 md:gap-6 lg:gap-8">
-                {products.map((product, index) => {
+                {filteredProducts.map((product, index) => {
+
                     const isLeft = index % 2 === 0;
                     return (
                         <div
@@ -129,9 +226,17 @@ const Products = () => {
                                 )}
 
                                 {/* Wishlist - Always Top Right */}
-                                <button className="absolute top-2 right-2 p-1.5 rounded-full bg-white text-gray-400 hover:text-red-500 border border-gray-200 shadow-sm z-10 transition-colors">
-                                    <Heart className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        toggleWishlist(product);
+                                    }}
+                                    className={`absolute top-2 right-2 p-1.5 rounded-full bg-white border border-gray-200 shadow-sm z-10 transition-all active:scale-95
+                                        ${isInWishlist(product.id) ? 'text-red-600 border-red-100 shadow-red-100' : 'text-gray-400 hover:text-red-500'}`}
+                                >
+                                    <Heart className={`w-3.5 h-3.5 md:w-4 md:h-4 ${isInWishlist(product.id) ? 'fill-current' : ''}`} />
                                 </button>
+
 
                                 <img
                                     src={product.image}
@@ -177,10 +282,12 @@ const Products = () => {
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        window.open(`/product/${product.id}`, '_blank');
+                                        addToCart(product);
+                                        flyToCart(e, product.image);
                                     }}
-                                    className="absolute bottom-0 left-0 bg-yellow-400 hover:bg-yellow-500 text-gray-900 hover:text-white px-4 md:px-2 h-9 md:h-12 flex items-center justify-center gap-2 rounded-tr-[20px] shadow-sm transition-all duration-300 z-1"
+                                    className="absolute bottom-0 left-0 bg-yellow-400 hover:bg-yellow-500 text-gray-900 hover:text-white px-4 md:px-2 h-9 md:h-12 flex items-center justify-center gap-2 rounded-tr-[20px] shadow-sm transition-all duration-300 z-1 cursor-pointer"
                                 >
+
                                     <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider">Add To Cart</span>
                                 </button>
                             </div>

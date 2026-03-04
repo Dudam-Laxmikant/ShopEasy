@@ -1,20 +1,54 @@
 
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { Heart, Ruler, Check, ChevronLeft, ChevronRight, Star } from 'lucide-react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Heart, Ruler, Check, ChevronLeft, ChevronRight, Star, ShoppingBag, Zap } from 'lucide-react';
+import { useCart } from './context/CartContext';
+import { useWishlist } from './context/WishlistContext';
 
 const ProductDetails = () => {
     const { id } = useParams();
+    const navigate = useNavigate();
+    const { addToCart, flyToCart } = useCart();
+    const { toggleWishlist, isInWishlist } = useWishlist();
 
-    // Load Dynamic Product Data
     const [product, setProduct] = useState(() => {
         const savedProducts = JSON.parse(localStorage.getItem('sellerProducts') || '[]');
-        return savedProducts.find(p => p.id === id) || null;
+        return savedProducts.find(p => p.id === id) || {
+            id: id,
+            name: 'Cambridge Giza Cotton Shirt In Slate Blue',
+            price: 1699,
+            regularPrice: 3499,
+            image: "https://theformalclub.in/cdn/shop/files/TealFormalShirt_4.jpg?v=1751886662&width=600",
+            description: 'Experience the luxury of Giza cotton with this meticulously crafted slate blue shirt. Perfect for formal events and office wear, combining comfort with timeless style.',
+            rating: 4.8,
+            reviews: 120
+        };
     });
 
     const [selectedColor, setSelectedColor] = useState(product?.colors?.[0] || 'Slate Blue');
     const [selectedSize, setSelectedSize] = useState(product?.sizes?.[0] || 'S / 38');
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+
+    const handleAddToCart = (e) => {
+        addToCart({
+            ...product,
+            title: product.name || product.title,
+            color: selectedColor,
+            size: selectedSize
+        });
+        flyToCart(e, productImages[currentImageIndex]);
+    };
+
+    const handleBuyNow = () => {
+        addToCart({
+            ...product,
+            title: product.name,
+            color: selectedColor,
+            size: selectedSize
+        });
+        navigate('/checkout');
+    };
 
     const productImages = (product?.images && product.images.length > 0) ? product.images : [
         "https://theformalclub.in/cdn/shop/files/TealFormalShirt_2.jpg?v=1751886662&width=600",
@@ -57,7 +91,7 @@ const ProductDetails = () => {
     // Mock Data for Similar Products
     const similarProducts = [
         {
-            id: 2,
+            id: 'sim-p1',
             title: "Smart Watch Series 7 GPS",
             price: 398.00,
             originalPrice: 429.00,
@@ -67,7 +101,7 @@ const ProductDetails = () => {
             badge: "New"
         },
         {
-            id: 3,
+            id: 'sim-p2',
             title: "Professional DSLR Camera Kit",
             price: 1299.00,
             originalPrice: 1499.00,
@@ -77,38 +111,38 @@ const ProductDetails = () => {
             badge: "Sale"
         },
         {
-            id: 3,
-            title: "Professional DSLR Camera Kit",
-            price: 1299.00,
-            originalPrice: 1499.00,
-            rating: 4.9,
-            reviews: 64,
-            image: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+            id: 'sim-p3',
+            title: "Crystal Clear Headphones",
+            price: 599.00,
+            originalPrice: 799.00,
+            rating: 4.7,
+            reviews: 120,
+            image: "https://theformalclub.in/cdn/shop/files/TealFormalShirt_2.jpg?v=1751886662&width=600",
+            badge: "Best Seller"
+        },
+        {
+            id: 'sim-p4',
+            title: "Mechanical Keyboard RGB",
+            price: 129.00,
+            originalPrice: 159.00,
+            rating: 4.6,
+            reviews: 45,
+            image: "https://m.media-amazon.com/images/I/61umEGE0mKL._SX522_.jpg",
+            badge: "New"
+        },
+        {
+            id: 'sim-p5',
+            title: "Action Camera 4K",
+            price: 199.00,
+            originalPrice: 249.00,
+            rating: 4.5,
+            reviews: 89,
+            image: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=500&auto=format&fit=crop&q=60",
             badge: "Sale"
         },
         {
-            id: 3,
-            title: "Professional DSLR Camera Kit",
-            price: 1299.00,
-            originalPrice: 1499.00,
-            rating: 4.9,
-            reviews: 64,
-            image: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-            badge: "Sale"
-        },
-        {
-            id: 3,
-            title: "Professional DSLR Camera Kit",
-            price: 1299.00,
-            originalPrice: 1499.00,
-            rating: 4.9,
-            reviews: 64,
-            image: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-            badge: "Sale"
-        },
-        {
-            id: 4,
-            title: "Gaming Laptop 15.6\" 144Hz",
+            id: 'sim-p6',
+            title: "Gaming Laptop Pro",
             price: 1099.99,
             originalPrice: 1299.99,
             rating: 4.6,
@@ -138,8 +172,9 @@ const ProductDetails = () => {
                 <div className="space-y-4 w-full max-w-md mx-auto md:mx-0">
                     <div className="bg-[#e5e0d8] h-96 rounded-lg overflow-hidden relative group w-full">
                         <img
+                            id="product-main-image"
                             src={productImages[currentImageIndex]}
-                            alt="Cambridge Giza Cotton Shirt"
+                            alt="Product Image"
                             className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
                         />
                         {/* Navigation Arrows (visible on hover or always on mobile) */}
@@ -187,9 +222,13 @@ const ProductDetails = () => {
                     {/* Header */}
                     <div className="space-y-2">
                         <div className="flex justify-between items-start">
-                            <h1 className="text-xl md:text-2xl font-bold text-[#8B4513]">{product ? product.name : 'Cambridge Giza Cotton Shirt In Slate Blue'}</h1>
-                            <button className="text-gray-900 hover:text-red-500 transition-colors">
-                                <Heart className="w-6 h-6" />
+                            <h1 className="text-xl md:text-2xl font-bold text-[#8B4513]">{product ? (product.name || product.title) : 'Cambridge Giza Cotton Shirt In Slate Blue'}</h1>
+                            <button
+                                onClick={() => toggleWishlist(product)}
+                                className={`p-2 rounded-full border transition-all active:scale-95 cursor-pointer
+                                    ${isInWishlist(product.id) ? 'text-red-500 border-red-100 bg-red-50' : 'text-gray-400 border-gray-200 hover:text-red-500'}`}
+                            >
+                                <Heart className={`w-6 h-6 ${isInWishlist(product.id) ? 'fill-current' : ''}`} />
                             </button>
                         </div>
                         <p className="text-sm text-gray-600 leading-relaxed">
@@ -230,12 +269,9 @@ const ProductDetails = () => {
                     </div>
 
                     {/* Size Selection */}
-                    <div className="space-y-2 pt-2">
+                    <div className="space-y-4 pt-2">
                         <div className="flex justify-between items-center">
-                            <span className="font-bold text-gray-900">Avilable Size:</span>
-                            {/* <button className="flex items-center gap-1 text-[#C19A6B] font-bold text-sm hover:underline">
-                                <Ruler className="w-4 h-4" /> Size Chart
-                            </button> */}
+                            <span className="font-bold text-gray-900">Available Size:</span>
                         </div>
                         <div className="flex flex-wrap gap-3">
                             {(product?.sizes?.length > 0 ? product.sizes : sizes).map((size) => (
@@ -251,6 +287,24 @@ const ProductDetails = () => {
                                     {size}
                                 </button>
                             ))}
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="flex flex-col sm:flex-row gap-4 mt-8 pt-4">
+                            <button
+                                onClick={handleAddToCart}
+                                className="flex-1 flex items-center justify-center gap-2 bg-gray-900 text-white rounded-xl py-4 px-6 text-sm font-black uppercase tracking-widest hover:bg-black transition-all active:scale-95 shadow-xl shadow-gray-200 border-none cursor-pointer"
+                            >
+                                <ShoppingBag className="w-5 h-5" />
+                                Add to Cart
+                            </button>
+                            <button
+                                onClick={handleBuyNow}
+                                className="flex-1 flex items-center justify-center gap-2 bg-yellow-400 text-gray-900 rounded-xl py-4 px-6 text-sm font-black uppercase tracking-widest hover:bg-yellow-500 transition-all active:scale-95 shadow-xl shadow-yellow-200 border-none cursor-pointer"
+                            >
+                                <Zap className="w-5 h-5 fill-current" />
+                                Buy Now
+                            </button>
                         </div>
                     </div>
 
@@ -323,8 +377,15 @@ const ProductDetails = () => {
                                     )}
 
                                     {/* Wishlist - Always Top Right */}
-                                    <button className="absolute top-2 right-2 p-1.5 rounded-full bg-white text-gray-400 hover:text-red-500 border border-gray-200 shadow-sm z-10 transition-colors">
-                                        <Heart className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            toggleWishlist(product);
+                                        }}
+                                        className={`absolute top-2 right-2 p-1.5 rounded-full bg-white border border-gray-200 shadow-sm z-10 transition-all active:scale-95
+                                            ${isInWishlist(product.id) ? 'text-red-600 border-red-100 shadow-red-100' : 'text-gray-400 hover:text-red-500'}`}
+                                    >
+                                        <Heart className={`w-3.5 h-3.5 md:w-4 md:h-4 ${isInWishlist(product.id) ? 'fill-current' : ''}`} />
                                     </button>
 
                                     <img
@@ -364,9 +425,10 @@ const ProductDetails = () => {
                                     <button
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            window.open(`/product/${product.id}`, '_blank');
+                                            addToCart(product);
+                                            flyToCart(e, product.image);
                                         }}
-                                        className="absolute bottom-0 left-0 bg-yellow-400 hover:bg-yellow-500 text-gray-900 hover:text-white px-4 md:px-2 h-9 md:h-12 flex items-center justify-center gap-2 rounded-tr-[20px] shadow-sm transition-all duration-300 z-1"
+                                        className="absolute bottom-0 left-0 bg-yellow-400 hover:bg-yellow-500 text-gray-900 hover:text-white px-4 md:px-2 h-9 md:h-12 flex items-center justify-center gap-2 rounded-tr-[20px] shadow-sm transition-all duration-300 z-1 cursor-pointer"
                                     >
                                         <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider">Add To Cart</span>
                                     </button>
