@@ -16,7 +16,12 @@ import {
     FileText,
     MapPin,
     CreditCard,
-    Users
+    Users,
+    Eye,
+    EyeOff,
+    Fingerprint,
+    Image,
+    Upload
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -31,6 +36,7 @@ const SellerAuth = () => {
     const [view, setView] = useState(initialView); // 'login', 'register'
     const [registrationType, setRegistrationType] = useState(null); // 'normal', 'business'
     const [step, setStep] = useState(0); // 0: select type, 1: form, 2: success
+    const [showPassword, setShowPassword] = useState(false);
 
     useEffect(() => {
         const currentView = new URLSearchParams(location.search).get('view') || 'login';
@@ -243,15 +249,105 @@ const SellerAuth = () => {
                                     />
                                 </div>
                             </div>
+                            <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-gray-700 ml-1">Country</label>
+                                    <div className="relative">
+                                        <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                        <input
+                                            type="text"
+                                            placeholder="e.g. India"
+                                            className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-gray-700 ml-1">State</label>
+                                    <div className="relative">
+                                        <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                        <input
+                                            type="text"
+                                            placeholder="e.g. Gujarat"
+                                            className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-gray-700 ml-1">City</label>
+                                    <div className="relative">
+                                        <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                        <input
+                                            type="text"
+                                            placeholder="e.g. Surat"
+                                            className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-gray-700 ml-1">Pincode</label>
+                                    <div className="relative">
+                                        <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                        <input
+                                            type="text"
+                                            placeholder="395001"
+                                            className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
                             <div className="md:col-span-2 space-y-2">
-                                <label className="text-sm font-bold text-gray-700 ml-1">Corporate Address</label>
+                                <label className="text-sm font-bold text-gray-700 ml-1">Corporate Address (Street, Area, Building)</label>
                                 <div className="relative">
                                     <MapPin className="absolute left-4 top-4 w-5 h-5 text-gray-400" />
                                     <textarea
-                                        rows="3"
-                                        placeholder="Complete address including state and zip..."
+                                        rows="2"
+                                        placeholder="Flat/House No., Building Name, Street, Area..."
                                         className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none resize-none"
                                     ></textarea>
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold text-gray-700 ml-1">Aadhar Number</label>
+                                <div className="relative">
+                                    <Fingerprint className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                    <input
+                                        type="text"
+                                        placeholder="1234 5678 9012"
+                                        className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                                    />
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold text-gray-700 ml-1">Account Password</label>
+                                <div className="relative">
+                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                    <input
+                                        type={showPassword ? "text" : "password"}
+                                        placeholder="••••••••"
+                                        className="w-full pl-12 pr-12 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute right-4 top-1/2 -translate-y-1/2 bg-transparent border-none p-0 cursor-pointer text-gray-400 hover:text-gray-600"
+                                    >
+                                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="md:col-span-2 space-y-3">
+                                <label className="text-sm font-bold text-gray-700 ml-1">Verify Identity (Documents)</label>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div className="border-2 border-dashed border-gray-200 rounded-[24px] p-6 text-center hover:border-indigo-400 transition-colors cursor-pointer group bg-gray-50/50">
+                                        <Image className="w-8 h-8 text-gray-400 mx-auto mb-2 group-hover:text-indigo-500 transition-colors" />
+                                        <p className="text-sm font-bold text-gray-900">PAN Card Image</p>
+                                        <p className="text-xs text-gray-500 mt-1">Clear JPG/PNG up to 5MB</p>
+                                    </div>
+                                    <div className="border-2 border-dashed border-gray-200 rounded-[24px] p-6 text-center hover:border-indigo-400 transition-colors cursor-pointer group bg-gray-50/50">
+                                        <Image className="w-8 h-8 text-gray-400 mx-auto mb-2 group-hover:text-indigo-500 transition-colors" />
+                                        <p className="text-sm font-bold text-gray-900">Aadhar Card Image</p>
+                                        <p className="text-xs text-gray-500 mt-1">Clear JPG/PNG up to 5MB</p>
+                                    </div>
                                 </div>
                             </div>
                         </>
@@ -329,7 +425,7 @@ const SellerAuth = () => {
     );
 
     return (
-        <div className="min-h-screen bg-white flex flex-col lg:flex-row font-sans overflow-x-hidden">
+        <div className="h-screen bg-white flex flex-col lg:flex-row font-sans overflow-hidden">
             {/* Sidebar Content (Decorative) */}
             <div className="relative hidden lg:flex lg:w-[45%] bg-gray-950 p-16 flex-col justify-between overflow-hidden">
                 <div className="absolute top-0 left-0 w-full h-full">
@@ -338,7 +434,7 @@ const SellerAuth = () => {
                 </div>
 
                 <div className="relative z-10 flex items-center gap-2 cursor-pointer" onClick={() => navigate('/seller/landing')}>
-                    <div className="p-2 bg-yellow-400 rounded-xl">
+                    <div className="p-2 bg-yellow-400 rounded-xl shadow-lg shadow-yellow-400/20">
                         <Zap className="h-6 w-6 text-gray-900 fill-current" />
                     </div>
                     <span className="text-2xl font-black text-white">ShopEasy <span className="text-blue-500">Seller</span></span>
@@ -384,55 +480,57 @@ const SellerAuth = () => {
             </div>
 
             {/* Auth Content */}
-            <div className="flex-1 flex flex-col justify-center p-6 md:p-12 lg:p-20 relative">
-                {/* Mobile Logo */}
-                <div className="lg:hidden flex items-center gap-2 mb-12">
-                    <div className="p-2 bg-yellow-400 rounded-xl">
-                        <Zap className="h-6 w-6 text-gray-900 fill-current" />
-                    </div>
-                    <span className="text-xl font-black uppercase tracking-tighter">ShopEasy</span>
-                </div>
-
-                <div className="w-full max-w-[520px] mx-auto">
-                    {/* View Switcher */}
-                    {step === 0 && (
-                        <div className="flex p-1.5 bg-gray-50 rounded-2xl mb-12">
-                            <button
-                                onClick={() => handleSwitchView('login')}
-                                className={`flex-1 py-3.5 rounded-xl font-black text-sm transition-all border-none cursor-pointer ${view === 'login' ? 'bg-white shadow-lg shadow-gray-200/50 text-gray-900' : 'text-gray-400 hover:text-gray-600'}`}
-                            >
-                                Seller Login
-                            </button>
-                            <button
-                                onClick={() => handleSwitchView('register')}
-                                className={`flex-1 py-3.5 rounded-xl font-black text-sm transition-all border-none cursor-pointer ${view === 'register' ? 'bg-white shadow-lg shadow-gray-200/50 text-gray-900' : 'text-gray-400 hover:text-gray-600'}`}
-                            >
-                                Join as Seller
-                            </button>
+            <div className="flex-1 flex flex-col relative overflow-y-auto scroll-smooth">
+                <div className="min-h-full flex flex-col justify-center py-12 md:py-20 px-6 md:px-12 lg:px-20">
+                    {/* Mobile Logo */}
+                    <div className="lg:hidden flex items-center gap-2 mb-12">
+                        <div className="p-2 bg-yellow-400 rounded-xl">
+                            <Zap className="h-6 w-6 text-gray-900 fill-current" />
                         </div>
-                    )}
+                        <span className="text-xl font-black uppercase tracking-tighter">ShopEasy</span>
+                    </div>
 
-                    {/* Content Rendering */}
-                    {view === 'login' ? (
-                        renderLogin()
-                    ) : (
-                        <>
-                            {step === 0 && renderRegistrationChoice()}
-                            {step === 1 && renderRegistrationForm()}
-                            {step === 2 && renderSuccess()}
-                        </>
-                    )}
+                    <div className="w-full max-w-[520px] mx-auto">
+                        {/* View Switcher */}
+                        {step === 0 && (
+                            <div className="flex p-1.5 bg-gray-50 rounded-2xl mb-12">
+                                <button
+                                    onClick={() => handleSwitchView('login')}
+                                    className={`flex-1 py-3.5 rounded-xl font-black text-sm transition-all border-none cursor-pointer ${view === 'login' ? 'bg-white shadow-lg shadow-gray-200/50 text-gray-900' : 'text-gray-400 hover:text-gray-600'}`}
+                                >
+                                    Seller Login
+                                </button>
+                                <button
+                                    onClick={() => handleSwitchView('register')}
+                                    className={`flex-1 py-3.5 rounded-xl font-black text-sm transition-all border-none cursor-pointer ${view === 'register' ? 'bg-white shadow-lg shadow-gray-200/50 text-gray-900' : 'text-gray-400 hover:text-gray-600'}`}
+                                >
+                                    Join as Seller
+                                </button>
+                            </div>
+                        )}
 
-                    {/* Footer text */}
-                    {step < 2 && (
-                        <p className="mt-12 text-center text-sm font-bold text-gray-400">
-                            {view === 'login' ? (
-                                <>Don't have an account? <button onClick={() => handleSwitchView('register')} className="text-blue-600 hover:underline border-none bg-transparent cursor-pointer font-black ml-1">Get Started</button></>
-                            ) : (
-                                <>Already have an account? <button onClick={() => handleSwitchView('login')} className="text-blue-600 hover:underline border-none bg-transparent cursor-pointer font-black ml-1">Login here</button></>
-                            )}
-                        </p>
-                    )}
+                        {/* Content Rendering */}
+                        {view === 'login' ? (
+                            renderLogin()
+                        ) : (
+                            <>
+                                {step === 0 && renderRegistrationChoice()}
+                                {step === 1 && renderRegistrationForm()}
+                                {step === 2 && renderSuccess()}
+                            </>
+                        )}
+
+                        {/* Footer text */}
+                        {step < 2 && (
+                            <p className="mt-12 text-center text-sm font-bold text-gray-400">
+                                {view === 'login' ? (
+                                    <>Don't have an account? <button onClick={() => handleSwitchView('register')} className="text-blue-600 hover:underline border-none bg-transparent cursor-pointer font-black ml-1">Get Started</button></>
+                                ) : (
+                                    <>Already have an account? <button onClick={() => handleSwitchView('login')} className="text-blue-600 hover:underline border-none bg-transparent cursor-pointer font-black ml-1">Login here</button></>
+                                )}
+                            </p>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>
