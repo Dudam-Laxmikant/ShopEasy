@@ -425,9 +425,9 @@ const SellerAuth = () => {
     );
 
     return (
-        <div className="h-screen bg-white flex flex-col lg:flex-row font-sans overflow-hidden">
+        <div className="min-h-screen bg-white flex flex-col lg:flex-row font-sans">
             {/* Sidebar Content (Decorative) */}
-            <div className="relative hidden lg:flex lg:w-[45%] bg-gray-950 p-16 flex-col justify-between overflow-hidden">
+            <div className="relative hidden lg:flex lg:w-[45%] bg-gray-950 p-16 flex-col justify-between overflow-hidden lg:sticky lg:top-0 lg:h-screen">
                 <div className="absolute top-0 left-0 w-full h-full">
                     <div className="absolute top-1/4 -left-1/4 w-full h-full bg-blue-600/20 rounded-full blur-[120px] animate-pulse"></div>
                     <div className="absolute -bottom-1/4 -right-1/4 w-full h-full bg-indigo-600/20 rounded-full blur-[120px]"></div>
@@ -480,8 +480,8 @@ const SellerAuth = () => {
             </div>
 
             {/* Auth Content */}
-            <div className="flex-1 flex flex-col relative overflow-y-auto scroll-smooth">
-                <div className="min-h-full flex flex-col justify-center py-12 md:py-20 px-6 md:px-12 lg:px-20">
+            <div className="flex-1 overflow-y-auto">
+                <div className="flex flex-col py-12 px-6 md:px-12 lg:px-20 min-h-screen justify-center">
                     {/* Mobile Logo */}
                     <div className="lg:hidden flex items-center gap-2 mb-12">
                         <div className="p-2 bg-yellow-400 rounded-xl">
