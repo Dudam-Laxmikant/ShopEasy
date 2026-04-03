@@ -29,8 +29,8 @@ const AdminSidebar = ({ isOpen, onClose }) => {
             title: 'Control Center',
             links: [
                 { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
-                { name: 'System Logs', path: '/admin/logs', icon: Database },
-                { name: 'Analytics', path: '/admin/analytics', icon: Zap },
+                // { name: 'System Logs', path: '/admin/logs', icon: Database },
+                // { name: 'Analytics', path: '/admin/analytics', icon: Zap },
             ]
         },
         {
@@ -38,7 +38,7 @@ const AdminSidebar = ({ isOpen, onClose }) => {
             links: [
                 { name: 'Sellers Verification', path: '/admin/sellers', icon: Users, badge: '12' },
                 { name: 'Product Moderation', path: '/admin/moderation', icon: ShieldCheck, badge: '45' },
-                { name: 'User Directory', path: '/admin/users', icon: Search },
+                // { name: 'User Directory', path: '/admin/users', icon: Search },
             ]
         },
         {
@@ -55,6 +55,14 @@ const AdminSidebar = ({ isOpen, onClose }) => {
                 { name: 'Banner Control', path: '/admin/marketing/banners', icon: Image },
                 { name: 'Campaign/Coupons', path: '/admin/marketing/coupons', icon: Ticket },
                 { name: 'Promotions', path: '/admin/marketing/promotions', icon: Megaphone },
+            ]
+        },
+        {
+            title: 'Core Infrastructure',
+            links: [
+                { name: 'System Config', path: '/admin/system', icon: Cpu },
+                { name: 'Access Control', path: '/admin/security', icon: Lock },
+                { name: 'Global Settings', path: '/admin/settings', icon: Settings },
             ]
         },
         {
