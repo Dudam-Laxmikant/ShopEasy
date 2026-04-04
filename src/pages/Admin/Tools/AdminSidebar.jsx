@@ -42,6 +42,15 @@ const AdminSidebar = ({ isOpen, onClose }) => {
             ]
         },
         {
+            title: 'Management',
+            links: [
+                { name: 'Sellers', path: '/admin/sellers-list', icon: Users },
+                { name: 'Clients', path: '/admin/clients-list', icon: ShieldCheck },
+                { name: 'Admins', path: '/admin/admins-list', icon: ShieldCheck },
+                // { name: '', path: '/admin/settings', icon: Settings },
+            ]
+        },
+        {
             title: 'Business Engine',
             links: [
                 { name: 'Global Orders', path: '/admin/orders', icon: ShoppingCart },
@@ -72,7 +81,8 @@ const AdminSidebar = ({ isOpen, onClose }) => {
                 { name: 'Access Control', path: '/admin/security', icon: Lock },
                 { name: 'Global Settings', path: '/admin/settings', icon: Settings },
             ]
-        }
+        },
+        
     ];
 
     return (

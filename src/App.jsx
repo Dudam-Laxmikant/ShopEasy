@@ -46,6 +46,9 @@ import OrderManagement from './pages/Admin/OrderManagement';
 import FinancialControl from './pages/Admin/FinancialControl';
 import MarketingControl from './pages/Admin/MarketingControl';
 import SystemManagement from './pages/Admin/SystemManagement';
+import SellersList from './pages/Admin/SellersList';
+import ClientsList from './pages/Admin/ClientsList';
+import AdminList from './pages/Admin/AdminList';
 
 import { WishlistProvider } from './pages/ClientSide/context/WishlistContext';
 import { CartProvider } from './pages/ClientSide/context/CartContext';
@@ -128,6 +131,9 @@ function App() {
                                 <Route path="settlements" element={<FinancialControl />} />
                                 <Route path="marketing/*" element={<MarketingControl />} />
                                 <Route path="system" element={<SystemManagement />} />
+                                <Route path="sellers-list" element={<SellersList />} />
+                                <Route path="clients-list" element={<ClientsList />} />
+                                <Route path="admins-list" element={<AdminList />} />
                                 <Route path="security" element={<SystemManagement />} />
                                 <Route path="settings" element={<SystemManagement />} />
                                 <Route path="logs" element={<SystemManagement />} />
