@@ -24,6 +24,7 @@ import { useNavigate } from 'react-router-dom';
 const ProductManagement = () => {
     const navigate = useNavigate();
     const [selectedTab, setSelectedTab] = useState('All');
+    const [selectedCategory, setSelectedCategory] = useState('All');
 
     const [productList, setProductList] = useState(() => {
         const staticProducts = [
@@ -80,9 +81,10 @@ const ProductManagement = () => {
     const filteredProducts = productList
         .filter(p => {
             const matchesTab = selectedTab === 'All' || p.status === selectedTab;
+            const matchesCategory = selectedCategory === 'All' || p.parent_category === selectedCategory;
             const matchesSearch = p.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 p.category?.toLowerCase().includes(searchQuery.toLowerCase());
-            return matchesTab && matchesSearch;
+            return matchesTab && matchesCategory && matchesSearch;
         })
         .sort((a, b) => {
             if (sortBy === 'Newest') return new Date(b.createdAt) - new Date(a.createdAt);
@@ -97,20 +99,20 @@ const ProductManagement = () => {
             {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900">Product Management</h1>
-                    <p className="text-gray-500 mt-1">Manage your inventory, pricing and listing details.</p>
+                    <h1 className="text-3xl font-black text-gray-900 tracking-tight">Product Management</h1>
+                    <p className="text-gray-500 mt-1 font-medium">Manage your inventory, pricing and listing details.</p>
                 </div>
                 <div className="flex items-center gap-3 w-full sm:w-auto">
                     <button
                         onClick={handleBulkUpload}
-                        className="flex-1 sm:flex-none border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer text-sm"
+                        className="flex-1 sm:flex-none border border-gray-100 bg-white hover:bg-gray-50 text-gray-400 font-bold py-3 px-5 rounded-2xl flex items-center justify-center gap-2 transition-all cursor-pointer text-xs uppercase tracking-widest"
                     >
                         <Upload className="w-4 h-4" />
                         Bulk Upload
                     </button>
                     <button
                         onClick={() => navigate('/seller/add-product')}
-                        className="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-blue-200 border-none cursor-pointer text-sm"
+                        className="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700 text-white font-black py-3 px-8 rounded-2xl flex items-center justify-center gap-2 transition-all shadow-xl shadow-blue-200 border-none cursor-pointer text-xs uppercase tracking-[0.2em]"
                     >
                         <Plus className="w-4 h-4" />
                         Add Product
@@ -118,48 +120,70 @@ const ProductManagement = () => {
                 </div>
             </div>
 
-            {/* Filter Tabs */}
-            <div className="flex items-center justify-between border-b border-gray-200 mt-4 overflow-x-auto scrollbar-hide">
-                <div className="flex gap-8">
-                    {['All', 'Active', 'Out of Stock', 'Inactive', 'Archived'].map((tab) => (
+            {/* Category and Tabs Row */}
+            <div className="space-y-6">
+                {/* Category Pills */}
+                <div className="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                    {['All', 'Men', 'Women', 'Electronics', 'Others'].map((cat) => (
                         <button
-                            key={tab}
-                            onClick={() => setSelectedTab(tab)}
-                            className={`pb-4 text-sm font-bold transition-all relative border-none bg-transparent cursor-pointer whitespace-nowrap outline-none
-                                ${selectedTab === tab ? 'text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}
+                            key={cat}
+                            onClick={() => setSelectedCategory(cat)}
+                            className={`px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border outline-none cursor-pointer whitespace-nowrap
+                                ${selectedCategory === cat
+                                    ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-200'
+                                    : 'bg-white text-gray-400 border-gray-100 hover:border-gray-300 hover:text-gray-900'}`}
                         >
-                            {tab}
-                            {selectedTab === tab && (
-                                <div className="absolute bottom-0 left-0 w-full h-1 bg-blue-600 rounded-t-full animate-in slide-in-from-bottom-1 duration-300"></div>
-                            )}
+                            {cat}
                         </button>
                     ))}
                 </div>
-                <div className="hidden md:flex items-center gap-4 pb-4">
-                    <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Sort By:</p>
-                    <select
-                        value={sortBy}
-                        onChange={(e) => setSortBy(e.target.value)}
-                        className="text-sm font-bold text-gray-700 hover:text-blue-600 border-none bg-transparent cursor-pointer outline-none"
-                    >
-                        <option value="Newest">Newest First</option>
-                        <option value="Oldest">Oldest First</option>
-                        <option value="Price: Low to High">Price: Low to High</option>
-                        <option value="Price: High to Low">Price: High to Low</option>
-                    </select>
+
+                {/* Status Tabs and Quick Controls */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-gray-100 gap-4">
+                    <div className="flex gap-8 overflow-x-auto scrollbar-hide">
+                        {['All', 'Active', 'Out of Stock', 'Inactive', 'Archived'].map((tab) => (
+                            <button
+                                key={tab}
+                                onClick={() => setSelectedTab(tab)}
+                                className={`pb-4 text-xs font-black uppercase tracking-widest transition-all relative border-none bg-transparent cursor-pointer whitespace-nowrap outline-none
+                                    ${selectedTab === tab ? 'text-gray-900' : 'text-gray-400 hover:text-gray-600'}`}
+                            >
+                                {tab}
+                                {selectedTab === tab && (
+                                    <div className="absolute bottom-0 left-0 w-full h-1 bg-blue-600 rounded-t-full shadow-[0_-2px_10px_rgba(37,99,235,0.3)]"></div>
+                                )}
+                            </button>
+                        ))}
+                    </div>
+
+                    <div className="flex items-center justify-between md:justify-end gap-6 pb-4">
+                        <div className="flex items-center gap-3">
+                            <span className="text-[10px] font-black text-gray-300 uppercase tracking-widest">Sort:</span>
+                            <select
+                                value={sortBy}
+                                onChange={(e) => setSortBy(e.target.value)}
+                                className="text-[10px] font-black text-gray-600 uppercase tracking-widest hover:text-blue-600 border-none bg-transparent cursor-pointer outline-none"
+                            >
+                                <option value="Newest">Newest First</option>
+                                <option value="Oldest">Oldest First</option>
+                                <option value="Price: Low to High">Price: Low to High</option>
+                                <option value="Price: High to Low">Price: High to Low</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            {/* Search & Bulk Actions */}
-            <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
+            {/* Search & Secondary Actions */}
+            <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-white p-4 rounded-3xl border border-gray-50">
                 <div className="relative w-full md:w-96">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <input
                         type="text"
-                        placeholder="Search by product name or category..."
+                        placeholder="Search product name, SKU or brand..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all font-sans"
+                        className="w-full pl-12 pr-6 py-4 bg-gray-50/50 border-none rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all font-sans placeholder:text-gray-300"
                     />
                 </div>
                 <div className="flex items-center gap-3 w-full md:w-auto">

@@ -13,7 +13,8 @@ import {
     FileText,
     Truck,
     HelpCircle,
-    ChevronRight
+    ChevronRight,
+    Users
 } from 'lucide-react';
 
 const SellerSidebar = ({ isOpen, onClose }) => {
@@ -59,6 +60,12 @@ const SellerSidebar = ({ isOpen, onClose }) => {
             links: [
                 { name: 'Registration', path: '/seller/registration', icon: UserPlus },
                 { name: 'Verification Status', path: '/seller/verification', icon: ShieldCheck },
+            ]
+        },
+        {
+            title: 'Team & Sub-Sellers',
+            links: [
+                { name: 'Manage Sub-Sellers', path: '/seller/sub-sellers', icon: Users },
             ]
         }
     ];

@@ -35,6 +35,7 @@ import InvoiceManagement from './pages/SallesSide/Invoices/InvoiceManagement';
 import ShipmentTracking from './pages/SallesSide/Shipments/ShipmentTracking';
 import SellerLanding from './pages/SallesSide/Auth/SellerLanding';
 import SellerAuth from './pages/SallesSide/Auth/SellerAuth';
+import ManageSubSellers from './pages/SallesSide/ManageSubSellers';
 
 // Admin Side Imports
 import AdminLayout from './pages/Admin/AdminLayout';
@@ -116,6 +117,7 @@ function App() {
                                 <Route path="/seller/settlements" element={<Settlement />} />
                                 <Route path="/seller/invoices" element={<InvoiceManagement />} />
                                 <Route path="/seller/returns" element={<ReturnsHandling />} />
+                                <Route path="/seller/sub-sellers" element={<ManageSubSellers />} />
                             </Route>
 
 
