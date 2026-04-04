@@ -15,7 +15,21 @@ import {
     Palette,
     Pipette,
     ClipboardList,
-    Search
+    Search,
+    User,
+    UserRound,
+    Laptop,
+    LayoutGrid,
+    Smartphone,
+    Cpu,
+    HardDrive,
+    Shield,
+    Hash,
+    Zap,
+    Activity,
+    Wifi,
+    Maximize,
+    Scale
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -26,6 +40,7 @@ const AddProduct = () => {
     const [selectedColors, setSelectedColors] = useState([]);
     const [selectedSizes, setSelectedSizes] = useState([]);
     const [activeImageIdx, setActiveImageIdx] = useState(0);
+    const [showCategoryModal, setShowCategoryModal] = useState(true);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
 
     // Basic Product Info States
@@ -37,6 +52,54 @@ const AddProduct = () => {
     const [sku, setSku] = useState('');
     const [initialStock, setInitialStock] = useState('');
     const [costPrice, setCostPrice] = useState('');
+
+    // Electronics Specification States
+    const [modelName, setModelName] = useState('');
+    const [modelNumber, setModelNumber] = useState('');
+    const [processorSearch, setProcessorSearch] = useState('');
+    const [selectedProcessor, setSelectedProcessor] = useState('');
+    const [isProcessorDropdownOpen, setIsProcessorDropdownOpen] = useState(false);
+    const processorOptions = ['Apple A17 Pro', 'Apple M3 Max', 'Snapdragon 8 Gen 3', 'Intel Core i9-14900K', 'AMD Ryzen 9 7950X', 'Google Tensor G3', 'Exynos 2400', 'MediaTek Dimensity 9300', 'NVIDIA RTX 4090 GPU', 'Apple S9 SiP'];
+    const filteredProcessors = processorOptions.filter(p => p.toLowerCase().includes(processorSearch.toLowerCase()));
+
+    const [storageSearch, setStorageSearch] = useState('');
+    const [selectedStorage, setSelectedStorage] = useState('');
+    const [isStorageDropdownOpen, setIsStorageDropdownOpen] = useState(false);
+    const storageOptions = ['8GB / 128GB', '8GB / 256GB', '12GB / 256GB', '12GB / 512GB', '16GB / 512GB', '16GB / 1TB', '32GB / 1TB', '64GB / 2TB', '4GB / 64GB', '18GB / 512GB'];
+    const filteredStorages = storageOptions.filter(s => s.toLowerCase().includes(storageSearch.toLowerCase()));
+
+    const [batterySearch, setBatterySearch] = useState('');
+    const [selectedBattery, setSelectedBattery] = useState('');
+    const [isBatteryDropdownOpen, setIsBatteryDropdownOpen] = useState(false);
+    const batteryOptions = ['3000 mAh', '4000 mAh', '4500 mAh', '5000 mAh', '6000 mAh', '10000 mAh', 'Li-Po 4422 mAh', '54.2Wh (MacBook)', '99.9Wh (Laptop)', '2000 mAh'];
+    const filteredBatteries = batteryOptions.filter(b => b.toLowerCase().includes(batterySearch.toLowerCase()));
+    const [powerConsumption, setPowerConsumption] = useState('');
+    const [dimensions, setDimensions] = useState('');
+    const [weight, setWeight] = useState('');
+    const [selectedConnectivity, setSelectedConnectivity] = useState('');
+    const [connectivitySearch, setConnectivitySearch] = useState('');
+    const [isConnectivityDropdownOpen, setIsConnectivityDropdownOpen] = useState(false);
+    const connectivityOptions = ['WiFi 6', 'Bluetooth 5.3', 'NFC', 'USB-C 3.2', 'HDMI 2.1', 'Ethernet', 'Wireless Charge', 'GPS', '5G Support', 'Thunderbolt 4'];
+    const filteredConnectivity = connectivityOptions.filter(c => c.toLowerCase().includes(connectivitySearch.toLowerCase()));
+
+    const [warrantySearch, setWarrantySearch] = useState('');
+    const [selectedWarranty, setSelectedWarranty] = useState('');
+    const [isWarrantyDropdownOpen, setIsWarrantyDropdownOpen] = useState(false);
+    const warrantyOptions = ['No Warranty', '6 Months', '1 Year Standard', '2 Years Extended', '3 Years Premium', 'Lifetime Warranty', 'Manufacturer Warranty'];
+    const filteredWarranties = warrantyOptions.filter(w => w.toLowerCase().includes(warrantySearch.toLowerCase()));
+
+    const [features, setFeatures] = useState([]);
+    const [featureInput, setFeatureInput] = useState('');
+    const addFeature = () => {
+        if (featureInput.trim()) {
+            setFeatures([...features, featureInput.trim()]);
+            setFeatureInput('');
+        }
+    };
+    const removeFeature = (index) => {
+        setFeatures(features.filter((_, i) => i !== index));
+    };
+
 
     // Generic Searchable Dropdown States & Data
     const [patternSearch, setPatternSearch] = useState('');
@@ -81,6 +144,20 @@ const AddProduct = () => {
     const neckStyles = ['Button Down Collar', 'Crew Neck', 'V-Neck', 'Polo Collar', 'High Neck', 'Scoop Neck', 'Turtle Neck', 'Henley', 'Mandarin Collar', 'Boat Neck', 'Square Neck', 'Off-Shoulder', 'Halter Neck', 'Cowl Neck', 'Sweetheart Neck', 'Mock Neck'];
     const filteredNecks = neckStyles.filter(n => n.toLowerCase().includes(neckSearch.toLowerCase()));
 
+    const [occasionSearch, setOccasionSearch] = useState('');
+    const [selectedOccasion, setSelectedOccasion] = useState('');
+    const [isOccasionDropdownOpen, setIsOccasionDropdownOpen] = useState(false);
+    const occasions = ['Casual', 'Formal', 'Party', 'Wedding', 'Sports', 'Business', 'Festival', 'Cocktail', 'Streetwear', 'Ethnic', 'Office', 'Travel'];
+    const filteredOccasions = occasions.filter(o => o.toLowerCase().includes(occasionSearch.toLowerCase()));
+
+    const [workTypeSearch, setWorkTypeSearch] = useState('');
+    const [selectedWorkType, setSelectedWorkType] = useState('');
+    const [isWorkTypeDropdownOpen, setIsWorkTypeDropdownOpen] = useState(false);
+    const workTypes = ['Embroidered', 'Printed', 'Woven', 'Plain', 'Solid', 'Check', 'Striped', 'Floral', 'Hand Work', 'Stone Work', 'Mirror Work', 'Zari Work', 'Gota Patti'];
+    const filteredWorkTypes = workTypes.filter(w => w.toLowerCase().includes(workTypeSearch.toLowerCase()));
+
+    const [dupattaIncluded, setDupattaIncluded] = useState('');
+
     const [careSearch, setCareSearch] = useState('');
     const [selectedCare, setSelectedCare] = useState('');
     const [isCareDropdownOpen, setIsCareDropdownOpen] = useState(false);
@@ -93,10 +170,25 @@ const AddProduct = () => {
     const brands = ['Nike', 'Adidas', 'Puma', 'Zara', 'H&M', 'Levi\'s', 'Gucci', 'Prada', 'Tommy Hilfiger', 'Calvin Klein', 'Louis Vuitton', 'Chanel', 'Dior', 'Under Armour', 'Reebok', 'Apple', 'Samsung', 'Sony', 'LG', 'Panasonic', 'Uniqlo', 'Gap', 'Forever 21', 'Lacoste'];
     const filteredBrands = brands.filter(b => b.toLowerCase().includes(brandSearch.toLowerCase()));
 
-    const [categorySearch, setCategorySearch] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('');
+    const [categorySearch, setCategorySearch] = useState('');
+    const [selectedCategoryLabel, setSelectedCategoryLabel] = useState('');
     const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
-    const categoriesList = ['Men', 'Women', 'Kids', 'Fashion Accessories', 'Footwear', 'Electronics', 'Home & Kitchen', 'Beauty & Personal Care', 'Sports & Outdoors', 'Books', 'Toys', 'Groceries', 'Automotive', 'Handbags', 'Watches', 'Jewelry'];
+
+    // Sub-category lists based on primary category
+    const womenCategories = ['Saree', 'Kurti', 'Dress', 'Lehenga Choli', 'Salwar Suit', 'Jumpsuit', 'Western Wear', 'Ethnic Wear', 'Lingerie', 'Nightwear', 'Activewear', 'Tops & Tees'];
+    const menCategories = ['Shirt', 'T-Shirt', 'Jeans', 'Trouser', 'Suit', 'Ethic Wear', 'Innerwear', 'Activewear', 'Loungewear', 'Co-ords'];
+    const electronicsCategories = ['Mobile', 'Laptop', 'Smartwatch', 'Headphones', 'Camera', 'Tablet', 'Accessories', 'Gaming', 'Home Appliances', 'Computer Peripherals'];
+    const otherCategories = ['Kids', 'Fashion Accessories', 'Footwear', 'Home & Kitchen', 'Beauty & Personal Care', 'Sports & Outdoors', 'Books', 'Toys', 'Groceries', 'Automotive', 'Handbags', 'Watches', 'Jewelry'];
+
+    const getCategoriesList = () => {
+        if (selectedCategory === 'Women') return womenCategories;
+        if (selectedCategory === 'Men') return menCategories;
+        if (selectedCategory === 'Electronics') return electronicsCategories;
+        return otherCategories;
+    };
+
+    const categoriesList = getCategoriesList();
     const filteredCategories = categoriesList.filter(c => c.toLowerCase().includes(categorySearch.toLowerCase()));
 
     const [statusSearch, setStatusSearch] = useState('');
@@ -254,7 +346,7 @@ const AddProduct = () => {
             name: productTitle || 'New Premium Product',
             brand: selectedBrand || brandSearch || 'Generic',
             description: productDescription,
-            category: selectedCategory || categorySearch || 'Fashion',
+            category: selectedCategoryLabel || categorySearch || selectedCategory || 'Fashion',
             status: selectedStatus || statusSearch || 'Active',
             tags: searchTags,
             material: selectedMaterial || materialSearch || 'Cotton',
@@ -263,6 +355,9 @@ const AddProduct = () => {
             sleeve: selectedSleeve || sleeveSearch || 'Long Sleeve',
             length: selectedLength || lengthSearch || 'Standard Length',
             neck: selectedNeck || neckSearch || 'Crew Neck',
+            occasion: selectedOccasion || occasionSearch || 'Casual',
+            workType: selectedWorkType || workTypeSearch,
+            dupattaIncluded,
             country: selectedCountry || countrySearch || 'India',
             care: selectedCare || careSearch || 'Machine Wash',
             price: salePrice || regularPrice || 1699,
@@ -272,8 +367,15 @@ const AddProduct = () => {
             sales: 0,
             image: mainImage?.preview || 'https://theformalclub.in/cdn/shop/files/TealFormalShirt_4.jpg?v=1751886662&width=600',
             images: allImages.map(img => img.preview).length > 0 ? allImages.map(img => img.preview) : ['https://theformalclub.in/cdn/shop/files/TealFormalShirt_4.jpg?v=1751886662&width=600'],
-            colors: selectedColors,
-            sizes: selectedSizes,
+            warranty: selectedWarranty || warrantySearch || '1 Year Standard',
+            modelNumber,
+            processor: selectedProcessor || processorSearch || 'A17 Pro',
+            storage: selectedStorage || storageSearch || '256GB / 8GB',
+            battery: selectedBattery || batterySearch || '5000mAh',
+            connectivity: selectedConnectivity || connectivitySearch,
+            dimensions,
+            weight,
+            features,
             createdAt: new Date().toISOString()
         };
 
@@ -284,8 +386,55 @@ const AddProduct = () => {
         setShowSuccessModal(true);
     };
 
+    const categoryTemplates = [
+        { id: 'Men', name: "Men's Fashion", icon: User, color: 'blue' },
+        { id: 'Women', name: "Women's Fashion", icon: UserRound, color: 'pink' },
+        { id: 'Electronics', name: 'Electronics', icon: Laptop, color: 'purple' },
+        { id: 'Others', name: 'Other Categories', icon: LayoutGrid, color: 'orange' }
+    ];
+
     return (
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 space-y-8 pb-32">
+            {/* Category Selection Modal */}
+            {showCategoryModal && (
+                <div className="fixed inset-0 z-[150] flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-md animate-in fade-in duration-500"></div>
+                    <div className="bg-white rounded-[45px] p-10 max-w-2xl w-full relative z-[160] shadow-[0_32px_64px_-15px_rgba(0,0,0,0.2)] animate-in zoom-in-95 slide-in-from-bottom-10 duration-500 border border-white">
+                        <div className="text-center mb-10">
+                            <h2 className="text-4xl font-[1000] text-gray-900 mb-3 tracking-tight">What are you selling?</h2>
+                            <p className="text-gray-500 font-medium text-lg">Select a category to customize your product form.</p>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                            {categoryTemplates.map((item) => (
+                                <button
+                                    key={item.id}
+                                    onClick={() => {
+                                        setSelectedCategory(item.id);
+                                        setShowCategoryModal(false);
+                                    }}
+                                    className="group relative flex items-center gap-5 p-6 bg-gray-50 rounded-[30px] border-2 border-transparent hover:border-blue-500 hover:bg-white hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 cursor-pointer text-left overflow-hidden"
+                                >
+                                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-300 ${item.id === 'Men' ? 'bg-blue-100 group-hover:bg-blue-500 text-blue-600 group-hover:text-white' :
+                                            item.id === 'Women' ? 'bg-pink-100 group-hover:bg-pink-500 text-pink-600 group-hover:text-white' :
+                                                item.id === 'Electronics' ? 'bg-purple-100 group-hover:bg-purple-500 text-purple-600 group-hover:text-white' :
+                                                    'bg-orange-100 group-hover:bg-orange-500 text-orange-600 group-hover:text-white'
+                                        }`}>
+                                        <item.icon className="w-8 h-8" />
+                                    </div>
+                                    <div>
+                                        <h3 className="font-bold text-xl text-gray-900 group-hover:text-blue-600 transition-colors">{item.name}</h3>
+                                        <p className="text-gray-400 text-sm font-medium">Click to use this layout</p>
+                                    </div>
+                                    <ChevronRight className="absolute right-6 w-5 h-5 text-gray-300 group-hover:text-blue-500 group-hover:translate-x-1 transition-all" />
+                                </button>
+                            ))}
+                        </div>
+                        <button onClick={() => navigate('/seller/products')} className="mt-8 w-full py-4 text-gray-400 font-bold hover:text-gray-600 transition-colors border-none bg-transparent cursor-pointer">
+                            Cancel and go back
+                        </button>
+                    </div>
+                </div>
+            )}
             {/* Success Modal */}
             {showSuccessModal && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
@@ -322,8 +471,15 @@ const AddProduct = () => {
                     >
                         <ArrowLeft className="w-5 h-5" />
                     </button>
-                    <div>
-                        <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Add New Product</h1>
+                    <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-3">
+                            <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Add New Product</h1>
+                            {selectedCategory && (
+                                <div className="hidden sm:flex items-center gap-2 px-4 py-1.5 bg-gray-900 text-white rounded-full animate-in fade-in slide-in-from-left-4 duration-500 shadow-lg shadow-gray-200">
+                                    <span className="text-[10px] font-black uppercase tracking-widest leading-none mt-0.5">{selectedCategory}</span>
+                                </div>
+                            )}
+                        </div>
                         <p className="text-gray-500 text-sm font-medium">Create a premium listing for your store.</p>
                     </div>
                 </div>
@@ -457,14 +613,14 @@ const AddProduct = () => {
                                                         key={c}
                                                         type="button"
                                                         onClick={() => {
-                                                            setSelectedCategory(c);
+                                                            setSelectedCategoryLabel(c);
                                                             setCategorySearch(c);
                                                             setIsCategoryDropdownOpen(false);
                                                         }}
                                                         className="w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors text-sm font-medium flex items-center justify-between group cursor-pointer"
                                                     >
                                                         <span>{c}</span>
-                                                        {selectedCategory === c && <Check className="w-4 h-4" />}
+                                                        {selectedCategoryLabel === c && <Check className="w-4 h-4" />}
                                                     </button>
                                                 ))}
                                             </div>
@@ -535,312 +691,775 @@ const AddProduct = () => {
 
                 {/* Row 1.5: Product Specifications (New from user request) */}
                 <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm space-y-8">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
-                            <ClipboardList className="w-5 h-5 text-blue-600" />
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
+                                <ClipboardList className="w-5 h-5 text-blue-600" />
+                            </div>
+                            <h2 className="text-xl font-bold text-gray-900">Product Specifications</h2>
                         </div>
-                        <h2 className="text-xl font-bold text-gray-900">Product Specifications</h2>
+                        {selectedCategory && (
+                            <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${selectedCategory === 'Men' ? 'bg-blue-100 text-blue-600' :
+                                    selectedCategory === 'Women' ? 'bg-pink-100 text-pink-600' :
+                                        selectedCategory === 'Electronics' ? 'bg-purple-100 text-purple-600' :
+                                            'bg-gray-100 text-gray-600'
+                                }`}>
+                                {selectedCategory === 'Men' ? "Men's Fashion" :
+                                    selectedCategory === 'Women' ? "Women's Fashion" :
+                                        selectedCategory}
+                            </span>
+                        )}
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
-                        {/* Material Composition - Searchable Dropdown */}
-                        <div className="space-y-2 relative">
-                            <label className="text-sm font-bold text-gray-700 ml-1">Material Composition</label>
-                            <div className="relative">
-                                <input
-                                    type="text"
-                                    placeholder="Search material..."
-                                    value={materialSearch}
-                                    onChange={(e) => {
-                                        setMaterialSearch(e.target.value);
-                                        setIsMaterialDropdownOpen(true);
-                                    }}
-                                    onFocus={() => setIsMaterialDropdownOpen(true)}
-                                    className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
-                                />
-                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                            </div>
-
-                            {isMaterialDropdownOpen && (
-                                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
-                                    {filteredMaterials.length > 0 ? (
-                                        <div className="p-2 space-y-1">
-                                            {filteredMaterials.map((m) => (
-                                                <button
-                                                    key={m}
-                                                    type="button"
-                                                    onClick={() => {
-                                                        setSelectedMaterial(m);
-                                                        setMaterialSearch(m);
-                                                        setIsMaterialDropdownOpen(false);
-                                                    }}
-                                                    className="w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors text-sm font-medium flex items-center justify-between group cursor-pointer"
-                                                >
-                                                    <span>{m}</span>
-                                                    {selectedMaterial === m && <Check className="w-4 h-4" />}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <div className="p-4 text-center text-gray-400 text-sm">
-                                            No materials found
+                        {selectedCategory === 'Electronics' ? (
+                            <>
+                                {/* Model Name */}
+                                <div className="space-y-2 relative">
+                                    <label className="text-sm font-bold text-gray-700 ml-1">Model Name</label>
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            value={modelName}
+                                            onChange={(e) => setModelName(e.target.value)}
+                                            placeholder="e.g. iPhone 15 Pro"
+                                            className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                                        />
+                                        <Smartphone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                    </div>
+                                </div>
+                                {/* Model Number */}
+                                <div className="space-y-2 relative">
+                                    <label className="text-sm font-bold text-gray-700 ml-1">Model Number</label>
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            value={modelNumber}
+                                            onChange={(e) => setModelNumber(e.target.value)}
+                                            placeholder="e.g. A2848"
+                                            className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                                        />
+                                        <Hash className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                    </div>
+                                </div>
+                                {/* Processor - Dropdown */}
+                                <div className="space-y-2 relative">
+                                    <label className="text-sm font-bold text-gray-700 ml-1">Processor</label>
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            placeholder="Search processor..."
+                                            value={processorSearch}
+                                            onChange={(e) => {
+                                                setProcessorSearch(e.target.value);
+                                                setIsProcessorDropdownOpen(true);
+                                            }}
+                                            onFocus={() => setIsProcessorDropdownOpen(true)}
+                                            className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                                        />
+                                        <Cpu className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                    </div>
+                                    {isProcessorDropdownOpen && (
+                                        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
+                                            {filteredProcessors.length > 0 ? (
+                                                <div className="p-2 space-y-1">
+                                                    {filteredProcessors.map((p) => (
+                                                        <button
+                                                            key={p}
+                                                            type="button"
+                                                            onClick={() => {
+                                                                setSelectedProcessor(p);
+                                                                setProcessorSearch(p);
+                                                                setIsProcessorDropdownOpen(false);
+                                                            }}
+                                                            className="w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors text-sm font-medium flex items-center justify-between group cursor-pointer"
+                                                        >
+                                                            <span>{p}</span>
+                                                            {selectedProcessor === p && <Check className="w-4 h-4" />}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <div className="p-4 text-center text-gray-400 text-sm">No options found</div>
+                                            )}
                                         </div>
                                     )}
+                                    {isProcessorDropdownOpen && <div className="fixed inset-0 z-40" onClick={() => setIsProcessorDropdownOpen(false)}></div>}
                                 </div>
-                            )}
-                            {isMaterialDropdownOpen && (
-                                <div className="fixed inset-0 z-40" onClick={() => setIsMaterialDropdownOpen(false)}></div>
-                            )}
-                        </div>
-                        {/* Pattern - Searchable Dropdown */}
-                        <div className="space-y-2 relative">
-                            <label className="text-sm font-bold text-gray-700 ml-1">Pattern</label>
-                            <div className="relative">
-                                <input
-                                    type="text"
-                                    placeholder="Search or select pattern..."
-                                    value={patternSearch}
-                                    onChange={(e) => {
-                                        setPatternSearch(e.target.value);
-                                        setIsPatternDropdownOpen(true);
-                                    }}
-                                    onFocus={() => setIsPatternDropdownOpen(true)}
-                                    className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
-                                />
-                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                            </div>
-
-                            {isPatternDropdownOpen && (
-                                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
-                                    {filteredPatterns.length > 0 ? (
-                                        <div className="p-2 space-y-1">
-                                            {filteredPatterns.map((pattern) => (
-                                                <button
-                                                    key={pattern}
-                                                    type="button"
-                                                    onClick={() => {
-                                                        setSelectedPattern(pattern);
-                                                        setPatternSearch(pattern);
-                                                        setIsPatternDropdownOpen(false);
-                                                    }}
-                                                    className="w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors text-sm font-medium flex items-center justify-between group cursor-pointer"
-                                                >
-                                                    <span>{pattern}</span>
-                                                    {selectedPattern === pattern && <Check className="w-4 h-4" />}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <div className="p-4 text-center text-gray-400 text-sm">
-                                            No patterns found
+                                {/* Storage / RAM - Dropdown */}
+                                <div className="space-y-2 relative">
+                                    <label className="text-sm font-bold text-gray-700 ml-1">Storage / RAM</label>
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            placeholder="Search storage/ram..."
+                                            value={storageSearch}
+                                            onChange={(e) => {
+                                                setStorageSearch(e.target.value);
+                                                setIsStorageDropdownOpen(true);
+                                            }}
+                                            onFocus={() => setIsStorageDropdownOpen(true)}
+                                            className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                                        />
+                                        <HardDrive className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                    </div>
+                                    {isStorageDropdownOpen && (
+                                        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
+                                            {filteredStorages.length > 0 ? (
+                                                <div className="p-2 space-y-1">
+                                                    {filteredStorages.map((s) => (
+                                                        <button
+                                                            key={s}
+                                                            type="button"
+                                                            onClick={() => {
+                                                                setSelectedStorage(s);
+                                                                setStorageSearch(s);
+                                                                setIsStorageDropdownOpen(false);
+                                                            }}
+                                                            className="w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors text-sm font-medium flex items-center justify-between group cursor-pointer"
+                                                        >
+                                                            <span>{s}</span>
+                                                            {selectedStorage === s && <Check className="w-4 h-4" />}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <div className="p-4 text-center text-gray-400 text-sm">No options found</div>
+                                            )}
                                         </div>
                                     )}
+                                    {isStorageDropdownOpen && <div className="fixed inset-0 z-40" onClick={() => setIsStorageDropdownOpen(false)}></div>}
                                 </div>
-                            )}
-                            {/* Backdrop to close dropdown */}
-                            {isPatternDropdownOpen && (
-                                <div
-                                    className="fixed inset-0 z-40"
-                                    onClick={() => setIsPatternDropdownOpen(false)}
-                                ></div>
-                            )}
-                        </div>
-                        {/* Fit Type - Searchable Dropdown */}
-                        <div className="space-y-2 relative">
-                            <label className="text-sm font-bold text-gray-700 ml-1">Fit Type</label>
-                            <div className="relative">
-                                <input
-                                    type="text"
-                                    placeholder="Search fit type..."
-                                    value={fitSearch}
-                                    onChange={(e) => {
-                                        setFitSearch(e.target.value);
-                                        setIsFitDropdownOpen(true);
-                                    }}
-                                    onFocus={() => setIsFitDropdownOpen(true)}
-                                    className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
-                                />
-                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                            </div>
-
-                            {isFitDropdownOpen && (
-                                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
-                                    {filteredFits.length > 0 ? (
-                                        <div className="p-2 space-y-1">
-                                            {filteredFits.map((f) => (
-                                                <button
-                                                    key={f}
-                                                    type="button"
-                                                    onClick={() => {
-                                                        setSelectedFit(f);
-                                                        setFitSearch(f);
-                                                        setIsFitDropdownOpen(false);
-                                                    }}
-                                                    className="w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors text-sm font-medium flex items-center justify-between group cursor-pointer"
-                                                >
-                                                    <span>{f}</span>
-                                                    {selectedFit === f && <Check className="w-4 h-4" />}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <div className="p-4 text-center text-gray-400 text-sm text-gray-400">
-                                            No fit types found
+                                {/* Battery Capacity - Dropdown */}
+                                <div className="space-y-2 relative">
+                                    <label className="text-sm font-bold text-gray-700 ml-1">Battery</label>
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            placeholder="Search battery..."
+                                            value={batterySearch}
+                                            onChange={(e) => {
+                                                setBatterySearch(e.target.value);
+                                                setIsBatteryDropdownOpen(true);
+                                            }}
+                                            onFocus={() => setIsBatteryDropdownOpen(true)}
+                                            className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                                        />
+                                        <Zap className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                    </div>
+                                    {isBatteryDropdownOpen && (
+                                        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
+                                            {filteredBatteries.length > 0 ? (
+                                                <div className="p-2 space-y-1">
+                                                    {filteredBatteries.map((b) => (
+                                                        <button
+                                                            key={b}
+                                                            type="button"
+                                                            onClick={() => {
+                                                                setSelectedBattery(b);
+                                                                setBatterySearch(b);
+                                                                setIsBatteryDropdownOpen(false);
+                                                            }}
+                                                            className="w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors text-sm font-medium flex items-center justify-between group cursor-pointer"
+                                                        >
+                                                            <span>{b}</span>
+                                                            {selectedBattery === b && <Check className="w-4 h-4" />}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <div className="p-4 text-center text-gray-400 text-sm">No options found</div>
+                                            )}
                                         </div>
                                     )}
+                                    {isBatteryDropdownOpen && <div className="fixed inset-0 z-40" onClick={() => setIsBatteryDropdownOpen(false)}></div>}
                                 </div>
-                            )}
-                            {isFitDropdownOpen && (
-                                <div className="fixed inset-0 z-40" onClick={() => setIsFitDropdownOpen(false)}></div>
-                            )}
-                        </div>
-                        {/* Sleeve Type - Searchable Dropdown */}
-                        <div className="space-y-2 relative">
-                            <label className="text-sm font-bold text-gray-700 ml-1">Sleeve Type</label>
-                            <div className="relative">
-                                <input
-                                    type="text"
-                                    placeholder="Search sleeve type..."
-                                    value={sleeveSearch}
-                                    onChange={(e) => {
-                                        setSleeveSearch(e.target.value);
-                                        setIsSleeveDropdownOpen(true);
-                                    }}
-                                    onFocus={() => setIsSleeveDropdownOpen(true)}
-                                    className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
-                                />
-                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                            </div>
-
-                            {isSleeveDropdownOpen && (
-                                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
-                                    {filteredSleeves.length > 0 ? (
-                                        <div className="p-2 space-y-1">
-                                            {filteredSleeves.map((s) => (
-                                                <button
-                                                    key={s}
-                                                    type="button"
-                                                    onClick={() => {
-                                                        setSelectedSleeve(s);
-                                                        setSleeveSearch(s);
-                                                        setIsSleeveDropdownOpen(false);
-                                                    }}
-                                                    className="w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors text-sm font-medium flex items-center justify-between group cursor-pointer"
-                                                >
-                                                    <span>{s}</span>
-                                                    {selectedSleeve === s && <Check className="w-4 h-4" />}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <div className="p-4 text-center text-gray-400 text-sm">
-                                            No sleeve types found
+                                {/* Power Consumption */}
+                                <div className="space-y-2 relative">
+                                    <label className="text-sm font-bold text-gray-700 ml-1">Power Consumption</label>
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            value={powerConsumption}
+                                            onChange={(e) => setPowerConsumption(e.target.value)}
+                                            placeholder="e.g. 65W"
+                                            className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                                        />
+                                        <Activity className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                    </div>
+                                </div>
+                                {/* Connectivity - Dropdown */}
+                                <div className="space-y-2 relative">
+                                    <label className="text-sm font-bold text-gray-700 ml-1">Connectivity</label>
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            placeholder="Search connectivity..."
+                                            value={connectivitySearch}
+                                            onChange={(e) => {
+                                                setConnectivitySearch(e.target.value);
+                                                setIsConnectivityDropdownOpen(true);
+                                            }}
+                                            onFocus={() => setIsConnectivityDropdownOpen(true)}
+                                            className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                                        />
+                                        <Wifi className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                    </div>
+                                    {isConnectivityDropdownOpen && (
+                                        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
+                                            {filteredConnectivity.length > 0 ? (
+                                                <div className="p-2 space-y-1">
+                                                    {filteredConnectivity.map((c) => (
+                                                        <button
+                                                            key={c}
+                                                            type="button"
+                                                            onClick={() => {
+                                                                setSelectedConnectivity(c);
+                                                                setConnectivitySearch(c);
+                                                                setIsConnectivityDropdownOpen(false);
+                                                            }}
+                                                            className="w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors text-sm font-medium flex items-center justify-between group cursor-pointer"
+                                                        >
+                                                            <span>{c}</span>
+                                                            {selectedConnectivity === c && <Check className="w-4 h-4" />}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <div className="p-4 text-center text-gray-400 text-sm">No options found</div>
+                                            )}
                                         </div>
                                     )}
+                                    {isConnectivityDropdownOpen && <div className="fixed inset-0 z-40" onClick={() => setIsConnectivityDropdownOpen(false)}></div>}
                                 </div>
-                            )}
-                            {isSleeveDropdownOpen && (
-                                <div className="fixed inset-0 z-40" onClick={() => setIsSleeveDropdownOpen(false)}></div>
-                            )}
-                        </div>
-                        {/* Length - Searchable Dropdown */}
-                        <div className="space-y-2 relative">
-                            <label className="text-sm font-bold text-gray-700 ml-1">Length</label>
-                            <div className="relative">
-                                <input
-                                    type="text"
-                                    placeholder="Search length..."
-                                    value={lengthSearch}
-                                    onChange={(e) => {
-                                        setLengthSearch(e.target.value);
-                                        setIsLengthDropdownOpen(true);
-                                    }}
-                                    onFocus={() => setIsLengthDropdownOpen(true)}
-                                    className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
-                                />
-                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                            </div>
-
-                            {isLengthDropdownOpen && (
-                                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
-                                    {filteredLengths.length > 0 ? (
-                                        <div className="p-2 space-y-1">
-                                            {filteredLengths.map((l) => (
-                                                <button
-                                                    key={l}
-                                                    type="button"
-                                                    onClick={() => {
-                                                        setSelectedLength(l);
-                                                        setLengthSearch(l);
-                                                        setIsLengthDropdownOpen(false);
-                                                    }}
-                                                    className="w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors text-sm font-medium flex items-center justify-between group cursor-pointer"
-                                                >
-                                                    <span>{l}</span>
-                                                    {selectedLength === l && <Check className="w-4 h-4" />}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <div className="p-4 text-center text-gray-400 text-sm">
-                                            No lengths found
+                                {/* Warranty Details - Dropdown */}
+                                <div className="space-y-2 relative">
+                                    <label className="text-sm font-bold text-gray-700 ml-1">Warranty Details</label>
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            placeholder="Search warranty..."
+                                            value={warrantySearch}
+                                            onChange={(e) => {
+                                                setWarrantySearch(e.target.value);
+                                                setIsWarrantyDropdownOpen(true);
+                                            }}
+                                            onFocus={() => setIsWarrantyDropdownOpen(true)}
+                                            className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                                        />
+                                        <Shield className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                    </div>
+                                    {isWarrantyDropdownOpen && (
+                                        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
+                                            {filteredWarranties.length > 0 ? (
+                                                <div className="p-2 space-y-1">
+                                                    {filteredWarranties.map((w) => (
+                                                        <button
+                                                            key={w}
+                                                            type="button"
+                                                            onClick={() => {
+                                                                setSelectedWarranty(w);
+                                                                setWarrantySearch(w);
+                                                                setIsWarrantyDropdownOpen(false);
+                                                            }}
+                                                            className="w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors text-sm font-medium flex items-center justify-between group cursor-pointer"
+                                                        >
+                                                            <span>{w}</span>
+                                                            {selectedWarranty === w && <Check className="w-4 h-4" />}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <div className="p-4 text-center text-gray-400 text-sm">No options found</div>
+                                            )}
                                         </div>
                                     )}
+                                    {isWarrantyDropdownOpen && <div className="fixed inset-0 z-40" onClick={() => setIsWarrantyDropdownOpen(false)}></div>}
                                 </div>
-                            )}
-                            {isLengthDropdownOpen && (
-                                <div className="fixed inset-0 z-40" onClick={() => setIsLengthDropdownOpen(false)}></div>
-                            )}
-                        </div>
-                        {/* Neck Style - Searchable Dropdown */}
-                        <div className="space-y-2 relative">
-                            <label className="text-sm font-bold text-gray-700 ml-1">Neck Style</label>
-                            <div className="relative">
-                                <input
-                                    type="text"
-                                    placeholder="Search neck style..."
-                                    value={neckSearch}
-                                    onChange={(e) => {
-                                        setNeckSearch(e.target.value);
-                                        setIsNeckDropdownOpen(true);
-                                    }}
-                                    onFocus={() => setIsNeckDropdownOpen(true)}
-                                    className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
-                                />
-                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                            </div>
-
-                            {isNeckDropdownOpen && (
-                                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
-                                    {filteredNecks.length > 0 ? (
-                                        <div className="p-2 space-y-1">
-                                            {filteredNecks.map((n) => (
-                                                <button
-                                                    key={n}
-                                                    type="button"
-                                                    onClick={() => {
-                                                        setSelectedNeck(n);
-                                                        setNeckSearch(n);
-                                                        setIsNeckDropdownOpen(false);
-                                                    }}
-                                                    className="w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors text-sm font-medium flex items-center justify-between group cursor-pointer"
-                                                >
-                                                    <span>{n}</span>
-                                                    {selectedNeck === n && <Check className="w-4 h-4" />}
+                                {/* Dimensions */}
+                                <div className="space-y-2 relative">
+                                    <label className="text-sm font-bold text-gray-700 ml-1">Dimensions</label>
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            value={dimensions}
+                                            onChange={(e) => setDimensions(e.target.value)}
+                                            placeholder="e.g. 146.6 x 70.6 x 8.3 mm"
+                                            className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                                        />
+                                        <Maximize className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                    </div>
+                                </div>
+                                {/* Weight */}
+                                <div className="space-y-2 relative">
+                                    <label className="text-sm font-bold text-gray-700 ml-1">Weight</label>
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            value={weight}
+                                            onChange={(e) => setWeight(e.target.value)}
+                                            placeholder="e.g. 187g"
+                                            className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                                        />
+                                        <Scale className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                    </div>
+                                </div>
+                                {/* Product Features - Dynamic List */}
+                                <div className="md:col-span-2 space-y-4 pt-4 border-t border-gray-50">
+                                    <label className="text-sm font-bold text-gray-900 ml-1">Key Product Features</label>
+                                    <div className="flex gap-4">
+                                        <input
+                                            type="text"
+                                            value={featureInput}
+                                            onChange={(e) => setFeatureInput(e.target.value)}
+                                            onKeyPress={(e) => e.key === 'Enter' && addFeature()}
+                                            placeholder="Add a key feature (e.g. 120Hz Display)..."
+                                            className="flex-1 px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                                        />
+                                        <button 
+                                            type="button"
+                                            onClick={addFeature}
+                                            className="px-8 bg-blue-600 text-white rounded-2xl font-bold hover:bg-blue-700 transition-all border-none cursor-pointer"
+                                        >
+                                            Add
+                                        </button>
+                                    </div>
+                                    <div className="flex flex-wrap gap-2">
+                                        {features.map((f, i) => (
+                                            <div key={i} className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-xl border border-blue-100 animate-in fade-in zoom-in-95">
+                                                <span className="text-sm font-medium">{f}</span>
+                                                <button onClick={() => removeFeature(i)} className="p-1 hover:bg-blue-100 rounded-full transition-colors border-none bg-transparent cursor-pointer">
+                                                    <X className="w-3 h-3" />
                                                 </button>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <div className="p-4 text-center text-gray-400 text-sm">
-                                            No neck styles found
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                {/* Material Composition - Searchable Dropdown */}
+                                <div className="space-y-2 relative">
+                                    <label className="text-sm font-bold text-gray-700 ml-1">Fabric</label>
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            placeholder="Search material..."
+                                            value={materialSearch}
+                                            onChange={(e) => {
+                                                setMaterialSearch(e.target.value);
+                                                setIsMaterialDropdownOpen(true);
+                                            }}
+                                            onFocus={() => setIsMaterialDropdownOpen(true)}
+                                            className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                                        />
+                                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                    </div>
+
+                                    {isMaterialDropdownOpen && (
+                                        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
+                                            {filteredMaterials.length > 0 ? (
+                                                <div className="p-2 space-y-1">
+                                                    {filteredMaterials.map((m) => (
+                                                        <button
+                                                            key={m}
+                                                            type="button"
+                                                            onClick={() => {
+                                                                setSelectedMaterial(m);
+                                                                setMaterialSearch(m);
+                                                                setIsMaterialDropdownOpen(false);
+                                                            }}
+                                                            className="w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors text-sm font-medium flex items-center justify-between group cursor-pointer"
+                                                        >
+                                                            <span>{m}</span>
+                                                            {selectedMaterial === m && <Check className="w-4 h-4" />}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <div className="p-4 text-center text-gray-400 text-sm">
+                                                    No materials found
+                                                </div>
+                                            )}
                                         </div>
                                     )}
+                                    {isMaterialDropdownOpen && (
+                                        <div className="fixed inset-0 z-40" onClick={() => setIsMaterialDropdownOpen(false)}></div>
+                                    )}
                                 </div>
-                            )}
-                            {isNeckDropdownOpen && (
-                                <div className="fixed inset-0 z-40" onClick={() => setIsNeckDropdownOpen(false)}></div>
-                            )}
-                        </div>
+                                {/* Pattern - Searchable Dropdown */}
+                                <div className="space-y-2 relative">
+                                    <label className="text-sm font-bold text-gray-700 ml-1">Pattern</label>
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            placeholder="Search or select pattern..."
+                                            value={patternSearch}
+                                            onChange={(e) => {
+                                                setPatternSearch(e.target.value);
+                                                setIsPatternDropdownOpen(true);
+                                            }}
+                                            onFocus={() => setIsPatternDropdownOpen(true)}
+                                            className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                                        />
+                                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                    </div>
+
+                                    {isPatternDropdownOpen && (
+                                        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
+                                            {filteredPatterns.length > 0 ? (
+                                                <div className="p-2 space-y-1">
+                                                    {filteredPatterns.map((pattern) => (
+                                                        <button
+                                                            key={pattern}
+                                                            type="button"
+                                                            onClick={() => {
+                                                                setSelectedPattern(pattern);
+                                                                setPatternSearch(pattern);
+                                                                setIsPatternDropdownOpen(false);
+                                                            }}
+                                                            className="w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors text-sm font-medium flex items-center justify-between group cursor-pointer"
+                                                        >
+                                                            <span>{pattern}</span>
+                                                            {selectedPattern === pattern && <Check className="w-4 h-4" />}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <div className="p-4 text-center text-gray-400 text-sm">
+                                                    No patterns found
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                    {/* Backdrop to close dropdown */}
+                                    {isPatternDropdownOpen && (
+                                        <div
+                                            className="fixed inset-0 z-40"
+                                            onClick={() => setIsPatternDropdownOpen(false)}
+                                        ></div>
+                                    )}
+                                </div>
+                                {/* Fit Type - Searchable Dropdown */}
+                                <div className="space-y-2 relative">
+                                    <label className="text-sm font-bold text-gray-700 ml-1">Fit Type</label>
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            placeholder="Search fit type..."
+                                            value={fitSearch}
+                                            onChange={(e) => {
+                                                setFitSearch(e.target.value);
+                                                setIsFitDropdownOpen(true);
+                                            }}
+                                            onFocus={() => setIsFitDropdownOpen(true)}
+                                            className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                                        />
+                                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                    </div>
+
+                                    {isFitDropdownOpen && (
+                                        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
+                                            {filteredFits.length > 0 ? (
+                                                <div className="p-2 space-y-1">
+                                                    {filteredFits.map((f) => (
+                                                        <button
+                                                            key={f}
+                                                            type="button"
+                                                            onClick={() => {
+                                                                setSelectedFit(f);
+                                                                setFitSearch(f);
+                                                                setIsFitDropdownOpen(false);
+                                                            }}
+                                                            className="w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors text-sm font-medium flex items-center justify-between group cursor-pointer"
+                                                        >
+                                                            <span>{f}</span>
+                                                            {selectedFit === f && <Check className="w-4 h-4" />}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <div className="p-4 text-center text-gray-400 text-sm text-gray-400">
+                                                    No fit types found
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                    {isFitDropdownOpen && (
+                                        <div className="fixed inset-0 z-40" onClick={() => setIsFitDropdownOpen(false)}></div>
+                                    )}
+                                </div>
+                                {/* Sleeve Type - Searchable Dropdown */}
+                                <div className="space-y-2 relative">
+                                    <label className="text-sm font-bold text-gray-700 ml-1">Sleeve Type</label>
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            placeholder="Search sleeve type..."
+                                            value={sleeveSearch}
+                                            onChange={(e) => {
+                                                setSleeveSearch(e.target.value);
+                                                setIsSleeveDropdownOpen(true);
+                                            }}
+                                            onFocus={() => setIsSleeveDropdownOpen(true)}
+                                            className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                                        />
+                                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                    </div>
+
+                                    {isSleeveDropdownOpen && (
+                                        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
+                                            {filteredSleeves.length > 0 ? (
+                                                <div className="p-2 space-y-1">
+                                                    {filteredSleeves.map((s) => (
+                                                        <button
+                                                            key={s}
+                                                            type="button"
+                                                            onClick={() => {
+                                                                setSelectedSleeve(s);
+                                                                setSleeveSearch(s);
+                                                                setIsSleeveDropdownOpen(false);
+                                                            }}
+                                                            className="w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors text-sm font-medium flex items-center justify-between group cursor-pointer"
+                                                        >
+                                                            <span>{s}</span>
+                                                            {selectedSleeve === s && <Check className="w-4 h-4" />}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <div className="p-4 text-center text-gray-400 text-sm">
+                                                    No sleeve types found
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                    {isSleeveDropdownOpen && (
+                                        <div className="fixed inset-0 z-40" onClick={() => setIsSleeveDropdownOpen(false)}></div>
+                                    )}
+                                </div>
+                                {/* Occasion - Searchable Dropdown (Added as requested) */}
+                                <div className="space-y-2 relative">
+                                    <label className="text-sm font-bold text-gray-700 ml-1">Occasion</label>
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            placeholder="Search occasion (e.g. Casual, Formal)..."
+                                            value={occasionSearch}
+                                            onChange={(e) => {
+                                                setOccasionSearch(e.target.value);
+                                                setIsOccasionDropdownOpen(true);
+                                            }}
+                                            onFocus={() => setIsOccasionDropdownOpen(true)}
+                                            className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                                        />
+                                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                    </div>
+
+                                    {isOccasionDropdownOpen && (
+                                        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
+                                            {filteredOccasions.length > 0 ? (
+                                                <div className="p-2 space-y-1">
+                                                    {filteredOccasions.map((o) => (
+                                                        <button
+                                                            key={o}
+                                                            type="button"
+                                                            onClick={() => {
+                                                                setSelectedOccasion(o);
+                                                                setOccasionSearch(o);
+                                                                setIsOccasionDropdownOpen(false);
+                                                            }}
+                                                            className="w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors text-sm font-medium flex items-center justify-between group cursor-pointer"
+                                                        >
+                                                            <span>{o}</span>
+                                                            {selectedOccasion === o && <Check className="w-4 h-4" />}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <div className="p-4 text-center text-gray-400 text-sm">
+                                                    No occasions found
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                    {isOccasionDropdownOpen && (
+                                        <div className="fixed inset-0 z-40" onClick={() => setIsOccasionDropdownOpen(false)}></div>
+                                    )}
+                                </div>
+                                {/* Length - Searchable Dropdown - COMMENTED OUT BY USER REQUEST */}
+                                {/* 
+                                <div className="space-y-2 relative">
+                                    <label className="text-sm font-bold text-gray-700 ml-1">Length</label>
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            placeholder="Search length..."
+                                            value={lengthSearch}
+                                            onChange={(e) => {
+                                                setLengthSearch(e.target.value);
+                                                setIsLengthDropdownOpen(true);
+                                            }}
+                                            onFocus={() => setIsLengthDropdownOpen(true)}
+                                            className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                                        />
+                                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                    </div>
+
+                                    {isLengthDropdownOpen && (
+                                        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
+                                            {filteredLengths.length > 0 ? (
+                                                <div className="p-2 space-y-1">
+                                                    {filteredLengths.map((l) => (
+                                                        <button
+                                                            key={l}
+                                                            type="button"
+                                                            onClick={() => {
+                                                                setSelectedLength(l);
+                                                                setLengthSearch(l);
+                                                                setIsLengthDropdownOpen(false);
+                                                            }}
+                                                            className="w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors text-sm font-medium flex items-center justify-between group cursor-pointer"
+                                                        >
+                                                            <span>{l}</span>
+                                                            {selectedLength === l && <Check className="w-4 h-4" />}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <div className="p-4 text-center text-gray-400 text-sm">
+                                                    No lengths found
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                    {isLengthDropdownOpen && (
+                                        <div className="fixed inset-0 z-40" onClick={() => setIsLengthDropdownOpen(false)}></div>
+                                    )}
+                                </div>
+                                */}
+                                {/* Neck Style - Searchable Dropdown - HIDDEN FOR WOMEN CATEGORY */}
+                                {selectedCategory !== 'Women' && (
+                                    <div className="space-y-2 relative">
+                                        <label className="text-sm font-bold text-gray-700 ml-1">Neck Style</label>
+                                        <div className="relative">
+                                            <input
+                                                type="text"
+                                                placeholder="Search neck style..."
+                                                value={neckSearch}
+                                                onChange={(e) => {
+                                                    setNeckSearch(e.target.value);
+                                                    setIsNeckDropdownOpen(true);
+                                                }}
+                                                onFocus={() => setIsNeckDropdownOpen(true)}
+                                                className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                                            />
+                                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                        </div>
+
+                                        {isNeckDropdownOpen && (
+                                            <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
+                                                {filteredNecks.length > 0 ? (
+                                                    <div className="p-2 space-y-1">
+                                                        {filteredNecks.map((n) => (
+                                                            <button
+                                                                key={n}
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    setSelectedNeck(n);
+                                                                    setNeckSearch(n);
+                                                                    setIsNeckDropdownOpen(false);
+                                                                }}
+                                                                className="w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors text-sm font-medium flex items-center justify-between group cursor-pointer"
+                                                            >
+                                                                <span>{n}</span>
+                                                                {selectedNeck === n && <Check className="w-4 h-4" />}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                ) : (
+                                                    <div className="p-4 text-center text-gray-400 text-sm">
+                                                        No neck styles found
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+                                        {isNeckDropdownOpen && (
+                                            <div className="fixed inset-0 z-40" onClick={() => setIsNeckDropdownOpen(false)}></div>
+                                        )}
+                                    </div>
+                                )}
+
+                                {/* Women Category Specific Fields (Extra) */}
+                                {selectedCategory === 'Women' && (
+                                    <>
+                                        <div className="space-y-2 relative">
+                                            <label className="text-sm font-bold text-gray-700 ml-1">Work Type</label>
+                                            <div className="relative">
+                                                <input
+                                                    type="text"
+                                                    placeholder="Search work type (e.g. Embroidered)..."
+                                                    value={workTypeSearch}
+                                                    onChange={(e) => {
+                                                        setWorkTypeSearch(e.target.value);
+                                                        setIsWorkTypeDropdownOpen(true);
+                                                    }}
+                                                    onFocus={() => setIsWorkTypeDropdownOpen(true)}
+                                                    className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                                                />
+                                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                            </div>
+                                            {isWorkTypeDropdownOpen && (
+                                                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
+                                                    {filteredWorkTypes.length > 0 ? (
+                                                        <div className="p-2 space-y-1">
+                                                            {filteredWorkTypes.map((w) => (
+                                                                <button
+                                                                    key={w}
+                                                                    type="button"
+                                                                    onClick={() => {
+                                                                        setSelectedWorkType(w);
+                                                                        setWorkTypeSearch(w);
+                                                                        setIsWorkTypeDropdownOpen(false);
+                                                                    }}
+                                                                    className="w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors text-sm font-medium flex items-center justify-between group cursor-pointer"
+                                                                >
+                                                                    <span>{w}</span>
+                                                                    {selectedWorkType === w && <Check className="w-4 h-4" />}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                    ) : (
+                                                        <div className="p-4 text-center text-gray-400 text-sm">No work types found</div>
+                                                    )}
+                                                </div>
+                                            )}
+                                            {isWorkTypeDropdownOpen && <div className="fixed inset-0 z-40" onClick={() => setIsWorkTypeDropdownOpen(false)}></div>}
+                                        </div>
+
+                                        <div className="space-y-2 relative">
+                                            <label className="text-sm font-bold text-gray-700 ml-1">Dupatta Included</label>
+                                            <div className="flex gap-4 p-1 bg-gray-50 rounded-2xl border border-gray-100">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setDupattaIncluded('Yes')}
+                                                    className={`flex-1 py-3 px-4 rounded-xl text-sm font-bold transition-all ${dupattaIncluded === 'Yes' ? 'bg-white text-blue-600 shadow-sm ring-1 ring-gray-100' : 'text-gray-400 hover:text-gray-600'}`}
+                                                >
+                                                    Yes
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setDupattaIncluded('No')}
+                                                    className={`flex-1 py-3 px-4 rounded-xl text-sm font-bold transition-all ${dupattaIncluded === 'No' ? 'bg-white text-blue-600 shadow-sm ring-1 ring-gray-100' : 'text-gray-400 hover:text-gray-600'}`}
+                                                >
+                                                    No
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
+                            </>
+                        )}
                         {/* Country of Origin - Searchable Dropdown */}
                         <div className="space-y-2 relative">
                             <label className="text-sm font-bold text-gray-700 ml-1">Country of Origin</label>
@@ -894,55 +1513,57 @@ const AddProduct = () => {
                                 ></div>
                             )}
                         </div>
-                        {/* Care instructions - Searchable Dropdown */}
-                        <div className="space-y-2 relative">
-                            <label className="text-sm font-bold text-gray-700 ml-1">Care instructions</label>
-                            <div className="relative">
-                                <input
-                                    type="text"
-                                    placeholder="Search care instructions..."
-                                    value={careSearch}
-                                    onChange={(e) => {
-                                        setCareSearch(e.target.value);
-                                        setIsCareDropdownOpen(true);
-                                    }}
-                                    onFocus={() => setIsCareDropdownOpen(true)}
-                                    className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
-                                />
-                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                            </div>
-
-                            {isCareDropdownOpen && (
-                                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
-                                    {filteredCares.length > 0 ? (
-                                        <div className="p-2 space-y-1">
-                                            {filteredCares.map((c) => (
-                                                <button
-                                                    key={c}
-                                                    type="button"
-                                                    onClick={() => {
-                                                        setSelectedCare(c);
-                                                        setCareSearch(c);
-                                                        setIsCareDropdownOpen(false);
-                                                    }}
-                                                    className="w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors text-sm font-medium flex items-center justify-between group cursor-pointer"
-                                                >
-                                                    <span>{c}</span>
-                                                    {selectedCare === c && <Check className="w-4 h-4" />}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <div className="p-4 text-center text-gray-400 text-sm">
-                                            No care instructions found
-                                        </div>
-                                    )}
+                        {/* Care instructions - Searchable Dropdown - HIDDEN FOR WOMEN CATEGORY */}
+                        {selectedCategory !== 'Women' && (
+                            <div className="space-y-2 relative">
+                                <label className="text-sm font-bold text-gray-700 ml-1">Care instructions</label>
+                                <div className="relative">
+                                    <input
+                                        type="text"
+                                        placeholder="Search care instructions..."
+                                        value={careSearch}
+                                        onChange={(e) => {
+                                            setCareSearch(e.target.value);
+                                            setIsCareDropdownOpen(true);
+                                        }}
+                                        onFocus={() => setIsCareDropdownOpen(true)}
+                                        className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                                    />
+                                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                                 </div>
-                            )}
-                            {isCareDropdownOpen && (
-                                <div className="fixed inset-0 z-40" onClick={() => setIsCareDropdownOpen(false)}></div>
-                            )}
-                        </div>
+
+                                {isCareDropdownOpen && (
+                                    <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
+                                        {filteredCares.length > 0 ? (
+                                            <div className="p-2 space-y-1">
+                                                {filteredCares.map((c) => (
+                                                    <button
+                                                        key={c}
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setSelectedCare(c);
+                                                            setCareSearch(c);
+                                                            setIsCareDropdownOpen(false);
+                                                        }}
+                                                        className="w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors text-sm font-medium flex items-center justify-between group cursor-pointer"
+                                                    >
+                                                        <span>{c}</span>
+                                                        {selectedCare === c && <Check className="w-4 h-4" />}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <div className="p-4 text-center text-gray-400 text-sm">
+                                                No care instructions found
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                                {isCareDropdownOpen && (
+                                    <div className="fixed inset-0 z-40" onClick={() => setIsCareDropdownOpen(false)}></div>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -1116,7 +1737,7 @@ const AddProduct = () => {
                 </div>
 
                 {/* Row 3: Pricing & Sizes */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className={`grid grid-cols-1 ${selectedCategory === 'Electronics' ? 'lg:grid-cols-1' : 'lg:grid-cols-2'} gap-8`}>
                     {/* Pricing & Inventory */}
                     <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm space-y-8">
                         <div className="flex items-center gap-3">
@@ -1151,25 +1772,50 @@ const AddProduct = () => {
                     </div>
 
                     {/* Sizes */}
-                    <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm space-y-8">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
-                                <Package className="w-5 h-5 text-blue-600" />
+                    {selectedCategory !== 'Electronics' && (
+                        <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm space-y-8">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
+                                    <Package className="w-5 h-5 text-blue-600" />
+                                </div>
+                                <h2 className="text-xl font-bold text-gray-900">Size Variants</h2>
                             </div>
-                            <h2 className="text-xl font-bold text-gray-900">Size Variants</h2>
+                            <div className="flex flex-wrap gap-2">
+                                {availableSizes.map((size) => (
+                                    <button
+                                        key={size}
+                                        onClick={() => toggleSize(size)}
+                                        className={`px-5 py-3 rounded-2xl border text-sm font-bold transition-all cursor-pointer ${selectedSizes.includes(size) ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-100' : 'bg-gray-50 text-gray-500 border-gray-50 hover:border-gray-200'}`}
+                                    >
+                                        {size}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
-                        <div className="flex flex-wrap gap-2">
-                            {availableSizes.map((size) => (
-                                <button
-                                    key={size}
-                                    onClick={() => toggleSize(size)}
-                                    className={`px-5 py-3 rounded-2xl border text-sm font-bold transition-all cursor-pointer ${selectedSizes.includes(size) ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-100' : 'bg-gray-50 text-gray-500 border-gray-50 hover:border-gray-200'}`}
-                                >
-                                    {size}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
+                    )}
+                </div>
+            </div>
+
+            {/* Final Actions Footer - Final Refined Variant */}
+            <div className="bg-white p-10 rounded-[40px] border border-gray-100 shadow-[0_20px_50px_rgba(0,0,0,0.06)] flex flex-col md:flex-row items-center justify-between gap-8 animate-in slide-in-from-bottom-4 duration-500 mb-10">
+                <div className="flex flex-col items-center md:items-start text-center md:text-left">
+                    <h3 className="text-gray-900 font-black text-xl tracking-tight leading-none mb-2">Ready to launch?</h3>
+                    <p className="text-gray-500/80 text-[10px] font-black uppercase tracking-[0.2em]">Double check all tech specs before going live</p>
+                </div>
+                <div className="flex items-center gap-4 w-full md:w-auto">
+                    <button
+                        onClick={() => navigate('/seller/products')}
+                        className="flex-1 md:flex-none text-gray-400 font-black text-[11px] uppercase tracking-widest px-8 py-5 border-none bg-transparent cursor-pointer hover:text-gray-900 transition-all"
+                    >
+                        Discard
+                    </button>
+                    <button
+                        onClick={handlePublish}
+                        className="flex-[2] md:flex-none bg-blue-600 hover:bg-blue-700 text-white font-black py-5 px-16 rounded-2xl shadow-xl shadow-blue-500/20 transition-all border-none cursor-pointer transform hover:-translate-y-1 active:translate-y-0 text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 group"
+                    >
+                        <span>Publish Product</span>
+                        <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    </button>
                 </div>
             </div>
 
