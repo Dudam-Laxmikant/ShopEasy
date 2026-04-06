@@ -50,6 +50,7 @@ import SystemManagement from './pages/Admin/SystemManagement';
 import SellersList from './pages/Admin/SellersList';
 import ClientsList from './pages/Admin/ClientsList';
 import AdminList from './pages/Admin/AdminList';
+import SellerApprovalDetail from './pages/Admin/SellerApprovalDetail';
 
 import { WishlistProvider } from './pages/ClientSide/context/WishlistContext';
 import { CartProvider } from './pages/ClientSide/context/CartContext';
@@ -136,6 +137,7 @@ function App() {
                                 <Route path="sellers-list" element={<SellersList />} />
                                 <Route path="clients-list" element={<ClientsList />} />
                                 <Route path="admins-list" element={<AdminList />} />
+                                <Route path="seller-approval/:id" element={<SellerApprovalDetail />} />
                                 <Route path="security" element={<SystemManagement />} />
                                 <Route path="settings" element={<SystemManagement />} />
                                 <Route path="logs" element={<SystemManagement />} />
