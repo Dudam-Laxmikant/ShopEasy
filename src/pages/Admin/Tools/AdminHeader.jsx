@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { initializeAdminSocket } from '../adminService';
 import {
     Bell,
     Search,
@@ -27,21 +28,31 @@ const AdminHeader = ({ toggleSidebar }) => {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [isNotificationOpen, setIsNotificationOpen] = useState(false);
 
-    // Placeholder notifications
-    const [notifications, setNotifications] = useState([
-        {
-            id: 1,
-            seller_name: "Rahul Electronics",
-            email: "rahul@shop.com",
-            time: "2 mins ago"
-        },
-        {
-            id: 2,
-            seller_name: "Sneha Fashion",
-            email: "sneha@store.com",
-            time: "15 mins ago"
+    const [notifications, setNotifications] = useState([]);
+    const [socket, setSocket] = useState(null);
+
+    useEffect(() => {
+        const token = localStorage.getItem('adminToken');
+        const subAdminStr = localStorage.getItem('subAdminDetails');
+        let sub_admin_id = null;
+        if (subAdminStr) {
+            try {
+                const subAdminDetails = JSON.parse(subAdminStr);
+                sub_admin_id = subAdminDetails.sub_admin_id;
+            } catch (e) {}
         }
-    ]);
+
+        if (token && sub_admin_id) {
+            const newSocket = initializeAdminSocket(sub_admin_id, (newNotif) => {
+                setNotifications(prev => [newNotif, ...prev]);
+            });
+            setSocket(newSocket);
+
+            return () => {
+                newSocket.disconnect();
+            };
+        }
+    }, []);
 
     return (
         <header className="sticky top-0 z-30 w-full h-20 bg-white/80 backdrop-blur-xl border-b border-slate-200 flex items-center justify-between px-6 lg:px-10">

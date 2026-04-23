@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { loginSubAdmin, parseJwt } from './adminService';
 import {
     Lock,
     ShieldCheck,
@@ -15,14 +16,27 @@ import {
 const AdminLogin = () => {
     const [step, setStep] = useState(1); // 1: Login, 2: 2FA
     const [isLoading, setIsLoading] = useState(false);
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [errorMsg, setErrorMsg] = useState('');
 
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
         setIsLoading(true);
-        setTimeout(() => {
-            setIsLoading(false);
+        setErrorMsg('');
+        try {
+            const data = await loginSubAdmin(email, password);
+            localStorage.setItem('adminToken', data.access_token);
+            const decoded = parseJwt(data.access_token);
+            if (decoded) {
+                localStorage.setItem('subAdminDetails', JSON.stringify(decoded));
+            }
             setStep(2);
-        }, 1500);
+        } catch (err) {
+            setErrorMsg(err.message || 'Login failed');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const handle2FA = (e) => {
@@ -64,6 +78,11 @@ const AdminLogin = () => {
                             </div>
 
                             <form onSubmit={handleLogin} className="space-y-6">
+                                {errorMsg && (
+                                    <div className="p-3 bg-red-50 text-red-600 rounded-xl text-xs font-bold border border-red-100">
+                                        {errorMsg}
+                                    </div>
+                                )}
                                 <div className="space-y-2.5">
                                     <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Admin Identity</label>
                                     <div className="relative group">
@@ -71,8 +90,10 @@ const AdminLogin = () => {
                                             <AtSign className="w-5 h-5" />
                                         </div>
                                         <input
-                                            type="text"
+                                            type="email"
                                             required
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
                                             placeholder="admin_id or email"
                                             className="w-full pl-12 pr-4 py-4 bg-white border border-slate-200 rounded-2xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-medium shadow-sm"
                                         />
@@ -91,6 +112,8 @@ const AdminLogin = () => {
                                         <input
                                             type="password"
                                             required
+                                            value={password}
+                                            onChange={(e) => setPassword(e.target.value)}
                                             placeholder="••••••••••••"
                                             className="w-full pl-12 pr-4 py-4 bg-white border border-slate-200 rounded-2xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-medium shadow-sm"
                                         />
