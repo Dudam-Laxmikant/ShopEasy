@@ -87,7 +87,11 @@ const AdminHeader = ({ toggleSidebar }) => {
                             className="w-11 h-11 flex items-center justify-center bg-slate-50 hover:bg-slate-100 text-slate-500 hover:text-indigo-600 rounded-2xl transition-all border border-slate-200 relative cursor-pointer group"
                         >
                             <Bell className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-                            {notifications.length > 0 && <span className="absolute top-2.5 right-2.5 w-2.5 h-2.5 bg-indigo-600 rounded-full border-2 border-white"></span>}
+                            {notifications.length > 0 && (
+                                <span className="absolute top-1 right-1 min-w-[18px] h-[18px] px-1 bg-indigo-600 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white leading-none shadow-sm">
+                                    {notifications.length}
+                                </span>
+                            )}
                         </button>
 
                         {isNotificationOpen && (
