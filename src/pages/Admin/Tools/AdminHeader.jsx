@@ -71,8 +71,13 @@ const AdminHeader = ({ toggleSidebar }) => {
             });
             setSocket(newSocket);
 
+            // Listen for global signal to clear notifications (from AdminNotification page)
+            const handleClearSignal = () => setUnreadCount(0);
+            window.addEventListener('clearAdminNotifications', handleClearSignal);
+
             return () => {
                 newSocket.disconnect();
+                window.removeEventListener('clearAdminNotifications', handleClearSignal);
             };
         }
     }, []);

@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Check, X, Eye, ShieldAlert, ChevronDown, UserPlus } from 'lucide-react';
+import { initializeAdminSocket } from './adminService';
 
 const AdminNotification = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const [requests, setRequests] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isLiveUpdating, setIsLiveUpdating] = useState(false);
     
     // For Reject Modal/Dropdown
     const [rejectingId, setRejectingId] = useState(null);
@@ -29,51 +31,88 @@ const AdminNotification = () => {
                     },
                     body: JSON.stringify({ seller_ids: validIds })
                 });
+
+                // --- Dispatch Global Signal to clear Header Badge ---
+                window.dispatchEvent(new CustomEvent('clearAdminNotifications'));
             }
         } catch (error) {
             console.error("Error marking as seen:", error);
         }
     };
 
-    const fetchRequests = async () => {
-        setIsLoading(true);
+    const fetchRequests = async (isSilent = false) => {
+        if (!isSilent) setIsLoading(true);
+        else setIsLiveUpdating(true);
+
         try {
             const token = localStorage.getItem('adminToken');
             if (!token) return;
-            const response = await fetch('http://127.0.0.1:8000/api/v1/admin/admins/unseen', {
+            const response = await fetch('http://127.0.0.1:8000/api/v1/admin/admins/sellers/pending', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
             if (response.ok) {
                 const data = await response.json();
-                setRequests(data);
+                // We extract 'sellers' from the response { total, sellers }
+                setRequests(data.sellers || []);
                 // Also mark them as seen since we are looking at them now
-                if (data.length > 0) {
-                    markAsSeen(data);
+                if (data.sellers && data.sellers.length > 0) {
+                    markAsSeen(data.sellers);
                 }
             }
         } catch (error) {
             console.error("Error fetching seller requests:", error);
         } finally {
             setIsLoading(false);
+            setIsLiveUpdating(false);
         }
     };
 
     useEffect(() => {
-        // If we navigated from the bell icon, we already have the notifications
-        if (location.state?.initialRequests) {
-            setRequests(location.state.initialRequests);
-            setIsLoading(false);
-            
-            // Mark them as seen in the background
-            if (location.state.initialRequests.length > 0) {
-                markAsSeen(location.state.initialRequests);
-            }
-        } else {
-            // Only fetch if we came from sidebar
-            fetchRequests();
+        // Always fetch to get ALL pending requests (both seen and unseen)
+        fetchRequests();
+
+        // --- Real-time updates with Socket.IO ---
+        const subAdminStr = localStorage.getItem('subAdminDetails');
+        let sub_admin_id = null;
+        if (subAdminStr) {
+            try {
+                const subAdminDetails = JSON.parse(subAdminStr);
+                sub_admin_id = subAdminDetails.sub_admin_id;
+            } catch (e) { }
         }
+
+        let socketInstance = null;
+        if (sub_admin_id) {
+            // When a new seller registers, we get the data via socket
+            socketInstance = initializeAdminSocket(sub_admin_id, (newNotif) => {
+                // 1. Prepend the new notification immediately with a 'isSyncing' flag
+                const syncNotif = { ...newNotif, isSyncing: true };
+                setRequests(prev => [syncNotif, ...prev]);
+
+                // 2. Fetch all data to ensure sync, but SILENTLY (don't show table skeleton)
+                fetchRequests(true);
+
+                // 3. Remove the syncing flag after 2 seconds to make it look 'finalized'
+                setTimeout(() => {
+                    setRequests(prev => prev.map(r => r.id === syncNotif.id ? { ...r, isSyncing: false } : r));
+                }, 3000);
+            });
+        }
+
+        // If we navigated from the bell icon, we have unseen notifications
+        // Mark them as seen in the background
+        if (location.state?.initialRequests?.length > 0) {
+            markAsSeen(location.state.initialRequests);
+        }
+
+        // Cleanup on unmount
+        return () => {
+            if (socketInstance) {
+                socketInstance.disconnect();
+            }
+        };
     }, [location.state]);
 
     const handleRejectClick = (id) => {
@@ -124,9 +163,33 @@ const AdminNotification = () => {
                         </thead>
                         <tbody className="divide-y divide-slate-100">
                             {isLoading ? (
-                                <tr>
-                                    <td colSpan="4" className="py-10 text-center text-slate-500 font-bold text-sm">Loading alerts...</td>
-                                </tr>
+                                // --- Skeleton Loading Rows (Image Style) ---
+                                [1, 2, 3, 4, 5].map((i) => (
+                                    <tr key={i} className="animate-pulse">
+                                        <td className="py-6 px-6">
+                                            <div className="h-4 bg-slate-100 rounded-full w-16" />
+                                        </td>
+                                        <td className="py-6 px-6">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-10 h-10 bg-slate-100 rounded-xl" />
+                                                <div className="space-y-2">
+                                                    <div className="h-2 bg-slate-100 rounded-full w-24" />
+                                                    <div className="h-3 bg-slate-100 rounded-full w-32" />
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="py-6 px-6">
+                                            <div className="h-4 bg-slate-100 rounded-full w-40" />
+                                        </td>
+                                        <td className="py-6 px-6">
+                                            <div className="flex justify-end gap-2">
+                                                <div className="w-10 h-10 bg-slate-100 rounded-xl shadow-sm" />
+                                                <div className="w-10 h-10 bg-slate-100 rounded-xl shadow-sm" />
+                                                <div className="w-10 h-10 bg-slate-100 rounded-xl shadow-sm" />
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
                             ) : requests.length === 0 ? (
                                 <tr>
                                     <td colSpan="4" className="py-10 text-center text-slate-500 font-bold text-sm">No pending alerts found.</td>
@@ -134,21 +197,28 @@ const AdminNotification = () => {
                             ) : (
                                 requests.map((req) => (
                                     <React.Fragment key={req.id}>
-                                        <tr className="hover:bg-slate-50/50 transition-colors group">
+                                        <tr className={`hover:bg-slate-50/50 transition-colors group relative ${req.isSyncing ? 'bg-blue-50/40' : ''}`}>
+                                            {/* Row-level Progress Bar (Hugging Face Style) */}
+                                            {req.isSyncing && (
+                                                <div className="absolute top-0 left-0 w-full h-[3px] bg-blue-100 overflow-hidden z-10">
+                                                    <div className="h-full bg-blue-500 animate-[shimmer_1.5s_infinite_linear]" style={{ width: '100%', backgroundSize: '200% 100%' }} />
+                                                </div>
+                                            )}
+
                                             <td className="py-4 px-6 text-sm font-bold text-slate-600">
                                                 {req.seller_id}
                                             </td>
                                             <td className="py-4 px-6">
                                                 <div className="flex items-center gap-4">
-                                                    <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 shrink-0">
+                                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${req.isSyncing ? 'bg-blue-100 text-blue-600 animate-pulse' : 'bg-indigo-50 text-indigo-600'}`}>
                                                         <UserPlus className="w-5 h-5" />
                                                     </div>
                                                     <div>
                                                         <p className="text-[11px] font-bold text-slate-500 mb-0.5 uppercase tracking-widest">
-                                                            New Seller Request
+                                                            {req.isSyncing ? 'Synchronizing...' : 'New Seller Request'}
                                                         </p>
                                                         <p className="text-sm font-black text-slate-900 leading-none">
-                                                            {req.store_display_name || req.legal_company_name || 'N/A'}
+                                                            {req.store_display_name || req.legal_company_name || 'Processing...'}
                                                         </p>
                                                     </div>
                                                 </div>

@@ -109,3 +109,8 @@ button:focus-visible {
   width: 80px;
   height: 80px;
 }
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
