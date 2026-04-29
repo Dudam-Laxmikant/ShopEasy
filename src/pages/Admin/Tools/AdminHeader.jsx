@@ -29,9 +29,31 @@ const AdminHeader = ({ toggleSidebar }) => {
     const [isNotificationOpen, setIsNotificationOpen] = useState(false);
 
     const [notifications, setNotifications] = useState([]);
+    const [unreadCount, setUnreadCount] = useState(0);
     const [socket, setSocket] = useState(null);
 
+    const fetchNotifications = async () => {
+        try {
+            const token = localStorage.getItem('adminToken');
+            if (!token) return;
+            const response = await fetch('http://127.0.0.1:8000/api/v1/admin/admins/unseen', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setNotifications(data);
+                setUnreadCount(data.length);
+            }
+        } catch (error) {
+            console.error("Error fetching notifications:", error);
+        }
+    };
+
     useEffect(() => {
+        fetchNotifications();
+
         const token = localStorage.getItem('adminToken');
         const subAdminStr = localStorage.getItem('subAdminDetails');
         let sub_admin_id = null;
@@ -39,12 +61,13 @@ const AdminHeader = ({ toggleSidebar }) => {
             try {
                 const subAdminDetails = JSON.parse(subAdminStr);
                 sub_admin_id = subAdminDetails.sub_admin_id;
-            } catch (e) {}
+            } catch (e) { }
         }
 
         if (token && sub_admin_id) {
             const newSocket = initializeAdminSocket(sub_admin_id, (newNotif) => {
                 setNotifications(prev => [newNotif, ...prev]);
+                setUnreadCount(prev => prev + 1);
             });
             setSocket(newSocket);
 
@@ -53,6 +76,17 @@ const AdminHeader = ({ toggleSidebar }) => {
             };
         }
     }, []);
+
+    const handleBellClick = async () => {
+        if (unreadCount > 0 && notifications.length > 0) {
+            // Clear the badge immediately
+            setUnreadCount(0);
+        }
+        
+        // Navigate to the new notifications page and pass the existing notifications.
+        // We will do the mark-seen API call from the notifications page to avoid double firing.
+        navigate('/admin/notifications', { state: { initialRequests: notifications } });
+    };
 
     return (
         <header className="sticky top-0 z-30 w-full h-20 bg-white/80 backdrop-blur-xl border-b border-slate-200 flex items-center justify-between px-6 lg:px-10">
@@ -79,60 +113,20 @@ const AdminHeader = ({ toggleSidebar }) => {
                         <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
                         Live Ops
                     </button>
-                    
+
                     {/* Notification Dropdown */}
                     <div className="relative">
-                        <button 
-                            onClick={() => setIsNotificationOpen(!isNotificationOpen)}
+                        <button
+                            onClick={handleBellClick}
                             className="w-11 h-11 flex items-center justify-center bg-slate-50 hover:bg-slate-100 text-slate-500 hover:text-indigo-600 rounded-2xl transition-all border border-slate-200 relative cursor-pointer group"
                         >
                             <Bell className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-                            {notifications.length > 0 && (
+                            {unreadCount > 0 && (
                                 <span className="absolute top-1 right-1 min-w-[18px] h-[18px] px-1 bg-indigo-600 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white leading-none shadow-sm">
-                                    {notifications.length}
+                                    {unreadCount}
                                 </span>
                             )}
                         </button>
-
-                        {isNotificationOpen && (
-                            <>
-                                <div className="fixed inset-0 z-10" onClick={() => setIsNotificationOpen(false)}></div>
-                                <div className="absolute top-full right-0 mt-3 w-[420px] bg-white border border-slate-200 rounded-[32px] shadow-2xl shadow-indigo-600/10 z-20 overflow-hidden animate-in fade-in zoom-in-95 duration-200 origin-top-right">
-                                    <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-                                        <h2 className="text-sm font-black text-slate-900 uppercase tracking-tighter italic">Intelligence Alerts</h2>
-                                        <span className="px-3 py-1 bg-indigo-600 text-white text-[10px] font-black rounded-lg uppercase tracking-widest">{notifications.length} Pending</span>
-                                    </div>
-                                    <div className="max-h-[480px] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200">
-                                        {notifications.map((notif) => (
-                                            <div key={notif.id} className="p-5 border-b border-slate-50 hover:bg-slate-50/80 transition-colors group">
-                                                <div className="flex gap-4 text-left">
-                                                    <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 flex-shrink-0 group-hover:scale-110 transition-transform">
-                                                        <UserPlus className="w-6 h-6" />
-                                                    </div>
-                                                    <div className="flex-1 min-w-0">
-                                                        <p className="text-[13px] font-black text-slate-900 leading-none">New Seller Request</p>
-                                                        <p className="text-[11px] font-bold text-slate-500 mt-1.5 truncate">{notif.seller_name}</p>
-                                                        <div className="flex items-center gap-2 mt-4">
-                                                            <button className="flex-1 py-3 bg-emerald-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-200 border-none cursor-pointer active:scale-95 transition-all">Accept</button>
-                                                            <button className="flex-1 py-3 bg-rose-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-rose-200 border-none cursor-pointer active:scale-95 transition-all">Reject</button>
-                                                            <button 
-                                                                onClick={() => {
-                                                                    navigate(`/admin/seller-approval/${notif.id}`);
-                                                                    setIsNotificationOpen(false);
-                                                                }}
-                                                                className="w-11 h-11 flex items-center justify-center bg-slate-100 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 rounded-xl transition-all border-none cursor-pointer"
-                                                            >
-                                                                <Eye className="w-5 h-5" />
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </>
-                        )}
                     </div>
                 </div>
 

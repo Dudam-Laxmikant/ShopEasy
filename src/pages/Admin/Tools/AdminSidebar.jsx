@@ -37,6 +37,7 @@ const AdminSidebar = ({ isOpen, onClose }) => {
             title: 'Entity Management',
             links: [
                 { name: 'Sellers Verification', path: '/admin/sellers', icon: Users, badge: '12' },
+                { name: 'Seller Requests', path: '/admin/notifications', icon: Users, badge: 'New' },
                 { name: 'Product Moderation', path: '/admin/moderation', icon: ShieldCheck, badge: '45' },
                 // { name: 'User Directory', path: '/admin/users', icon: Search },
             ]

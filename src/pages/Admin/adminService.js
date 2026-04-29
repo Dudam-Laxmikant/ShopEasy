@@ -44,7 +44,7 @@ export const initializeAdminSocket = (subAdminId, onNotificationReceived) => {
             
             // Format to match required notification structure if backend doesn't exact match
             const formattedData = {
-                id: data.seller_id || Date.now(), 
+                id: data.id || data.seller_id || Date.now(), 
                 seller_name: data.seller_name || data.shop_name || 'New Seller',
                 email: data.seller_email || data.email || '',
                 time: new Date().toLocaleTimeString(),
