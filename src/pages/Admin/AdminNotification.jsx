@@ -131,6 +131,30 @@ const AdminNotification = () => {
         setRejectingId(null);
     };
 
+    const handleApprove = async (seller_id) => {
+        try {
+            const token = localStorage.getItem('adminToken');
+            const response = await fetch(`http://127.0.0.1:8000/api/v1/admin/admins/sellers/${seller_id}/approve`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            if (response.ok) {
+                alert("Seller approved successfully! Email sent to the seller.");
+                // Remove from pending list
+                setRequests(prev => prev.filter(req => req.seller_id !== seller_id));
+            } else {
+                const errorData = await response.json();
+                alert(`Error: ${errorData.detail || 'Failed to approve'}`);
+            }
+        } catch (error) {
+            console.error("Error approving seller:", error);
+            alert("Failed to approve seller.");
+        }
+    };
+
     return (
         <div className="p-6 lg:p-10 max-w-7xl mx-auto w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* Header section */}
@@ -228,7 +252,10 @@ const AdminNotification = () => {
                                             </td>
                                             <td className="py-4 px-6">
                                                 <div className="flex items-center justify-end gap-2">
-                                                    <button className="flex items-center justify-center w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-500 hover:text-white transition-all shadow-sm border-none cursor-pointer" title="Accept">
+                                                    <button 
+                                                        onClick={() => handleApprove(req.seller_id)}
+                                                        className="flex items-center justify-center w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-500 hover:text-white transition-all shadow-sm border-none cursor-pointer" title="Accept"
+                                                    >
                                                         <Check className="w-5 h-5" />
                                                     </button>
                                                     <button 
