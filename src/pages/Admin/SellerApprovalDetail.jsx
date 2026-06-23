@@ -71,6 +71,38 @@ const SellerApprovalDetail = () => {
         }
     };
 
+    const handleReject = async () => {
+        const reason = prompt("Please enter the reason for rejection:");
+        if (reason === null) return; // User cancelled
+        if (!reason.trim()) {
+            alert("Rejection reason cannot be empty.");
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('adminToken');
+            const response = await fetch(`http://127.0.0.1:8000/api/v1/admin/admins/sellers/${seller.seller_id}/reject`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ reason: reason.trim() })
+            });
+            
+            if (response.ok) {
+                alert("Seller rejected successfully! Email sent to the seller.");
+                navigate(-1); // Go back to notifications list
+            } else {
+                const errorData = await response.json();
+                alert(`Error: ${errorData.detail || 'Failed to reject'}`);
+            }
+        } catch (error) {
+            console.error("Error rejecting seller:", error);
+            alert("Failed to reject seller.");
+        }
+    };
+
     if (!seller) return <div className="h-screen bg-slate-50 flex items-center justify-center font-bold text-slate-400">Loading Intelligence Path...</div>;
 
     return (
@@ -177,7 +209,7 @@ const SellerApprovalDetail = () => {
 
                                 <div className="flex gap-3 w-full sm:w-auto">
                                     <button onClick={() => navigate(-1)} className="flex-1 sm:flex-none px-6 py-4 bg-white/10 text-white rounded-2xl text-[9px] font-black uppercase tracking-widest border border-white/20 hover:bg-white/20 transition-all cursor-pointer">Discard</button>
-                                    <button className="flex-1 sm:flex-none px-8 py-4 bg-rose-500 text-white rounded-2xl text-[9px] font-black uppercase tracking-widest border-none hover:bg-rose-600 transition-all cursor-pointer shadow-lg shadow-rose-900/20">Deny Access</button>
+                                    <button onClick={handleReject} className="flex-1 sm:flex-none px-8 py-4 bg-rose-500 text-white rounded-2xl text-[9px] font-black uppercase tracking-widest border-none hover:bg-rose-600 transition-all cursor-pointer shadow-lg shadow-rose-900/20">Deny Access</button>
                                     <button 
                                         onClick={handleApprove}
                                         className="flex-1 sm:flex-none px-12 py-4 bg-white text-indigo-600 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] border-none hover:bg-slate-50 transition-all cursor-pointer italic text-center shadow-lg"

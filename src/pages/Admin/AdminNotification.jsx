@@ -121,14 +121,31 @@ const AdminNotification = () => {
         setCustomReason("");
     };
 
-    const submitReject = (id) => {
+    const submitReject = async (seller_id) => {
         const finalReason = rejectReason === "Other" ? customReason : rejectReason;
-        console.log(`Rejecting seller ${id} for reason: ${finalReason}`);
-        // TODO: Call API to actually reject the seller
-        
-        // Optimistically remove from list for now
-        setRequests(requests.filter(req => req.id !== id));
-        setRejectingId(null);
+        try {
+            const token = localStorage.getItem('adminToken');
+            const response = await fetch(`http://127.0.0.1:8000/api/v1/admin/admins/sellers/${seller_id}/reject`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ reason: finalReason })
+            });
+
+            if (response.ok) {
+                alert("Seller rejected successfully! Email sent to the seller.");
+                setRequests(prev => prev.filter(req => req.seller_id !== seller_id));
+                setRejectingId(null);
+            } else {
+                const errorData = await response.json();
+                alert(`Error: ${errorData.detail || 'Failed to reject'}`);
+            }
+        } catch (error) {
+            console.error("Error rejecting seller:", error);
+            alert("Failed to reject seller.");
+        }
     };
 
     const handleApprove = async (seller_id) => {
@@ -326,7 +343,7 @@ const AdminNotification = () => {
                                                                 Cancel
                                                             </button>
                                                             <button 
-                                                                onClick={() => submitReject(req.id)}
+                                                                onClick={() => submitReject(req.seller_id)}
                                                                 disabled={!rejectReason || (rejectReason === "Other" && !customReason.trim())}
                                                                 className="px-6 py-3 bg-rose-600 hover:bg-rose-700 disabled:bg-rose-300 disabled:cursor-not-allowed text-white text-[11px] font-black uppercase tracking-widest rounded-xl transition-all border-none cursor-pointer shadow-lg shadow-rose-200"
                                                             >
