@@ -46,6 +46,26 @@ export const loginSuperAdmin = async (email, password) => {
     return data;
 };
 
+export const registerAdmin = async (name, email, password) => {
+    const response = await fetch('http://localhost:8000/api/v1/admin/register', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            admin_name: name,
+            admin_email: email,
+            admin_password: password
+        })
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+        throw new Error(data.detail || 'Registration failed');
+    }
+    return data;
+};
+
 export const initializeAdminSocket = (subAdminId, onNotificationReceived) => {
     // The backend uses wrapped ASGIApp, so path is default /socket.io
     const socket = io('http://localhost:8000', {

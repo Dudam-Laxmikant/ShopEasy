@@ -75,14 +75,6 @@ const AdminSidebar = ({ isOpen, onClose }) => {
                 { name: 'Global Settings', path: '/admin/settings', icon: Settings },
             ]
         },
-        {
-            title: 'Core Infrastructure',
-            links: [
-                { name: 'System Config', path: '/admin/system', icon: Cpu },
-                { name: 'Access Control', path: '/admin/security', icon: Lock },
-                { name: 'Global Settings', path: '/admin/settings', icon: Settings },
-            ]
-        },
         
     ];
 
