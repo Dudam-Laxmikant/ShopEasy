@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Check, X, Eye, ShieldAlert, ChevronDown, UserPlus } from 'lucide-react';
-import { initializeAdminSocket } from './adminService';
+import { initializeAdminSocket, parseJwt } from './adminService';
 
 const AdminNotification = () => {
     const navigate = useNavigate();
@@ -74,19 +74,19 @@ const AdminNotification = () => {
         fetchRequests();
 
         // --- Real-time updates with Socket.IO ---
-        const subAdminStr = localStorage.getItem('subAdminDetails');
-        let sub_admin_id = null;
-        if (subAdminStr) {
+        const token = localStorage.getItem('adminToken');
+        let target_id = null;
+        if (token) {
             try {
-                const subAdminDetails = JSON.parse(subAdminStr);
-                sub_admin_id = subAdminDetails.sub_admin_id;
+                const decoded = parseJwt(token);
+                target_id = decoded?.sub_admin_id || decoded?.admin_id;
             } catch (e) { }
         }
 
         let socketInstance = null;
-        if (sub_admin_id) {
+        if (target_id) {
             // When a new seller registers, we get the data via socket
-            socketInstance = initializeAdminSocket(sub_admin_id, (newNotif) => {
+            socketInstance = initializeAdminSocket(target_id, (newNotif) => {
                 // 1. Prepend the new notification immediately with a 'isSyncing' flag
                 const syncNotif = { ...newNotif, isSyncing: true };
                 setRequests(prev => [syncNotif, ...prev]);

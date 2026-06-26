@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { initializeAdminSocket } from '../adminService';
+import { initializeAdminSocket, parseJwt } from '../adminService';
 import {
     Bell,
     Search,
@@ -55,17 +55,16 @@ const AdminHeader = ({ toggleSidebar }) => {
         fetchNotifications();
 
         const token = localStorage.getItem('adminToken');
-        const subAdminStr = localStorage.getItem('subAdminDetails');
-        let sub_admin_id = null;
-        if (subAdminStr) {
+        let target_id = null;
+        if (token) {
             try {
-                const subAdminDetails = JSON.parse(subAdminStr);
-                sub_admin_id = subAdminDetails.sub_admin_id;
+                const decoded = parseJwt(token);
+                target_id = decoded?.sub_admin_id || decoded?.admin_id;
             } catch (e) { }
         }
 
-        if (token && sub_admin_id) {
-            const newSocket = initializeAdminSocket(sub_admin_id, (newNotif) => {
+        if (token && target_id) {
+            const newSocket = initializeAdminSocket(target_id, (newNotif) => {
                 setNotifications(prev => [newNotif, ...prev]);
                 setUnreadCount(prev => prev + 1);
             });
