@@ -29,7 +29,13 @@ import {
     Activity,
     Wifi,
     Maximize,
-    Scale
+    Scale,
+    Shirt,
+    Watch,
+    Wallet,
+    Glasses,
+    Footprints,
+    Crown
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -41,6 +47,7 @@ const AddProduct = () => {
     const [selectedSizes, setSelectedSizes] = useState([]);
     const [activeImageIdx, setActiveImageIdx] = useState(0);
     const [showCategoryModal, setShowCategoryModal] = useState(true);
+    const [modalStep, setModalStep] = useState('primary'); // 'primary' or 'men-sub'
     const [showSuccessModal, setShowSuccessModal] = useState(false);
 
     // Basic Product Info States
@@ -177,8 +184,21 @@ const AddProduct = () => {
 
     // Sub-category lists based on primary category
     const womenCategories = ['Saree', 'Kurti', 'Dress', 'Lehenga Choli', 'Salwar Suit', 'Jumpsuit', 'Western Wear', 'Ethnic Wear', 'Lingerie', 'Nightwear', 'Activewear', 'Tops & Tees'];
-    const menCategories = ['Shirt', 'T-Shirt', 'Jeans', 'Trouser', 'Suit', 'Ethic Wear', 'Innerwear', 'Activewear', 'Loungewear', 'Co-ords'];
+    const menCategories = ['T-Shirt', 'Shirt', 'Pant', 'Jeans', 'Belt', 'Wallet', 'Shoes', 'Watch', 'Sunglasses', 'Cap'];
     const electronicsCategories = ['Mobile', 'Laptop', 'Smartwatch', 'Headphones', 'Camera', 'Tablet', 'Accessories', 'Gaming', 'Home Appliances', 'Computer Peripherals'];
+
+    const menSubCategories = [
+        { name: 'T-Shirt', icon: Shirt, colorClass: 'bg-blue-50 text-blue-600 group-hover:bg-blue-500 group-hover:text-white' },
+        { name: 'Shirt', icon: Shirt, colorClass: 'bg-indigo-50 text-indigo-600 group-hover:bg-indigo-500 group-hover:text-white' },
+        { name: 'Pant', icon: Tag, colorClass: 'bg-emerald-50 text-emerald-600 group-hover:bg-emerald-500 group-hover:text-white' },
+        { name: 'Jeans', icon: Tag, colorClass: 'bg-cyan-50 text-cyan-600 group-hover:bg-cyan-500 group-hover:text-white' },
+        { name: 'Belt', icon: Shield, colorClass: 'bg-amber-50 text-amber-600 group-hover:bg-amber-500 group-hover:text-white' },
+        { name: 'Wallet', icon: Wallet, colorClass: 'bg-rose-50 text-rose-600 group-hover:bg-rose-500 group-hover:text-white' },
+        { name: 'Shoes', icon: Footprints, colorClass: 'bg-teal-50 text-teal-600 group-hover:bg-teal-500 group-hover:text-white' },
+        { name: 'Watch', icon: Watch, colorClass: 'bg-purple-50 text-purple-600 group-hover:bg-purple-500 group-hover:text-white' },
+        { name: 'Sunglasses', icon: Glasses, colorClass: 'bg-orange-50 text-orange-600 group-hover:bg-orange-500 group-hover:text-white' },
+        { name: 'Cap', icon: Crown, colorClass: 'bg-pink-50 text-pink-600 group-hover:bg-pink-500 group-hover:text-white' }
+    ];
     const otherCategories = ['Kids', 'Fashion Accessories', 'Footwear', 'Home & Kitchen', 'Beauty & Personal Care', 'Sports & Outdoors', 'Books', 'Toys', 'Groceries', 'Automotive', 'Handbags', 'Watches', 'Jewelry'];
 
     const getCategoriesList = () => {
@@ -400,38 +420,90 @@ const AddProduct = () => {
                 <div className="fixed inset-0 z-[150] flex items-center justify-center p-4">
                     <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-md animate-in fade-in duration-500"></div>
                     <div className="bg-white rounded-[45px] p-10 max-w-2xl w-full relative z-[160] shadow-[0_32px_64px_-15px_rgba(0,0,0,0.2)] animate-in zoom-in-95 slide-in-from-bottom-10 duration-500 border border-white">
-                        <div className="text-center mb-10">
-                            <h2 className="text-4xl font-[1000] text-gray-900 mb-3 tracking-tight">What are you selling?</h2>
-                            <p className="text-gray-500 font-medium text-lg">Select a category to customize your product form.</p>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                            {categoryTemplates.map((item) => (
-                                <button
-                                    key={item.id}
-                                    onClick={() => {
-                                        setSelectedCategory(item.id);
-                                        setShowCategoryModal(false);
-                                    }}
-                                    className="group relative flex items-center gap-5 p-6 bg-gray-50 rounded-[30px] border-2 border-transparent hover:border-blue-500 hover:bg-white hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 cursor-pointer text-left overflow-hidden"
-                                >
-                                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-300 ${item.id === 'Men' ? 'bg-blue-100 group-hover:bg-blue-500 text-blue-600 group-hover:text-white' :
-                                            item.id === 'Women' ? 'bg-pink-100 group-hover:bg-pink-500 text-pink-600 group-hover:text-white' :
-                                                item.id === 'Electronics' ? 'bg-purple-100 group-hover:bg-purple-500 text-purple-600 group-hover:text-white' :
-                                                    'bg-orange-100 group-hover:bg-orange-500 text-orange-600 group-hover:text-white'
-                                        }`}>
-                                        <item.icon className="w-8 h-8" />
-                                    </div>
-                                    <div>
-                                        <h3 className="font-bold text-xl text-gray-900 group-hover:text-blue-600 transition-colors">{item.name}</h3>
-                                        <p className="text-gray-400 text-sm font-medium">Click to use this layout</p>
-                                    </div>
-                                    <ChevronRight className="absolute right-6 w-5 h-5 text-gray-300 group-hover:text-blue-500 group-hover:translate-x-1 transition-all" />
+                        {modalStep === 'primary' ? (
+                            <>
+                                <div className="text-center mb-10">
+                                    <h2 className="text-4xl font-[1000] text-gray-900 mb-3 tracking-tight">What are you selling?</h2>
+                                    <p className="text-gray-500 font-medium text-lg">Select a category to customize your product form.</p>
+                                </div>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                                    {categoryTemplates.map((item) => (
+                                        <button
+                                            key={item.id}
+                                            onClick={() => {
+                                                if (item.id === 'Men') {
+                                                    setModalStep('men-sub');
+                                                } else {
+                                                    setSelectedCategory(item.id);
+                                                    setShowCategoryModal(false);
+                                                }
+                                            }}
+                                            className="group relative flex items-center gap-5 p-6 bg-gray-50 rounded-[30px] border-2 border-transparent hover:border-blue-500 hover:bg-white hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 cursor-pointer text-left overflow-hidden"
+                                        >
+                                            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-300 ${item.id === 'Men' ? 'bg-blue-100 group-hover:bg-blue-500 text-blue-600 group-hover:text-white' :
+                                                    item.id === 'Women' ? 'bg-pink-100 group-hover:bg-pink-500 text-pink-600 group-hover:text-white' :
+                                                        item.id === 'Electronics' ? 'bg-purple-100 group-hover:bg-purple-500 text-purple-600 group-hover:text-white' :
+                                                            'bg-orange-100 group-hover:bg-orange-500 text-orange-600 group-hover:text-white'
+                                                }`}>
+                                                <item.icon className="w-8 h-8" />
+                                            </div>
+                                            <div>
+                                                <h3 className="font-bold text-xl text-gray-900 group-hover:text-blue-600 transition-colors">{item.name}</h3>
+                                                <p className="text-gray-400 text-sm font-medium">Click to use this layout</p>
+                                            </div>
+                                            <ChevronRight className="absolute right-6 w-5 h-5 text-gray-300 group-hover:text-blue-500 group-hover:translate-x-1 transition-all" />
+                                        </button>
+                                    ))}
+                                </div>
+                                <button onClick={() => navigate('/seller/products')} className="mt-8 w-full py-4 text-gray-400 font-bold hover:text-gray-600 transition-colors border-none bg-transparent cursor-pointer">
+                                    Cancel and go back
                                 </button>
-                            ))}
-                        </div>
-                        <button onClick={() => navigate('/seller/products')} className="mt-8 w-full py-4 text-gray-400 font-bold hover:text-gray-600 transition-colors border-none bg-transparent cursor-pointer">
-                            Cancel and go back
-                        </button>
+                            </>
+                        ) : (
+                            <>
+                                <div className="flex items-center gap-4 mb-8">
+                                    <button 
+                                        type="button"
+                                        onClick={() => setModalStep('primary')}
+                                        className="p-3 bg-gray-50 hover:bg-gray-100 rounded-2xl text-gray-600 transition-all cursor-pointer border-none flex items-center justify-center"
+                                    >
+                                        <ChevronLeft className="w-5 h-5" />
+                                    </button>
+                                    <div className="text-left">
+                                        <h2 className="text-3xl font-[1000] text-gray-900 mb-1 tracking-tight">Men's Fashion</h2>
+                                        <p className="text-gray-500 font-medium text-sm">Select a specific sub-category</p>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+                                    {menSubCategories.map((sub) => {
+                                        const SubIcon = sub.icon;
+                                        return (
+                                            <button
+                                                key={sub.name}
+                                                type="button"
+                                                onClick={() => {
+                                                    setSelectedCategory('Men');
+                                                    setSelectedCategoryLabel(sub.name);
+                                                    setCategorySearch(sub.name);
+                                                    setShowCategoryModal(false);
+                                                }}
+                                                className="group flex flex-col items-center justify-center p-5 bg-gray-50 rounded-[24px] border-2 border-transparent hover:border-blue-500 hover:bg-white hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 cursor-pointer text-center"
+                                            >
+                                                <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-3 transition-all duration-300 ${sub.colorClass}`}>
+                                                    <SubIcon className="w-6 h-6" />
+                                                </div>
+                                                <span className="font-bold text-sm text-gray-800 group-hover:text-blue-600 transition-colors">{sub.name}</span>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+
+                                <button onClick={() => navigate('/seller/products')} className="mt-8 w-full py-4 text-gray-400 font-bold hover:text-gray-600 transition-colors border-none bg-transparent cursor-pointer">
+                                    Cancel and go back
+                                </button>
+                            </>
+                        )}
                     </div>
                 </div>
             )}
@@ -632,7 +704,7 @@ const AddProduct = () => {
                                 {isCategoryDropdownOpen && <div className="fixed inset-0 z-40" onClick={() => setIsCategoryDropdownOpen(false)}></div>}
                             </div>
                             {/* Status - Searchable Dropdown */}
-                            <div className="space-y-2 relative">
+                            {/* <div className="space-y-2 relative">
                                 <label className="text-sm font-bold text-gray-700 ml-1">Product Status</label>
                                 <div className="relative">
                                     <input
@@ -674,7 +746,7 @@ const AddProduct = () => {
                                     </div>
                                 )}
                                 {isStatusDropdownOpen && <div className="fixed inset-0 z-40" onClick={() => setIsStatusDropdownOpen(false)}></div>}
-                            </div>
+                            </div> */}
                             <div className="space-y-2">
                                 <label className="text-sm font-bold text-gray-700 ml-1">Search Tags</label>
                                 <input

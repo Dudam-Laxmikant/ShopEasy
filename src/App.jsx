@@ -41,6 +41,7 @@ import ManageSubSellers from './pages/SallesSide/ManageSubSellers';
 import AdminLayout from './pages/Admin/AdminLayout';
 import AdminDashboard from './pages/Admin/Dashboard';
 import AdminLogin from './pages/Admin/Login';
+import AdminRegister from './pages/Admin/Register';
 import SellerManagement from './pages/Admin/SellerManagement';
 import ProductModeration from './pages/Admin/ProductModeration';
 import OrderManagement from './pages/Admin/OrderManagement';
@@ -51,6 +52,8 @@ import SellersList from './pages/Admin/SellersList';
 import ClientsList from './pages/Admin/ClientsList';
 import AdminList from './pages/Admin/AdminList';
 import SellerApprovalDetail from './pages/Admin/SellerApprovalDetail';
+import CategoryManagement from './pages/Admin/CategoryManagement';
+import BrandManagement from './pages/Admin/BrandManagement';
 
 import { WishlistProvider } from './pages/ClientSide/context/WishlistContext';
 import { CartProvider } from './pages/ClientSide/context/CartContext';
@@ -124,6 +127,7 @@ function App() {
 
                             {/* Admin Side Routes */}
                             <Route path="/admin/login" element={<AdminLogin />} />
+                            <Route path="/admin/register" element={<AdminRegister />} />
                             <Route path="/admin" element={<AdminLayout />}>
                                 <Route index element={<AdminDashboard />} />
                                 <Route path="dashboard" element={<AdminDashboard />} />
@@ -137,6 +141,8 @@ function App() {
                                 <Route path="sellers-list" element={<SellersList />} />
                                 <Route path="clients-list" element={<ClientsList />} />
                                 <Route path="admins-list" element={<AdminList />} />
+                                <Route path="categories" element={<CategoryManagement />} />
+                                <Route path="brands" element={<BrandManagement />} />
                                 <Route path="seller-approval/:id" element={<SellerApprovalDetail />} />
                                 <Route path="security" element={<SystemManagement />} />
                                 <Route path="settings" element={<SystemManagement />} />
