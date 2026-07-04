@@ -49,6 +49,10 @@ const AddProduct = () => {
     const [showCategoryModal, setShowCategoryModal] = useState(true);
     const [modalStep, setModalStep] = useState('primary'); // 'primary' or 'men-sub'
     const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [formStep, setFormStep] = useState('common'); // 'common' or 'specs'
+    const [specs, setSpecs] = useState({});
+    const [activeDropdown, setActiveDropdown] = useState(null);
+    const [dropdownSearch, setDropdownSearch] = useState('');
 
     // Basic Product Info States
     const [productTitle, setProductTitle] = useState('');
@@ -59,6 +63,12 @@ const AddProduct = () => {
     const [sku, setSku] = useState('');
     const [initialStock, setInitialStock] = useState('');
     const [costPrice, setCostPrice] = useState('');
+    // Women's specific fields
+    const [mrp, setMrp] = useState('');
+    const [offerPrice, setOfferPrice] = useState('');
+    const [offerStartDate, setOfferStartDate] = useState('');
+    const [offerEndDate, setOfferEndDate] = useState('');
+    const [productWeight, setProductWeight] = useState('');
 
     // Electronics Specification States
     const [modelName, setModelName] = useState('');
@@ -183,8 +193,13 @@ const AddProduct = () => {
     const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
 
     // Sub-category lists based on primary category
-    const womenCategories = ['Saree', 'Kurti', 'Dress', 'Lehenga Choli', 'Salwar Suit', 'Jumpsuit', 'Western Wear', 'Ethnic Wear', 'Lingerie', 'Nightwear', 'Activewear', 'Tops & Tees'];
-    const menCategories = ['T-Shirt', 'Shirt', 'Pant', 'Jeans', 'Belt', 'Wallet', 'Shoes', 'Watch', 'Sunglasses', 'Cap'];
+    const womenCategories = ['Saree', 'Kurti', 'Dress', 'Top', 'T-Shirt', 'Shirt', 'Jeans', 'Pant', 'Leggings', 'Shoes', 'Sandals', 'Heels', 'Handbag', 'Wallet', 'Watch', 'Sunglasses', 'Belt', 'Jewellery'];
+    const menCategories = [
+        'T-Shirt', 'Shirt', 'Pant', 'Jeans', 'Shorts', 'Track Pant', 'Jacket', 
+        'Hoodie', 'Blazer', 'Kurta', 'Shoes', 'Slippers', 'Sandals', 'Boots', 
+        'Cap', 'Hat', 'Sunglasses', 'Watch', 'Wallet', 'Bag', 'Belt', 
+        'Socks', 'Muffler / Scarf', 'Gloves', 'Jewellery (Men)'
+    ];
     const electronicsCategories = ['Mobile', 'Laptop', 'Smartwatch', 'Headphones', 'Camera', 'Tablet', 'Accessories', 'Gaming', 'Home Appliances', 'Computer Peripherals'];
 
     const menSubCategories = [
@@ -192,13 +207,156 @@ const AddProduct = () => {
         { name: 'Shirt', icon: Shirt, colorClass: 'bg-indigo-50 text-indigo-600 group-hover:bg-indigo-500 group-hover:text-white' },
         { name: 'Pant', icon: Tag, colorClass: 'bg-emerald-50 text-emerald-600 group-hover:bg-emerald-500 group-hover:text-white' },
         { name: 'Jeans', icon: Tag, colorClass: 'bg-cyan-50 text-cyan-600 group-hover:bg-cyan-500 group-hover:text-white' },
-        { name: 'Belt', icon: Shield, colorClass: 'bg-amber-50 text-amber-600 group-hover:bg-amber-500 group-hover:text-white' },
-        { name: 'Wallet', icon: Wallet, colorClass: 'bg-rose-50 text-rose-600 group-hover:bg-rose-500 group-hover:text-white' },
-        { name: 'Shoes', icon: Footprints, colorClass: 'bg-teal-50 text-teal-600 group-hover:bg-teal-500 group-hover:text-white' },
-        { name: 'Watch', icon: Watch, colorClass: 'bg-purple-50 text-purple-600 group-hover:bg-purple-500 group-hover:text-white' },
+        { name: 'Shorts', icon: Tag, colorClass: 'bg-amber-50 text-amber-600 group-hover:bg-amber-500 group-hover:text-white' },
+        { name: 'Track Pant', icon: Tag, colorClass: 'bg-teal-50 text-teal-600 group-hover:bg-teal-500 group-hover:text-white' },
+        { name: 'Jacket', icon: Shirt, colorClass: 'bg-rose-50 text-rose-600 group-hover:bg-rose-500 group-hover:text-white' },
+        { name: 'Hoodie', icon: Shirt, colorClass: 'bg-purple-50 text-purple-600 group-hover:bg-purple-500 group-hover:text-white' },
+        { name: 'Blazer', icon: Shirt, colorClass: 'bg-orange-50 text-orange-600 group-hover:bg-orange-500 group-hover:text-white' },
+        { name: 'Kurta', icon: Shirt, colorClass: 'bg-pink-50 text-pink-600 group-hover:bg-pink-500 group-hover:text-white' },
+        { name: 'Shoes', icon: Footprints, colorClass: 'bg-emerald-50 text-emerald-600 group-hover:bg-emerald-500 group-hover:text-white' },
+        { name: 'Slippers', icon: Footprints, colorClass: 'bg-blue-50 text-blue-600 group-hover:bg-blue-500 group-hover:text-white' },
+        { name: 'Sandals', icon: Footprints, colorClass: 'bg-indigo-50 text-indigo-600 group-hover:bg-indigo-500 group-hover:text-white' },
+        { name: 'Boots', icon: Footprints, colorClass: 'bg-cyan-50 text-cyan-600 group-hover:bg-cyan-500 group-hover:text-white' },
+        { name: 'Cap', icon: Crown, colorClass: 'bg-pink-50 text-pink-600 group-hover:bg-pink-500 group-hover:text-white' },
+        { name: 'Hat', icon: Crown, colorClass: 'bg-amber-50 text-amber-600 group-hover:bg-amber-500 group-hover:text-white' },
         { name: 'Sunglasses', icon: Glasses, colorClass: 'bg-orange-50 text-orange-600 group-hover:bg-orange-500 group-hover:text-white' },
-        { name: 'Cap', icon: Crown, colorClass: 'bg-pink-50 text-pink-600 group-hover:bg-pink-500 group-hover:text-white' }
+        { name: 'Watch', icon: Watch, colorClass: 'bg-purple-50 text-purple-600 group-hover:bg-purple-500 group-hover:text-white' },
+        { name: 'Wallet', icon: Wallet, colorClass: 'bg-rose-50 text-rose-600 group-hover:bg-rose-500 group-hover:text-white' },
+        { name: 'Bag', icon: Wallet, colorClass: 'bg-teal-50 text-teal-600 group-hover:bg-teal-500 group-hover:text-white' },
+        { name: 'Belt', icon: Shield, colorClass: 'bg-amber-50 text-amber-600 group-hover:bg-amber-500 group-hover:text-white' },
+        { name: 'Socks', icon: Tag, colorClass: 'bg-blue-50 text-blue-600 group-hover:bg-blue-500 group-hover:text-white' },
+        { name: 'Muffler / Scarf', icon: Tag, colorClass: 'bg-indigo-50 text-indigo-600 group-hover:bg-indigo-500 group-hover:text-white' },
+        { name: 'Gloves', icon: Tag, colorClass: 'bg-cyan-50 text-cyan-600 group-hover:bg-cyan-500 group-hover:text-white' },
+        { name: 'Jewellery (Men)', icon: Crown, colorClass: 'bg-rose-50 text-rose-600 group-hover:bg-rose-500 group-hover:text-white' }
     ];
+
+    const womenSubCategories = [
+        { name: 'Saree', icon: Shirt, colorClass: 'bg-pink-50 text-pink-600 group-hover:bg-pink-500 group-hover:text-white' },
+        { name: 'Kurti', icon: Shirt, colorClass: 'bg-rose-50 text-rose-600 group-hover:bg-rose-500 group-hover:text-white' },
+        { name: 'Dress', icon: Shirt, colorClass: 'bg-fuchsia-50 text-fuchsia-600 group-hover:bg-fuchsia-500 group-hover:text-white' },
+        { name: 'Top', icon: Shirt, colorClass: 'bg-purple-50 text-purple-600 group-hover:bg-purple-500 group-hover:text-white' },
+        { name: 'T-Shirt', icon: Shirt, colorClass: 'bg-indigo-50 text-indigo-600 group-hover:bg-indigo-500 group-hover:text-white' },
+        { name: 'Shirt', icon: Shirt, colorClass: 'bg-blue-50 text-blue-600 group-hover:bg-blue-500 group-hover:text-white' },
+        { name: 'Jeans', icon: Tag, colorClass: 'bg-cyan-50 text-cyan-600 group-hover:bg-cyan-500 group-hover:text-white' },
+        { name: 'Pant', icon: Tag, colorClass: 'bg-teal-50 text-teal-600 group-hover:bg-teal-500 group-hover:text-white' },
+        { name: 'Leggings', icon: Tag, colorClass: 'bg-emerald-50 text-emerald-600 group-hover:bg-emerald-500 group-hover:text-white' },
+        { name: 'Shoes', icon: Footprints, colorClass: 'bg-amber-50 text-amber-600 group-hover:bg-amber-500 group-hover:text-white' },
+        { name: 'Sandals', icon: Footprints, colorClass: 'bg-orange-50 text-orange-600 group-hover:bg-orange-500 group-hover:text-white' },
+        { name: 'Heels', icon: Footprints, colorClass: 'bg-red-50 text-red-600 group-hover:bg-red-500 group-hover:text-white' },
+        { name: 'Handbag', icon: Wallet, colorClass: 'bg-pink-50 text-pink-600 group-hover:bg-pink-500 group-hover:text-white' },
+        { name: 'Wallet', icon: Wallet, colorClass: 'bg-rose-50 text-rose-600 group-hover:bg-rose-500 group-hover:text-white' },
+        { name: 'Watch', icon: Watch, colorClass: 'bg-purple-50 text-purple-600 group-hover:bg-purple-500 group-hover:text-white' },
+        { name: 'Sunglasses', icon: Glasses, colorClass: 'bg-indigo-50 text-indigo-600 group-hover:bg-indigo-500 group-hover:text-white' },
+        { name: 'Belt', icon: Shield, colorClass: 'bg-amber-50 text-amber-600 group-hover:bg-amber-500 group-hover:text-white' },
+        { name: 'Jewellery', icon: Crown, colorClass: 'bg-fuchsia-50 text-fuchsia-600 group-hover:bg-fuchsia-500 group-hover:text-white' }
+    ];
+
+    const subCategoryFields = {
+        'T-Shirt': ['Size', 'Sleeve Type', 'Neck Style', 'Fabric', 'Pattern', 'Fit', 'Occasion'],
+        'Shirt': ['Size', 'Sleeve Type', 'Neck Style', 'Fabric', 'Pattern', 'Fit', 'Occasion'],
+        'Pant': ['Waist Size', 'Length', 'Fabric', 'Pattern', 'Fit', 'Closure Type'],
+        'Jeans': ['Waist Size', 'Length', 'Fit', 'Pattern', 'Stretchable', 'Closure Type'],
+        'Shorts': ['Waist Size', 'Length', 'Fabric', 'Pattern', 'Fit'],
+        'Jacket': ['Size', 'Sleeve Type', 'Hood', 'Fabric', 'Fit', 'Closure Type'],
+        'Hoodie': ['Size', 'Sleeve Type', 'Hood', 'Fabric', 'Fit'],
+        'Blazer': ['Size', 'Fabric', 'Pattern', 'Fit', 'Occasion'],
+        'Track Pant': ['Waist Size', 'Length', 'Fabric', 'Fit', 'Pocket'],
+        'Kurta': ['Size', 'Sleeve Type', 'Neck Style', 'Fabric', 'Pattern', 'Occasion'],
+        'Shoes': ['Shoe Size', 'Material', 'Sole Material', 'Closure Type', 'Occasion'],
+        'Slippers': ['Slipper Size', 'Material', 'Sole Material'],
+        'Sandals': ['Sandal Size', 'Material', 'Closure Type'],
+        'Boots': ['Boot Size', 'Material', 'Sole Material', 'Closure Type'],
+        'Cap': ['Size', 'Material', 'Pattern'],
+        'Hat': ['Size', 'Material'],
+        'Sunglasses': ['Frame Material', 'Lens Type', 'Frame Color'],
+        'Watch': ['Dial Shape', 'Strap Material', 'Display Type', 'Water Resistant', 'Warranty'],
+        'Wallet': ['Material', 'Number of Compartments', 'Closure Type'],
+        'Bag': ['Material', 'Capacity', 'Number of Compartments', 'Closure Type'],
+        'Belt': ['Belt Size', 'Material', 'Buckle Type', 'Width'],
+        'Socks': ['Size', 'Material', 'Pattern'],
+        'Muffler / Scarf': ['Material', 'Length', 'Pattern'],
+        'Gloves': ['Size', 'Material', 'Pattern'],
+        'Jewellery (Men)': ['Material', 'Size', 'Stone Type (Optional)']
+    };
+
+    const specOptions = {
+        'Sleeve Type': ['Long Sleeve', 'Short Sleeve', 'Half Sleeve', 'Sleeveless', '3/4 Sleeve', 'Cap Sleeve', 'Raglan Sleeve'],
+        'Neck Style': ['Button Down Collar', 'Crew Neck', 'V-Neck', 'Polo Collar', 'High Neck', 'Scoop Neck', 'Turtle Neck', 'Henley', 'Mandarin Collar'],
+        'Fabric': ['Cotton', 'Rayon', 'Linen', 'Art Silk', 'Chiffon', 'Corduroy', 'Crepe', 'Denim', 'Fleece', 'Satin', 'Silk', 'Synthetic', 'Velvet', 'Wool', 'Polyester', 'Nylon', 'Spandex', 'Viscose'],
+        'Material': ['Cotton', 'Rayon', 'Linen', 'Art Silk', 'Chiffon', 'Corduroy', 'Crepe', 'Denim', 'Fleece', 'Satin', 'Silk', 'Synthetic', 'Velvet', 'Wool', 'Polyester', 'Nylon', 'Spandex', 'Viscose', 'Leather', 'Canvas', 'Rubber', 'Metal', 'Plastic', 'Silver', 'Gold', 'Brass'],
+        'Pattern': ['Solid', 'Striped', 'Floral', 'Animal print', 'Argyle', 'Camouflage', 'Chequered', 'Chevron', 'Geometric', 'Paisley', 'Plaid', 'Polka dots', 'Stars', 'Tie-Dye', 'Abstract', 'Ombre'],
+        'Fit': ['Regular Fit', 'Slim Fit', 'Relaxed Fit', 'Oversized Fit', 'Skinny Fit', 'Classic Fit', 'Loose Fit', 'Tailored Fit', 'Athletic Fit'],
+        'Occasion': ['Casual', 'Formal', 'Party', 'Wedding', 'Sports', 'Business', 'Festival', 'Cocktail', 'Streetwear', 'Ethnic', 'Office', 'Travel'],
+        'Length': ['Standard Length', 'Short Length', 'Longline', 'Knee Length', 'Midi Length', 'Maxi Length', 'Cropped'],
+        'Closure Type': ['Button', 'Zipper', 'Slip-on', 'Lace-up', 'Velcro', 'Hook and Loop', 'Buckle', 'None'],
+        'Stretchable': ['Yes', 'No'],
+        'Hood': ['Yes', 'No'],
+        'Pocket': ['Yes', 'No'],
+        'Sole Material': ['Rubber', 'EVA', 'Leather', 'PU', 'PVC', 'TPU'],
+        'Dial Shape': ['Round', 'Square', 'Rectangular', 'Oval', 'Tonneau'],
+        'Strap Material': ['Leather', 'Stainless Steel', 'Silicon', 'Nylon', 'Titanium'],
+        'Display Type': ['Analog', 'Digital', 'Chronograph', 'Smart / OLED'],
+        'Water Resistant': ['30m (3 ATM)', '50m (5 ATM)', '100m (10 ATM)', 'No'],
+        'Warranty': ['No Warranty', '6 Months', '1 Year Standard', '2 Years Extended', '3 Years Premium'],
+        'Number of Compartments': ['1', '2', '3', '4', '5+'],
+        'Capacity': ['10L', '20L', '30L', '40L', '50L+'],
+        'Buckle Type': ['Pin Buckle', 'Plate Buckle', 'Automatic Buckle', 'Ring Buckle'],
+        'Width': ['1.0 inch', '1.25 inch', '1.5 inch', '1.75 inch'],
+        'Frame Material': ['Plastic', 'Metal', 'Acetate', 'Titanium', 'Wood'],
+        'Lens Type': ['Polarized', 'UV Protection', 'Mirrored', 'Gradient', 'Clear'],
+        'Frame Color': ['Black', 'Brown', 'Gold', 'Silver', 'Tortoise', 'Grey', 'Blue'],
+        'Stone Type (Optional)': ['None', 'Diamond', 'Zirconia', 'Ruby', 'Sapphire', 'Emerald', 'Pearl']
+    };
+
+    // Women's sub-category fields
+    const womenSubCategoryFields = {
+        'Saree': ['Saree Length', 'Blouse Piece', 'Fabric', 'Pattern', 'Occasion', 'Color'],
+        'Kurti': ['Size', 'Sleeve Type', 'Neck Style', 'Kurti Length', 'Fabric', 'Pattern', 'Color'],
+        'Dress': ['Size', 'Sleeve Type', 'Neck Style', 'Dress Length', 'Fabric', 'Pattern', 'Fit', 'Color'],
+        'Top': ['Size', 'Sleeve Type', 'Neck Style', 'Fabric', 'Pattern', 'Fit', 'Color'],
+        'T-Shirt': ['Size', 'Sleeve Type', 'Neck Style', 'Fabric', 'Pattern', 'Fit', 'Color'],
+        'Shirt': ['Size', 'Sleeve Type', 'Collar Type', 'Fabric', 'Pattern', 'Fit', 'Color'],
+        'Jeans': ['Waist Size', 'Fit', 'Stretchable', 'Pattern', 'Color'],
+        'Pant': ['Waist Size', 'Fabric', 'Pattern', 'Fit', 'Closure Type', 'Color'],
+        'Leggings': ['Waist Size', 'Fabric', 'Pattern', 'Stretchable', 'Color'],
+        'Shoes': ['Shoe Size', 'Material', 'Sole Material', 'Closure Type', 'Color'],
+        'Sandals': ['Sandal Size', 'Material', 'Closure Type', 'Heel Height', 'Color'],
+        'Heels': ['Shoe Size', 'Heel Height', 'Heel Type', 'Material', 'Closure Type', 'Color'],
+        'Handbag': ['Material', 'Capacity', 'Number of Compartments', 'Closure Type', 'Strap Type', 'Color'],
+        'Wallet': ['Material', 'Number of Compartments', 'Closure Type', 'Color'],
+        'Watch': ['Dial Shape', 'Dial Color', 'Strap Material', 'Strap Color', 'Display Type', 'Water Resistant', 'Warranty'],
+        'Sunglasses': ['Frame Material', 'Frame Color', 'Lens Type', 'Lens Color', 'UV Protection'],
+        'Belt': ['Belt Size', 'Material', 'Buckle Type', 'Width', 'Color'],
+        'Jewellery': ['Jewellery Type', 'Material', 'Size (Optional)', 'Stone Type (Optional)', 'Color'],
+    };
+
+    // Women's specific spec options (merged with specOptions)
+    const womenSpecOptions = {
+        ...specOptions,
+        'Saree Length': ['5.5 Meters', '6 Meters', '6.3 Meters', '6.5 Meters', '7 Meters', '8 Meters', '9 Meters'],
+        'Blouse Piece': ['Yes', 'No'],
+        'Kurti Length': ['Short (upto 30")', 'Mid Thigh (30"-40")', 'Long (40"-50")', 'Maxi (50"+)'],
+        'Dress Length': ['Mini', 'Knee Length', 'Midi', 'Maxi', 'Ankle Length', 'Floor Length'],
+        'Collar Type': ['Spread Collar', 'Button Down Collar', 'Mandarin Collar', 'Point Collar', 'Band Collar', 'V-Neck', 'Round Neck'],
+        'Heel Height': ['Flat (0-1")', 'Low (1-2")', 'Mid (2-3")', 'High (3-4")', 'Very High (4"+)'],
+        'Heel Type': ['Stiletto', 'Block Heel', 'Kitten Heel', 'Wedge', 'Cone Heel', 'Platform', 'Spool Heel'],
+        'Strap Type': ['Single Strap', 'Double Strap', 'Chain Strap', 'Detachable Strap', 'No Strap', 'Crossbody'],
+        'Dial Color': ['Black', 'White', 'Silver', 'Gold', 'Blue', 'Rose Gold', 'Brown', 'Green', 'Champagne'],
+        'Strap Color': ['Black', 'Brown', 'Silver', 'Gold', 'White', 'Blue', 'Rose Gold', 'Multicolor'],
+        'Lens Color': ['Black', 'Brown', 'Grey', 'Green', 'Blue', 'Pink', 'Yellow', 'Mirror Silver', 'Clear'],
+        'UV Protection': ['UV 400', 'UV 380', 'Polarized UV', 'No UV Protection'],
+        'Jewellery Type': ['Ring', 'Necklace', 'Earrings', 'Bracelet', 'Anklet', 'Bangle', 'Pendant', 'Brooch', 'Maangtika', 'Nose Ring'],
+        'Color': ['Black', 'White', 'Red', 'Blue', 'Green', 'Yellow', 'Purple', 'Pink', 'Beige', 'Maroon', 'Navy Blue', 'Teal', 'Orange', 'Brown', 'Grey', 'Gold', 'Silver', 'Multicolor', 'Off White', 'Peach'],
+        'Neck Style': ['Crew Neck', 'V-Neck', 'Scoop Neck', 'Square Neck', 'Boat Neck', 'High Neck', 'Off-Shoulder', 'Halter Neck', 'Cowl Neck', 'Sweetheart Neck', 'Mock Neck', 'Mandarin Collar'],
+        'Sleeve Type': ['Sleeveless', 'Short Sleeve', 'Half Sleeve', '3/4 Sleeve', 'Long Sleeve', 'Cap Sleeve', 'Puff Sleeve', 'Bell Sleeve', 'Butterfly Sleeve', 'Batwing Sleeve', 'Kimono Sleeve'],
+        'Fit': ['Regular Fit', 'Slim Fit', 'Relaxed Fit', 'Oversized Fit', 'Bodycon Fit', 'Flared', 'A-Line', 'Wrap Fit'],
+        'Size (Optional)': ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'Free Size', 'N/A'],
+        'Belt Size': ['24"', '26"', '28"', '30"', '32"', '34"', '36"', '38"', '40"', 'Free Size'],
+        'Size': ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', 'Free Size'],
+        'Waist Size': ['24"', '26"', '28"', '30"', '32"', '34"', '36"', '38"', '40"'],
+        'Shoe Size': ['UK 2', 'UK 3', 'UK 4', 'UK 5', 'UK 6', 'UK 7', 'UK 8'],
+        'Sandal Size': ['UK 2', 'UK 3', 'UK 4', 'UK 5', 'UK 6', 'UK 7', 'UK 8'],
+    };
     const otherCategories = ['Kids', 'Fashion Accessories', 'Footwear', 'Home & Kitchen', 'Beauty & Personal Care', 'Sports & Outdoors', 'Books', 'Toys', 'Groceries', 'Automotive', 'Handbags', 'Watches', 'Jewelry'];
 
     const getCategoriesList = () => {
@@ -396,6 +554,12 @@ const AddProduct = () => {
             dimensions,
             weight,
             features,
+            specs: {
+                ...specs,
+                country: selectedCountry || countrySearch || 'India',
+                care: selectedCare || careSearch || 'Machine Wash',
+            },
+            sizes: selectedSizes,
             createdAt: new Date().toISOString()
         };
 
@@ -406,12 +570,37 @@ const AddProduct = () => {
         setShowSuccessModal(true);
     };
 
+    const handleNextStep = (category) => {
+        if (category === 'Women') {
+            setModalStep('women-sub');
+        } else {
+            setModalStep('men-sub');
+        }
+        setShowCategoryModal(true);
+    };
+
     const categoryTemplates = [
         { id: 'Men', name: "Men's Fashion", icon: User, color: 'blue' },
         { id: 'Women', name: "Women's Fashion", icon: UserRound, color: 'pink' },
         { id: 'Electronics', name: 'Electronics', icon: Laptop, color: 'purple' },
         { id: 'Others', name: 'Other Categories', icon: LayoutGrid, color: 'orange' }
     ];
+
+    const getAvailableSizes = () => {
+        if (!selectedCategoryLabel) return [];
+        const fields = subCategoryFields[selectedCategoryLabel] || [];
+        const sizeField = fields.find(f => f.toLowerCase().includes('size'));
+        if (!sizeField) return [];
+        
+        if (sizeField === 'Waist Size' || sizeField === 'Belt Size') {
+            return ['28', '30', '32', '34', '36', '38', '40', '42', '44', '46', '48'];
+        }
+        if (sizeField === 'Shoe Size' || sizeField === 'Slipper Size' || sizeField === 'Sandal Size' || sizeField === 'Boot Size') {
+            return ['UK 6', 'UK 7', 'UK 8', 'UK 9', 'UK 10', 'UK 11', 'UK 12'];
+        }
+        return ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL', '5XL'];
+    };
+    const sizeList = getAvailableSizes();
 
     return (
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 space-y-8 pb-32">
@@ -431,12 +620,8 @@ const AddProduct = () => {
                                         <button
                                             key={item.id}
                                             onClick={() => {
-                                                if (item.id === 'Men') {
-                                                    setModalStep('men-sub');
-                                                } else {
-                                                    setSelectedCategory(item.id);
-                                                    setShowCategoryModal(false);
-                                                }
+                                                setSelectedCategory(item.id);
+                                                setShowCategoryModal(false);
                                             }}
                                             className="group relative flex items-center gap-5 p-6 bg-gray-50 rounded-[30px] border-2 border-transparent hover:border-blue-500 hover:bg-white hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 cursor-pointer text-left overflow-hidden"
                                         >
@@ -459,12 +644,84 @@ const AddProduct = () => {
                                     Cancel and go back
                                 </button>
                             </>
+                        ) : modalStep === 'women-sub' ? (
+                            <>
+                                <div className="flex items-center gap-4 mb-8">
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowCategoryModal(false)}
+                                        className="p-3 bg-gray-50 hover:bg-gray-100 rounded-2xl text-gray-600 transition-all cursor-pointer border-none flex items-center justify-center"
+                                    >
+                                        <ChevronLeft className="w-5 h-5" />
+                                    </button>
+                                    <div className="text-left">
+                                        <h2 className="text-3xl font-[1000] text-gray-900 mb-1 tracking-tight">Women's Fashion</h2>
+                                        <p className="text-gray-500 font-medium text-sm">Select a specific sub-category</p>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 mb-8 max-h-[360px] overflow-y-auto pr-1">
+                                    {womenSubCategories.map((sub) => {
+                                        const SubIcon = sub.icon;
+                                        const isSelected = selectedCategoryLabel === sub.name;
+                                        return (
+                                            <button
+                                                key={sub.name}
+                                                type="button"
+                                                onClick={() => {
+                                                    setSelectedCategoryLabel(sub.name);
+                                                    setCategorySearch(sub.name);
+                                                }}
+                                                className={`group flex flex-col items-center justify-center p-4 rounded-[20px] border-2 transition-all duration-300 cursor-pointer text-center ${
+                                                    isSelected
+                                                        ? 'border-pink-500 bg-pink-50/30 shadow-lg shadow-pink-500/5'
+                                                        : 'border-transparent bg-gray-50 hover:border-pink-300 hover:bg-white hover:shadow-lg hover:shadow-pink-500/5'
+                                                }`}
+                                            >
+                                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-2 transition-all duration-300 ${
+                                                    isSelected ? 'bg-pink-500 text-white' : sub.colorClass
+                                                }`}>
+                                                    <SubIcon className="w-5 h-5" />
+                                                </div>
+                                                <span className={`font-bold text-xs transition-colors ${
+                                                    isSelected ? 'text-pink-600 font-extrabold' : 'text-gray-800 group-hover:text-pink-600'
+                                                }`}>{sub.name}</span>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+
+                                <div className="flex flex-col sm:flex-row items-center gap-4 mt-4 pt-4 border-t border-gray-100">
+                                    <button
+                                        type="button"
+                                        onClick={() => navigate('/seller/products')}
+                                        className="w-full sm:w-auto py-4 px-8 text-gray-400 font-bold hover:text-gray-600 transition-colors border-none bg-transparent cursor-pointer"
+                                    >
+                                        Cancel and go back
+                                    </button>
+                                    <button
+                                        type="button"
+                                        disabled={!selectedCategoryLabel}
+                                        onClick={() => {
+                                            setFormStep('specs');
+                                            setShowCategoryModal(false);
+                                        }}
+                                        className={`flex-1 w-full py-4 rounded-2xl font-black text-sm uppercase tracking-widest transition-all duration-300 ${
+                                            selectedCategoryLabel
+                                                ? 'bg-pink-500 text-white cursor-pointer hover:bg-pink-600 hover:shadow-xl hover:shadow-pink-500/10 transform hover:-translate-y-0.5 active:translate-y-0'
+                                                : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                        }`}
+                                    >
+                                        Next
+                                    </button>
+                                </div>
+                            </>
                         ) : (
                             <>
                                 <div className="flex items-center gap-4 mb-8">
                                     <button 
                                         type="button"
-                                        onClick={() => setModalStep('primary')}
+                                        onClick={() => setShowCategoryModal(false)}
                                         className="p-3 bg-gray-50 hover:bg-gray-100 rounded-2xl text-gray-600 transition-all cursor-pointer border-none flex items-center justify-center"
                                     >
                                         <ChevronLeft className="w-5 h-5" />
@@ -475,33 +732,61 @@ const AddProduct = () => {
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mb-8">
                                     {menSubCategories.map((sub) => {
                                         const SubIcon = sub.icon;
+                                        const isSelected = selectedCategoryLabel === sub.name;
                                         return (
                                             <button
                                                 key={sub.name}
                                                 type="button"
                                                 onClick={() => {
-                                                    setSelectedCategory('Men');
                                                     setSelectedCategoryLabel(sub.name);
                                                     setCategorySearch(sub.name);
-                                                    setShowCategoryModal(false);
                                                 }}
-                                                className="group flex flex-col items-center justify-center p-5 bg-gray-50 rounded-[24px] border-2 border-transparent hover:border-blue-500 hover:bg-white hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 cursor-pointer text-center"
+                                                className={`group flex flex-col items-center justify-center p-5 rounded-[24px] border-2 transition-all duration-300 cursor-pointer text-center ${
+                                                    isSelected 
+                                                        ? 'border-blue-600 bg-blue-50/30 shadow-lg shadow-blue-500/5' 
+                                                        : 'border-transparent bg-gray-50 hover:border-blue-300 hover:bg-white hover:shadow-xl hover:shadow-blue-500/5'
+                                                }`}
                                             >
-                                                <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-3 transition-all duration-300 ${sub.colorClass}`}>
+                                                <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-3 transition-all duration-300 ${
+                                                    isSelected ? 'bg-blue-600 text-white' : sub.colorClass
+                                                }`}>
                                                     <SubIcon className="w-6 h-6" />
                                                 </div>
-                                                <span className="font-bold text-sm text-gray-800 group-hover:text-blue-600 transition-colors">{sub.name}</span>
+                                                <span className={`font-bold text-sm transition-colors ${
+                                                    isSelected ? 'text-blue-600 font-extrabold' : 'text-gray-800 group-hover:text-blue-600'
+                                                }`}>{sub.name}</span>
                                             </button>
                                         );
                                     })}
                                 </div>
 
-                                <button onClick={() => navigate('/seller/products')} className="mt-8 w-full py-4 text-gray-400 font-bold hover:text-gray-600 transition-colors border-none bg-transparent cursor-pointer">
-                                    Cancel and go back
-                                </button>
+                                <div className="flex flex-col sm:flex-row items-center gap-4 mt-8 pt-4 border-t border-gray-100">
+                                    <button 
+                                        type="button"
+                                        onClick={() => navigate('/seller/products')} 
+                                        className="w-full sm:w-auto py-4 px-8 text-gray-400 font-bold hover:text-gray-600 transition-colors border-none bg-transparent cursor-pointer"
+                                    >
+                                        Cancel and go back
+                                    </button>
+                                    <button
+                                        type="button"
+                                        disabled={!selectedCategoryLabel}
+                                        onClick={() => {
+                                            setFormStep('specs');
+                                            setShowCategoryModal(false);
+                                        }}
+                                        className={`flex-1 w-full py-4 rounded-2xl font-black text-sm uppercase tracking-widest transition-all duration-300 ${
+                                            selectedCategoryLabel 
+                                                ? 'bg-blue-600 text-white cursor-pointer hover:bg-blue-700 hover:shadow-xl hover:shadow-blue-500/10 transform hover:-translate-y-0.5 active:translate-y-0' 
+                                                : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                        }`}
+                                    >
+                                        Next
+                                    </button>
+                                </div>
                             </>
                         )}
                     </div>
@@ -557,22 +842,41 @@ const AddProduct = () => {
                 </div>
                 <div className="flex items-center gap-4 w-full sm:w-auto">
                     <button
-                        onClick={() => navigate('/seller/products')}
+                        onClick={() => {
+                            if (formStep === 'specs') {
+                                setFormStep('common');
+                            } else {
+                                navigate('/seller/products');
+                            }
+                        }}
                         className="flex-1 sm:flex-none text-gray-600 font-bold text-sm px-8 py-4 border-none bg-transparent cursor-pointer hover:text-gray-900 transition-colors"
                     >
-                        Discard
+                        {formStep === 'specs' ? 'Back' : 'Discard'}
                     </button>
                     <button
-                        onClick={handlePublish}
+                        onClick={() => {
+                            if (formStep === 'common') {
+                                if (selectedCategory === 'Men') {
+                                    handleNextStep('Men');
+                                } else if (selectedCategory === 'Women') {
+                                    handleNextStep('Women');
+                                } else {
+                                    setFormStep('specs');
+                                }
+                            } else {
+                                handlePublish();
+                            }
+                        }}
                         className="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-10 rounded-2xl shadow-xl shadow-blue-200 transition-all border-none cursor-pointer transform hover:-translate-y-0.5 active:translate-y-0"
                     >
-                        Publish Product
+                        {formStep === 'common' ? 'Next' : 'Submit'}
                     </button>
                 </div>
             </div>
 
             <div className="space-y-8">
                 {/* Row 1: Basic Information & Organization */}
+                {formStep === 'common' && (
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                     {/* Basic Info */}
                     <div className="lg:col-span-8 bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm space-y-8">
@@ -760,8 +1064,10 @@ const AddProduct = () => {
                         </div>
                     </div>
                 </div>
+                )}
 
-                {/* Row 1.5: Product Specifications (New from user request) */}
+                {/* Row 1.5: Product Specifications */}
+                {formStep === 'specs' && (subCategoryFields[selectedCategoryLabel] || womenSubCategoryFields[selectedCategoryLabel] || selectedCategory === 'Electronics') && (
                 <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm space-y-8">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
@@ -776,9 +1082,9 @@ const AddProduct = () => {
                                         selectedCategory === 'Electronics' ? 'bg-purple-100 text-purple-600' :
                                             'bg-gray-100 text-gray-600'
                                 }`}>
-                                {selectedCategory === 'Men' ? "Men's Fashion" :
+                                {selectedCategoryLabel || (selectedCategory === 'Men' ? "Men's Fashion" :
                                     selectedCategory === 'Women' ? "Women's Fashion" :
-                                        selectedCategory}
+                                        selectedCategory)}
                             </span>
                         )}
                     </div>
@@ -1110,536 +1416,210 @@ const AddProduct = () => {
                             </>
                         ) : (
                             <>
-                                {/* Material Composition - Searchable Dropdown */}
-                                <div className="space-y-2 relative">
-                                    <label className="text-sm font-bold text-gray-700 ml-1">Fabric</label>
-                                    <div className="relative">
-                                        <input
-                                            type="text"
-                                            placeholder="Search material..."
-                                            value={materialSearch}
-                                            onChange={(e) => {
-                                                setMaterialSearch(e.target.value);
-                                                setIsMaterialDropdownOpen(true);
-                                            }}
-                                            onFocus={() => setIsMaterialDropdownOpen(true)}
-                                            className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
-                                        />
-                                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                                    </div>
-
-                                    {isMaterialDropdownOpen && (
-                                        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
-                                            {filteredMaterials.length > 0 ? (
-                                                <div className="p-2 space-y-1">
-                                                    {filteredMaterials.map((m) => (
-                                                        <button
-                                                            key={m}
-                                                            type="button"
-                                                            onClick={() => {
-                                                                setSelectedMaterial(m);
-                                                                setMaterialSearch(m);
-                                                                setIsMaterialDropdownOpen(false);
-                                                            }}
-                                                            className="w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors text-sm font-medium flex items-center justify-between group cursor-pointer"
-                                                        >
-                                                            <span>{m}</span>
-                                                            {selectedMaterial === m && <Check className="w-4 h-4" />}
-                                                        </button>
-                                                    ))}
-                                                </div>
-                                            ) : (
-                                                <div className="p-4 text-center text-gray-400 text-sm">
-                                                    No materials found
-                                                </div>
-                                            )}
-                                        </div>
-                                    )}
-                                    {isMaterialDropdownOpen && (
-                                        <div className="fixed inset-0 z-40" onClick={() => setIsMaterialDropdownOpen(false)}></div>
-                                    )}
-                                </div>
-                                {/* Pattern - Searchable Dropdown */}
-                                <div className="space-y-2 relative">
-                                    <label className="text-sm font-bold text-gray-700 ml-1">Pattern</label>
-                                    <div className="relative">
-                                        <input
-                                            type="text"
-                                            placeholder="Search or select pattern..."
-                                            value={patternSearch}
-                                            onChange={(e) => {
-                                                setPatternSearch(e.target.value);
-                                                setIsPatternDropdownOpen(true);
-                                            }}
-                                            onFocus={() => setIsPatternDropdownOpen(true)}
-                                            className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
-                                        />
-                                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                                    </div>
-
-                                    {isPatternDropdownOpen && (
-                                        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
-                                            {filteredPatterns.length > 0 ? (
-                                                <div className="p-2 space-y-1">
-                                                    {filteredPatterns.map((pattern) => (
-                                                        <button
-                                                            key={pattern}
-                                                            type="button"
-                                                            onClick={() => {
-                                                                setSelectedPattern(pattern);
-                                                                setPatternSearch(pattern);
-                                                                setIsPatternDropdownOpen(false);
-                                                            }}
-                                                            className="w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors text-sm font-medium flex items-center justify-between group cursor-pointer"
-                                                        >
-                                                            <span>{pattern}</span>
-                                                            {selectedPattern === pattern && <Check className="w-4 h-4" />}
-                                                        </button>
-                                                    ))}
-                                                </div>
-                                            ) : (
-                                                <div className="p-4 text-center text-gray-400 text-sm">
-                                                    No patterns found
-                                                </div>
-                                            )}
-                                        </div>
-                                    )}
-                                    {/* Backdrop to close dropdown */}
-                                    {isPatternDropdownOpen && (
-                                        <div
-                                            className="fixed inset-0 z-40"
-                                            onClick={() => setIsPatternDropdownOpen(false)}
-                                        ></div>
-                                    )}
-                                </div>
-                                {/* Fit Type - Searchable Dropdown */}
-                                <div className="space-y-2 relative">
-                                    <label className="text-sm font-bold text-gray-700 ml-1">Fit Type</label>
-                                    <div className="relative">
-                                        <input
-                                            type="text"
-                                            placeholder="Search fit type..."
-                                            value={fitSearch}
-                                            onChange={(e) => {
-                                                setFitSearch(e.target.value);
-                                                setIsFitDropdownOpen(true);
-                                            }}
-                                            onFocus={() => setIsFitDropdownOpen(true)}
-                                            className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
-                                        />
-                                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                                    </div>
-
-                                    {isFitDropdownOpen && (
-                                        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
-                                            {filteredFits.length > 0 ? (
-                                                <div className="p-2 space-y-1">
-                                                    {filteredFits.map((f) => (
-                                                        <button
-                                                            key={f}
-                                                            type="button"
-                                                            onClick={() => {
-                                                                setSelectedFit(f);
-                                                                setFitSearch(f);
-                                                                setIsFitDropdownOpen(false);
-                                                            }}
-                                                            className="w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors text-sm font-medium flex items-center justify-between group cursor-pointer"
-                                                        >
-                                                            <span>{f}</span>
-                                                            {selectedFit === f && <Check className="w-4 h-4" />}
-                                                        </button>
-                                                    ))}
-                                                </div>
-                                            ) : (
-                                                <div className="p-4 text-center text-gray-400 text-sm text-gray-400">
-                                                    No fit types found
-                                                </div>
-                                            )}
-                                        </div>
-                                    )}
-                                    {isFitDropdownOpen && (
-                                        <div className="fixed inset-0 z-40" onClick={() => setIsFitDropdownOpen(false)}></div>
-                                    )}
-                                </div>
-                                {/* Sleeve Type - Searchable Dropdown */}
-                                <div className="space-y-2 relative">
-                                    <label className="text-sm font-bold text-gray-700 ml-1">Sleeve Type</label>
-                                    <div className="relative">
-                                        <input
-                                            type="text"
-                                            placeholder="Search sleeve type..."
-                                            value={sleeveSearch}
-                                            onChange={(e) => {
-                                                setSleeveSearch(e.target.value);
-                                                setIsSleeveDropdownOpen(true);
-                                            }}
-                                            onFocus={() => setIsSleeveDropdownOpen(true)}
-                                            className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
-                                        />
-                                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                                    </div>
-
-                                    {isSleeveDropdownOpen && (
-                                        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
-                                            {filteredSleeves.length > 0 ? (
-                                                <div className="p-2 space-y-1">
-                                                    {filteredSleeves.map((s) => (
-                                                        <button
-                                                            key={s}
-                                                            type="button"
-                                                            onClick={() => {
-                                                                setSelectedSleeve(s);
-                                                                setSleeveSearch(s);
-                                                                setIsSleeveDropdownOpen(false);
-                                                            }}
-                                                            className="w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors text-sm font-medium flex items-center justify-between group cursor-pointer"
-                                                        >
-                                                            <span>{s}</span>
-                                                            {selectedSleeve === s && <Check className="w-4 h-4" />}
-                                                        </button>
-                                                    ))}
-                                                </div>
-                                            ) : (
-                                                <div className="p-4 text-center text-gray-400 text-sm">
-                                                    No sleeve types found
-                                                </div>
-                                            )}
-                                        </div>
-                                    )}
-                                    {isSleeveDropdownOpen && (
-                                        <div className="fixed inset-0 z-40" onClick={() => setIsSleeveDropdownOpen(false)}></div>
-                                    )}
-                                </div>
-                                {/* Occasion - Searchable Dropdown (Added as requested) */}
-                                <div className="space-y-2 relative">
-                                    <label className="text-sm font-bold text-gray-700 ml-1">Occasion</label>
-                                    <div className="relative">
-                                        <input
-                                            type="text"
-                                            placeholder="Search occasion (e.g. Casual, Formal)..."
-                                            value={occasionSearch}
-                                            onChange={(e) => {
-                                                setOccasionSearch(e.target.value);
-                                                setIsOccasionDropdownOpen(true);
-                                            }}
-                                            onFocus={() => setIsOccasionDropdownOpen(true)}
-                                            className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
-                                        />
-                                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                                    </div>
-
-                                    {isOccasionDropdownOpen && (
-                                        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
-                                            {filteredOccasions.length > 0 ? (
-                                                <div className="p-2 space-y-1">
-                                                    {filteredOccasions.map((o) => (
-                                                        <button
-                                                            key={o}
-                                                            type="button"
-                                                            onClick={() => {
-                                                                setSelectedOccasion(o);
-                                                                setOccasionSearch(o);
-                                                                setIsOccasionDropdownOpen(false);
-                                                            }}
-                                                            className="w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors text-sm font-medium flex items-center justify-between group cursor-pointer"
-                                                        >
-                                                            <span>{o}</span>
-                                                            {selectedOccasion === o && <Check className="w-4 h-4" />}
-                                                        </button>
-                                                    ))}
-                                                </div>
-                                            ) : (
-                                                <div className="p-4 text-center text-gray-400 text-sm">
-                                                    No occasions found
-                                                </div>
-                                            )}
-                                        </div>
-                                    )}
-                                    {isOccasionDropdownOpen && (
-                                        <div className="fixed inset-0 z-40" onClick={() => setIsOccasionDropdownOpen(false)}></div>
-                                    )}
-                                </div>
-                                {/* Length - Searchable Dropdown - COMMENTED OUT BY USER REQUEST */}
-                                {/* 
-                                <div className="space-y-2 relative">
-                                    <label className="text-sm font-bold text-gray-700 ml-1">Length</label>
-                                    <div className="relative">
-                                        <input
-                                            type="text"
-                                            placeholder="Search length..."
-                                            value={lengthSearch}
-                                            onChange={(e) => {
-                                                setLengthSearch(e.target.value);
-                                                setIsLengthDropdownOpen(true);
-                                            }}
-                                            onFocus={() => setIsLengthDropdownOpen(true)}
-                                            className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
-                                        />
-                                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                                    </div>
-
-                                    {isLengthDropdownOpen && (
-                                        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
-                                            {filteredLengths.length > 0 ? (
-                                                <div className="p-2 space-y-1">
-                                                    {filteredLengths.map((l) => (
-                                                        <button
-                                                            key={l}
-                                                            type="button"
-                                                            onClick={() => {
-                                                                setSelectedLength(l);
-                                                                setLengthSearch(l);
-                                                                setIsLengthDropdownOpen(false);
-                                                            }}
-                                                            className="w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors text-sm font-medium flex items-center justify-between group cursor-pointer"
-                                                        >
-                                                            <span>{l}</span>
-                                                            {selectedLength === l && <Check className="w-4 h-4" />}
-                                                        </button>
-                                                    ))}
-                                                </div>
-                                            ) : (
-                                                <div className="p-4 text-center text-gray-400 text-sm">
-                                                    No lengths found
-                                                </div>
-                                            )}
-                                        </div>
-                                    )}
-                                    {isLengthDropdownOpen && (
-                                        <div className="fixed inset-0 z-40" onClick={() => setIsLengthDropdownOpen(false)}></div>
-                                    )}
-                                </div>
-                                */}
-                                {/* Neck Style - Searchable Dropdown - HIDDEN FOR WOMEN CATEGORY */}
-                                {selectedCategory !== 'Women' && (
-                                    <div className="space-y-2 relative">
-                                        <label className="text-sm font-bold text-gray-700 ml-1">Neck Style</label>
-                                        <div className="relative">
-                                            <input
-                                                type="text"
-                                                placeholder="Search neck style..."
-                                                value={neckSearch}
-                                                onChange={(e) => {
-                                                    setNeckSearch(e.target.value);
-                                                    setIsNeckDropdownOpen(true);
-                                                }}
-                                                onFocus={() => setIsNeckDropdownOpen(true)}
-                                                className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
-                                            />
-                                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                                        </div>
-
-                                        {isNeckDropdownOpen && (
-                                            <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
-                                                {filteredNecks.length > 0 ? (
-                                                    <div className="p-2 space-y-1">
-                                                        {filteredNecks.map((n) => (
+                                {/* Dynamic specs form fields - supports both Men's and Women's */}
+                                {(() => {
+                                    const isWomen = selectedCategory === 'Women';
+                                    const fields = isWomen
+                                        ? (womenSubCategoryFields[selectedCategoryLabel] || [])
+                                        : (subCategoryFields[selectedCategoryLabel] || []);
+                                    const filteredFields = isWomen
+                                        ? fields // Women's - show all fields including size-based ones
+                                        : fields.filter(f => !f.toLowerCase().includes('size')); // Men's - sizes handled separately
+                                    
+                                    return filteredFields.map((field) => {
+                                        const options = (isWomen ? womenSpecOptions : specOptions)[field] || [];
+                                        const isBoolean = ['Hood', 'Pocket', 'Stretchable', 'Blouse Piece'].includes(field);
+                                        
+                                        if (isBoolean) {
+                                            const val = specs[field] || '';
+                                            const boolOpts = womenSpecOptions[field] && womenSpecOptions[field].length === 2 ? womenSpecOptions[field] : ['Yes', 'No'];
+                                            return (
+                                                <div key={field} className="space-y-2">
+                                                    <label className="text-sm font-bold text-gray-700 ml-1">{field}</label>
+                                                    <div className="flex gap-4 p-1 bg-gray-50 rounded-2xl border border-gray-100">
+                                                        {boolOpts.map((opt) => (
                                                             <button
-                                                                key={n}
+                                                                key={opt}
                                                                 type="button"
-                                                                onClick={() => {
-                                                                    setSelectedNeck(n);
-                                                                    setNeckSearch(n);
-                                                                    setIsNeckDropdownOpen(false);
-                                                                }}
-                                                                className="w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors text-sm font-medium flex items-center justify-between group cursor-pointer"
+                                                                onClick={() => setSpecs(prev => ({ ...prev, [field]: opt }))}
+                                                                className={`flex-1 py-3 px-4 rounded-xl text-sm font-bold transition-all border-none cursor-pointer ${val === opt ? (isWomen ? 'bg-white text-pink-600 shadow-sm ring-1 ring-pink-100' : 'bg-white text-blue-600 shadow-sm ring-1 ring-gray-100') : 'text-gray-400 hover:text-gray-600 bg-transparent'}`}
                                                             >
-                                                                <span>{n}</span>
-                                                                {selectedNeck === n && <Check className="w-4 h-4" />}
+                                                                {opt}
                                                             </button>
                                                         ))}
                                                     </div>
-                                                ) : (
-                                                    <div className="p-4 text-center text-gray-400 text-sm">
-                                                        No neck styles found
+                                                </div>
+                                            );
+                                        }
+
+                                        const val = specs[field] || '';
+                                        const isOpen = activeDropdown === field;
+                                        const filteredOptions = options.filter(opt => opt.toLowerCase().includes(dropdownSearch.toLowerCase()));
+                                        
+                                        return (
+                                            <div key={field} className="space-y-2 relative">
+                                                <label className="text-sm font-bold text-gray-700 ml-1">{field}</label>
+                                                <div className="relative">
+                                                    <input
+                                                        type="text"
+                                                        placeholder={`Search or select ${field.toLowerCase()}...`}
+                                                        value={isOpen ? dropdownSearch : val}
+                                                        onChange={(e) => {
+                                                            setDropdownSearch(e.target.value);
+                                                            setActiveDropdown(field);
+                                                        }}
+                                                        onFocus={() => {
+                                                            setDropdownSearch('');
+                                                            setActiveDropdown(field);
+                                                        }}
+                                                        className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                                                    />
+                                                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                                </div>
+                                                
+                                                {isOpen && (
+                                                    <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
+                                                        {filteredOptions.length > 0 ? (
+                                                            <div className="p-2 space-y-1">
+                                                                {filteredOptions.map((opt) => (
+                                                                    <button
+                                                                        key={opt}
+                                                                        type="button"
+                                                                        onClick={() => {
+                                                                            setSpecs(prev => ({ ...prev, [field]: opt }));
+                                                                            setActiveDropdown(null);
+                                                                        }}
+                                                                        className="w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors text-sm font-medium flex items-center justify-between group cursor-pointer border-none bg-transparent"
+                                                                    >
+                                                                        <span>{opt}</span>
+                                                                        {val === opt && <Check className="w-4 h-4 text-blue-600" />}
+                                                                    </button>
+                                                                ))}
+                                                            </div>
+                                                        ) : (
+                                                            <div className="p-4 text-center text-gray-400 text-sm">
+                                                                No matches found
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 )}
+                                                {isOpen && (
+                                                    <div className="fixed inset-0 z-40" onClick={() => setActiveDropdown(null)}></div>
+                                                )}
                                             </div>
-                                        )}
-                                        {isNeckDropdownOpen && (
-                                            <div className="fixed inset-0 z-40" onClick={() => setIsNeckDropdownOpen(false)}></div>
-                                        )}
-                                    </div>
-                                )}
+                                        );
+                                    });
+                                })()}
 
-                                {/* Women Category Specific Fields (Extra) */}
-                                {selectedCategory === 'Women' && (
-                                    <>
-                                        <div className="space-y-2 relative">
-                                            <label className="text-sm font-bold text-gray-700 ml-1">Work Type</label>
-                                            <div className="relative">
-                                                <input
-                                                    type="text"
-                                                    placeholder="Search work type (e.g. Embroidered)..."
-                                                    value={workTypeSearch}
-                                                    onChange={(e) => {
-                                                        setWorkTypeSearch(e.target.value);
-                                                        setIsWorkTypeDropdownOpen(true);
-                                                    }}
-                                                    onFocus={() => setIsWorkTypeDropdownOpen(true)}
-                                                    className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
-                                                />
-                                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                                            </div>
-                                            {isWorkTypeDropdownOpen && (
-                                                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
-                                                    {filteredWorkTypes.length > 0 ? (
-                                                        <div className="p-2 space-y-1">
-                                                            {filteredWorkTypes.map((w) => (
-                                                                <button
-                                                                    key={w}
-                                                                    type="button"
-                                                                    onClick={() => {
-                                                                        setSelectedWorkType(w);
-                                                                        setWorkTypeSearch(w);
-                                                                        setIsWorkTypeDropdownOpen(false);
-                                                                    }}
-                                                                    className="w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors text-sm font-medium flex items-center justify-between group cursor-pointer"
-                                                                >
-                                                                    <span>{w}</span>
-                                                                    {selectedWorkType === w && <Check className="w-4 h-4" />}
-                                                                </button>
-                                                            ))}
-                                                        </div>
-                                                    ) : (
-                                                        <div className="p-4 text-center text-gray-400 text-sm">No work types found</div>
-                                                    )}
+                                {/* Country of Origin - Searchable Dropdown */}
+                                <div className="space-y-2 relative">
+                                    <label className="text-sm font-bold text-gray-700 ml-1">Country of Origin</label>
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            placeholder="Search or select country..."
+                                            value={countrySearch}
+                                            onChange={(e) => {
+                                                setCountrySearch(e.target.value);
+                                                setIsCountryDropdownOpen(true);
+                                            }}
+                                            onFocus={() => setIsCountryDropdownOpen(true)}
+                                            className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                                        />
+                                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                    </div>
+
+                                    {isCountryDropdownOpen && (
+                                        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
+                                            {filteredCountries.length > 0 ? (
+                                                <div className="p-2 space-y-1">
+                                                    {filteredCountries.map((country) => (
+                                                        <button
+                                                            key={country}
+                                                            type="button"
+                                                            onClick={() => {
+                                                                setSelectedCountry(country);
+                                                                setCountrySearch(country);
+                                                                setIsCountryDropdownOpen(false);
+                                                            }}
+                                                            className="w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors text-sm font-medium flex items-center justify-between group cursor-pointer border-none bg-transparent"
+                                                        >
+                                                            <span>{country}</span>
+                                                            {selectedCountry === country && <Check className="w-4 h-4" />}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <div className="p-4 text-center text-gray-400 text-sm">
+                                                    No countries found
                                                 </div>
                                             )}
-                                            {isWorkTypeDropdownOpen && <div className="fixed inset-0 z-40" onClick={() => setIsWorkTypeDropdownOpen(false)}></div>}
-                                        </div>
-
-                                        <div className="space-y-2 relative">
-                                            <label className="text-sm font-bold text-gray-700 ml-1">Dupatta Included</label>
-                                            <div className="flex gap-4 p-1 bg-gray-50 rounded-2xl border border-gray-100">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setDupattaIncluded('Yes')}
-                                                    className={`flex-1 py-3 px-4 rounded-xl text-sm font-bold transition-all ${dupattaIncluded === 'Yes' ? 'bg-white text-blue-600 shadow-sm ring-1 ring-gray-100' : 'text-gray-400 hover:text-gray-600'}`}
-                                                >
-                                                    Yes
-                                                </button>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setDupattaIncluded('No')}
-                                                    className={`flex-1 py-3 px-4 rounded-xl text-sm font-bold transition-all ${dupattaIncluded === 'No' ? 'bg-white text-blue-600 shadow-sm ring-1 ring-gray-100' : 'text-gray-400 hover:text-gray-600'}`}
-                                                >
-                                                    No
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </>
-                                )}
-                            </>
-                        )}
-                        {/* Country of Origin - Searchable Dropdown */}
-                        <div className="space-y-2 relative">
-                            <label className="text-sm font-bold text-gray-700 ml-1">Country of Origin</label>
-                            <div className="relative">
-                                <input
-                                    type="text"
-                                    placeholder="Search or select country..."
-                                    value={countrySearch}
-                                    onChange={(e) => {
-                                        setCountrySearch(e.target.value);
-                                        setIsCountryDropdownOpen(true);
-                                    }}
-                                    onFocus={() => setIsCountryDropdownOpen(true)}
-                                    className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
-                                />
-                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                            </div>
-
-                            {isCountryDropdownOpen && (
-                                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
-                                    {filteredCountries.length > 0 ? (
-                                        <div className="p-2 space-y-1">
-                                            {filteredCountries.map((country) => (
-                                                <button
-                                                    key={country}
-                                                    type="button"
-                                                    onClick={() => {
-                                                        setSelectedCountry(country);
-                                                        setCountrySearch(country);
-                                                        setIsCountryDropdownOpen(false);
-                                                    }}
-                                                    className="w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors text-sm font-medium flex items-center justify-between group cursor-pointer"
-                                                >
-                                                    <span>{country}</span>
-                                                    {selectedCountry === country && <Check className="w-4 h-4" />}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <div className="p-4 text-center text-gray-400 text-sm">
-                                            No countries found
                                         </div>
                                     )}
-                                </div>
-                            )}
-                            {/* Backdrop to close dropdown */}
-                            {isCountryDropdownOpen && (
-                                <div
-                                    className="fixed inset-0 z-40"
-                                    onClick={() => setIsCountryDropdownOpen(false)}
-                                ></div>
-                            )}
-                        </div>
-                        {/* Care instructions - Searchable Dropdown - HIDDEN FOR WOMEN CATEGORY */}
-                        {selectedCategory !== 'Women' && (
-                            <div className="space-y-2 relative">
-                                <label className="text-sm font-bold text-gray-700 ml-1">Care instructions</label>
-                                <div className="relative">
-                                    <input
-                                        type="text"
-                                        placeholder="Search care instructions..."
-                                        value={careSearch}
-                                        onChange={(e) => {
-                                            setCareSearch(e.target.value);
-                                            setIsCareDropdownOpen(true);
-                                        }}
-                                        onFocus={() => setIsCareDropdownOpen(true)}
-                                        className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
-                                    />
-                                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                    {isCountryDropdownOpen && (
+                                        <div
+                                            className="fixed inset-0 z-40"
+                                            onClick={() => setIsCountryDropdownOpen(false)}
+                                        ></div>
+                                    )}
                                 </div>
 
-                                {isCareDropdownOpen && (
-                                    <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
-                                        {filteredCares.length > 0 ? (
-                                            <div className="p-2 space-y-1">
-                                                {filteredCares.map((c) => (
-                                                    <button
-                                                        key={c}
-                                                        type="button"
-                                                        onClick={() => {
-                                                            setSelectedCare(c);
-                                                            setCareSearch(c);
-                                                            setIsCareDropdownOpen(false);
-                                                        }}
-                                                        className="w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors text-sm font-medium flex items-center justify-between group cursor-pointer"
-                                                    >
-                                                        <span>{c}</span>
-                                                        {selectedCare === c && <Check className="w-4 h-4" />}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        ) : (
-                                            <div className="p-4 text-center text-gray-400 text-sm">
-                                                No care instructions found
-                                            </div>
-                                        )}
+                                {/* Care instructions - Searchable Dropdown */}
+                                <div className="space-y-2 relative">
+                                    <label className="text-sm font-bold text-gray-700 ml-1">Care instructions</label>
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            placeholder="Search care instructions..."
+                                            value={careSearch}
+                                            onChange={(e) => {
+                                                setCareSearch(e.target.value);
+                                                setIsCareDropdownOpen(true);
+                                            }}
+                                            onFocus={() => setIsCareDropdownOpen(true)}
+                                            className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                                        />
+                                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                                     </div>
-                                )}
-                                {isCareDropdownOpen && (
-                                    <div className="fixed inset-0 z-40" onClick={() => setIsCareDropdownOpen(false)}></div>
-                                )}
-                            </div>
+
+                                    {isCareDropdownOpen && (
+                                        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
+                                            {filteredCares.length > 0 ? (
+                                                <div className="p-2 space-y-1">
+                                                    {filteredCares.map((c) => (
+                                                        <button
+                                                            key={c}
+                                                            type="button"
+                                                            onClick={() => {
+                                                                setSelectedCare(c);
+                                                                setCareSearch(c);
+                                                                setIsCareDropdownOpen(false);
+                                                            }}
+                                                            className="w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors text-sm font-medium flex items-center justify-between group cursor-pointer border-none bg-transparent"
+                                                        >
+                                                            <span>{c}</span>
+                                                            {selectedCare === c && <Check className="w-4 h-4 text-blue-600" />}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <div className="p-4 text-center text-gray-400 text-sm">
+                                                    No care instructions found
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                    {isCareDropdownOpen && (
+                                        <div className="fixed inset-0 z-40" onClick={() => setIsCareDropdownOpen(false)}></div>
+                                    )}
+                                </div>
+                            </>
                         )}
                     </div>
                 </div>
-
+                )}
                 {/* Row 2: Visuals (Side-by-Side Images & Colors) */}
+                {formStep === 'common' && (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     {/* Images Section */}
                     <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm space-y-8">
@@ -1807,10 +1787,10 @@ const AddProduct = () => {
                         </div>
                     </div>
                 </div>
+                )}
 
                 {/* Row 3: Pricing & Sizes */}
-                <div className={`grid grid-cols-1 ${selectedCategory === 'Electronics' ? 'lg:grid-cols-1' : 'lg:grid-cols-2'} gap-8`}>
-                    {/* Pricing & Inventory */}
+                {formStep === 'common' && (
                     <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm space-y-8">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center">
@@ -1819,43 +1799,129 @@ const AddProduct = () => {
                             <h2 className="text-xl font-bold text-gray-900">Pricing & Inventory</h2>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            {/* MRP - Women's only */}
+                            {selectedCategory === 'Women' && (
+                                <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                                    <label className="text-sm font-bold text-gray-700 ml-1">MRP (₹)</label>
+                                    <input type="number" value={mrp} onChange={(e) => setMrp(e.target.value)} placeholder="Maximum Retail Price" className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-pink-500/10 focus:border-pink-500 transition-all outline-none" />
+                                </div>
+                            )}
                             <div className="space-y-2">
-                                <label className="text-sm font-bold text-gray-700 ml-1">Regular Price (₹)</label>
+                                <label className="text-sm font-bold text-gray-700 ml-1">{selectedCategory === 'Women' ? 'Selling Price (₹)' : 'Regular Price (₹)'}</label>
                                 <input type="number" value={regularPrice} onChange={(e) => setRegularPrice(e.target.value)} placeholder="0.00" className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none" />
                             </div>
+                            {/* Offer Price - Women's only */}
+                            {selectedCategory === 'Women' && (
+                                <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                                    <label className="text-sm font-bold text-gray-700 ml-1">Offer Price (₹)</label>
+                                    <input type="number" value={offerPrice} onChange={(e) => setOfferPrice(e.target.value)} placeholder="Special offer price" className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-pink-500/10 focus:border-pink-500 transition-all outline-none" />
+                                </div>
+                            )}
+                            {selectedCategory !== 'Women' && (
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-gray-700 ml-1">Sale Price (₹)</label>
+                                    <input type="number" value={salePrice} onChange={(e) => setSalePrice(e.target.value)} placeholder="0.00" className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none" />
+                                </div>
+                            )}
+                            {/* Offer Start & End Date - Women's only */}
+                            {selectedCategory === 'Women' && (
+                                <>
+                                    <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                                        <label className="text-sm font-bold text-gray-700 ml-1">Offer Start Date</label>
+                                        <input type="date" value={offerStartDate} onChange={(e) => setOfferStartDate(e.target.value)} className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-pink-500/10 focus:border-pink-500 transition-all outline-none" />
+                                    </div>
+                                    <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                                        <label className="text-sm font-bold text-gray-700 ml-1">Offer End Date</label>
+                                        <input type="date" value={offerEndDate} onChange={(e) => setOfferEndDate(e.target.value)} className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-pink-500/10 focus:border-pink-500 transition-all outline-none" />
+                                    </div>
+                                </>
+                            )}
                             <div className="space-y-2">
-                                <label className="text-sm font-bold text-gray-700 ml-1">Sale Price (₹)</label>
-                                <input type="number" value={salePrice} onChange={(e) => setSalePrice(e.target.value)} placeholder="0.00" className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none" />
+                                <label className="text-sm font-bold text-gray-700 ml-1">Stock</label>
+                                <input type="number" value={initialStock} onChange={(e) => setInitialStock(e.target.value)} placeholder="0" className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none" />
                             </div>
                             <div className="space-y-2">
                                 <label className="text-sm font-bold text-gray-700 ml-1">SKU</label>
-                                <input type="text" value={sku} onChange={(e) => setSku(e.target.value)} placeholder="e.g. TSH-001" className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none" />
+                                <input type="text" value={sku} onChange={(e) => setSku(e.target.value)} placeholder="e.g. WMN-001" className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none" />
                             </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-bold text-gray-700 ml-1">Initial Stock</label>
-                                <input type="number" value={initialStock} onChange={(e) => setInitialStock(e.target.value)} placeholder="0" className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none" />
-                            </div>
-                            <div className="sm:col-span-2 space-y-2">
-                                <label className="text-sm font-bold text-gray-700 ml-1">Cost Price (₹)</label>
-                                <input type="number" value={costPrice} onChange={(e) => setCostPrice(e.target.value)} placeholder="0.00" className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none" />
-                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest px-2 mt-1">Internal Use: For profit margin calculation</p>
-                            </div>
+                            {/* Weight - Women's only */}
+                            {selectedCategory === 'Women' && (
+                                <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                                    <label className="text-sm font-bold text-gray-700 ml-1">Weight (grams)</label>
+                                    <input type="number" value={productWeight} onChange={(e) => setProductWeight(e.target.value)} placeholder="e.g. 250" className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-pink-500/10 focus:border-pink-500 transition-all outline-none" />
+                                </div>
+                            )}
+                            {/* Country of Origin - Women's only */}
+                            {selectedCategory === 'Women' && (
+                                <div className="space-y-2 relative animate-in fade-in slide-in-from-top-2 duration-300">
+                                    <label className="text-sm font-bold text-gray-700 ml-1">Country of Origin</label>
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            placeholder="Search or select country..."
+                                            value={countrySearch}
+                                            onChange={(e) => {
+                                                setCountrySearch(e.target.value);
+                                                setIsCountryDropdownOpen(true);
+                                            }}
+                                            onFocus={() => setIsCountryDropdownOpen(true)}
+                                            className="w-full px-5 py-4 pl-12 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-pink-500/10 focus:border-pink-500 transition-all outline-none"
+                                        />
+                                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                    </div>
+                                    {isCountryDropdownOpen && (
+                                        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
+                                            {filteredCountries.length > 0 ? (
+                                                <div className="p-2 space-y-1">
+                                                    {filteredCountries.map((country) => (
+                                                        <button
+                                                            key={country}
+                                                            type="button"
+                                                            onClick={() => {
+                                                                setSelectedCountry(country);
+                                                                setCountrySearch(country);
+                                                                setIsCountryDropdownOpen(false);
+                                                            }}
+                                                            className="w-full text-left px-4 py-3 rounded-xl hover:bg-pink-50 hover:text-pink-600 transition-colors text-sm font-medium flex items-center justify-between group cursor-pointer border-none bg-transparent"
+                                                        >
+                                                            <span>{country}</span>
+                                                            {selectedCountry === country && <Check className="w-4 h-4" />}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <div className="p-4 text-center text-gray-400 text-sm">No countries found</div>
+                                            )}
+                                        </div>
+                                    )}
+                                    {isCountryDropdownOpen && <div className="fixed inset-0 z-40" onClick={() => setIsCountryDropdownOpen(false)}></div>}
+                                </div>
+                            )}
+                            {selectedCategory !== 'Women' && (
+                                <div className="sm:col-span-2 space-y-2">
+                                    <label className="text-sm font-bold text-gray-700 ml-1">Cost Price (₹)</label>
+                                    <input type="number" value={costPrice} onChange={(e) => setCostPrice(e.target.value)} placeholder="0.00" className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none" />
+                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest px-2 mt-1">Internal Use: For profit margin calculation</p>
+                                </div>
+                            )}
                         </div>
                     </div>
+                )}
 
                     {/* Sizes */}
-                    {selectedCategory !== 'Electronics' && (
-                        <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm space-y-8">
+                    {formStep === 'specs' && sizeList.length > 0 && (
+                        <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-300">
                             <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
                                     <Package className="w-5 h-5 text-blue-600" />
                                 </div>
-                                <h2 className="text-xl font-bold text-gray-900">Size Variants</h2>
+                                <h2 className="text-xl font-bold text-gray-900">Size Variants ({selectedCategoryLabel})</h2>
                             </div>
                             <div className="flex flex-wrap gap-2">
-                                {availableSizes.map((size) => (
+                                {sizeList.map((size) => (
                                     <button
                                         key={size}
+                                        type="button"
                                         onClick={() => toggleSize(size)}
                                         className={`px-5 py-3 rounded-2xl border text-sm font-bold transition-all cursor-pointer ${selectedSizes.includes(size) ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-100' : 'bg-gray-50 text-gray-500 border-gray-50 hover:border-gray-200'}`}
                                     >
@@ -1865,7 +1931,6 @@ const AddProduct = () => {
                             </div>
                         </div>
                     )}
-                </div>
             </div>
 
             {/* Final Actions Footer - Final Refined Variant */}
@@ -1876,16 +1941,34 @@ const AddProduct = () => {
                 </div>
                 <div className="flex items-center gap-4 w-full md:w-auto">
                     <button
-                        onClick={() => navigate('/seller/products')}
+                        onClick={() => {
+                            if (formStep === 'specs') {
+                                setFormStep('common');
+                            } else {
+                                navigate('/seller/products');
+                            }
+                        }}
                         className="flex-1 md:flex-none text-gray-400 font-black text-[11px] uppercase tracking-widest px-8 py-5 border-none bg-transparent cursor-pointer hover:text-gray-900 transition-all"
                     >
-                        Discard
+                        {formStep === 'specs' ? 'Back' : 'Discard'}
                     </button>
                     <button
-                        onClick={handlePublish}
+                        onClick={() => {
+                            if (formStep === 'common') {
+                                if (selectedCategory === 'Men') {
+                                    handleNextStep('Men');
+                                } else if (selectedCategory === 'Women') {
+                                    handleNextStep('Women');
+                                } else {
+                                    setFormStep('specs');
+                                }
+                            } else {
+                                handlePublish();
+                            }
+                        }}
                         className="flex-[2] md:flex-none bg-blue-600 hover:bg-blue-700 text-white font-black py-5 px-16 rounded-2xl shadow-xl shadow-blue-500/20 transition-all border-none cursor-pointer transform hover:-translate-y-1 active:translate-y-0 text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 group"
                     >
-                        <span>Publish Product</span>
+                        <span>{formStep === 'common' ? 'Next' : 'Submit'}</span>
                         <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                     </button>
                 </div>
@@ -1893,13 +1976,41 @@ const AddProduct = () => {
 
             {/* Mobile Actions */}
             <div className="fixed bottom-0 left-0 right-0 bg-white p-6 border-t border-gray-100 sm:hidden z-50 shadow-2xl rounded-t-[40px]">
-                <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-4 rounded-2xl shadow-xl shadow-blue-200 transition-all border-none cursor-pointer uppercase tracking-widest flex items-center justify-center gap-2">
-                    <span>Publish Product</span>
-                    <ArrowLeft className="w-4 h-4 rotate-180" />
-                </button>
+                <div className="flex gap-4 w-full">
+                    {formStep === 'specs' && (
+                        <button
+                            type="button"
+                            onClick={() => setFormStep('common')}
+                            className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 font-black py-4 rounded-2xl transition-all border-none cursor-pointer uppercase tracking-widest"
+                        >
+                            Back
+                        </button>
+                    )}
+                    <button
+                        type="button"
+                        onClick={() => {
+                            if (formStep === 'common') {
+                                if (selectedCategory === 'Men') {
+                                    handleNextStep('Men');
+                                } else if (selectedCategory === 'Women') {
+                                    handleNextStep('Women');
+                                } else {
+                                    setFormStep('specs');
+                                }
+                            } else {
+                                handlePublish();
+                            }
+                        }}
+                        className={`bg-blue-600 hover:bg-blue-700 text-white font-black py-4 rounded-2xl shadow-xl shadow-blue-200 transition-all border-none cursor-pointer uppercase tracking-widest flex items-center justify-center gap-2 ${formStep === 'specs' ? 'flex-[2]' : 'w-full'}`}
+                    >
+                        <span>{formStep === 'common' ? 'Next' : 'Submit'}</span>
+                        <ArrowLeft className="w-4 h-4 rotate-180" />
+                    </button>
+                </div>
             </div>
         </div>
     );
 };
 
 export default AddProduct;
+ 
