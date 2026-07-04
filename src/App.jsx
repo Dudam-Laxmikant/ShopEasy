@@ -41,6 +41,7 @@ import ManageSubSellers from './pages/SallesSide/ManageSubSellers';
 import AdminLayout from './pages/Admin/AdminLayout';
 import AdminDashboard from './pages/Admin/Dashboard';
 import AdminLogin from './pages/Admin/Login';
+import SubAdminLogin from './pages/Admin/SubAdminLogin';
 import AdminRegister from './pages/Admin/Register';
 import SellerManagement from './pages/Admin/SellerManagement';
 import ProductModeration from './pages/Admin/ProductModeration';
@@ -127,10 +128,12 @@ function App() {
 
                             {/* Admin Side Routes */}
                             <Route path="/admin/login" element={<AdminLogin />} />
+                            <Route path="/admin/sub-admin/login" element={<SubAdminLogin />} />
                             <Route path="/admin/register" element={<AdminRegister />} />
                             <Route path="/admin" element={<AdminLayout />}>
                                 <Route index element={<AdminDashboard />} />
                                 <Route path="dashboard" element={<AdminDashboard />} />
+                                <Route path="sub-admin/dashboard" element={<AdminDashboard />} />
                                 <Route path="sellers" element={<SellerManagement />} />
                                 <Route path="moderation" element={<ProductModeration />} />
                                 <Route path="orders" element={<OrderManagement />} />
